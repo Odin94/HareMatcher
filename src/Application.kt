@@ -1,23 +1,33 @@
 package de.odinmatthias
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.auth.*
+import io.ktor.features.*
+import io.ktor.gson.gson
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.cio.websocket.Frame
+import io.ktor.http.cio.websocket.pingPeriod
+import io.ktor.http.cio.websocket.readText
+import io.ktor.http.cio.websocket.timeout
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
+import io.ktor.locations.Location
+import io.ktor.locations.Locations
+import io.ktor.locations.get
+import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.sessions.*
 import io.ktor.thymeleaf.Thymeleaf
 import io.ktor.thymeleaf.ThymeleafContent
+import io.ktor.websocket.webSocket
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
-import io.ktor.content.*
-import io.ktor.http.content.*
-import io.ktor.auth.*
-import io.ktor.gson.*
-import io.ktor.features.*
-import io.ktor.locations.*
-import io.ktor.sessions.*
-import io.ktor.websocket.*
-import io.ktor.http.cio.websocket.*
-import java.time.*
+import java.time.Duration
+import kotlin.collections.set
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -86,6 +96,8 @@ fun Application.module(testing: Boolean = false) {
         // Static feature. Try to access `/static/ktor_logo.svg`
         static("/static") {
             resources("static")
+            resources("css")  // access with /static/test.css
+            resources("js")
         }
 
         authenticate("myBasicAuth") {
