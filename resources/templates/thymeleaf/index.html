@@ -1,10 +1,24 @@
 <!DOCTYPE html >
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Title</title>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <span th:text="${user.name}"></span>
+
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold">Hare Matcher</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">Quickly match with a cute rabbit to keep as a pet!</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <button class="btn btn-primary btn-lg px-4 gap-3" type="button">Sign up now</button>
+            <button class="btn btn-outline-secondary btn-lg px-4" type="button">Read more</button>
+        </div>
+    </div>
+</div>
+
 </body>
+<script src="/static/bootstrap.bundle.min.js"></script>
 </html>

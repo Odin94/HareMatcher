@@ -6,7 +6,6 @@ import io.ktor.application.install
 import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.gson.gson
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.pingPeriod
@@ -30,6 +29,10 @@ import java.time.Duration
 import kotlin.collections.set
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+
+fun Application.noArgsModule() {
+    module()
+}
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -86,7 +89,8 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         get("/") {
-            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+            //            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+            call.respond(ThymeleafContent("index", mapOf("user" to ThymeleafUser(1, "user1"))))
         }
 
         get("/html-thymeleaf") {
@@ -155,7 +159,8 @@ data class ThymeleafUser(val id: Int, val name: String)
 @Location("/location/{name}")
 class MyLocation(val name: String, val arg1: Int = 42, val arg2: String = "default")
 
-@Location("/type/{name}") data class Type(val name: String) {
+@Location("/type/{name}")
+data class Type(val name: String) {
     @Location("/edit")
     data class Edit(val type: Type)
 
