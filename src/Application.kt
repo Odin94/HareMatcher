@@ -1,29 +1,19 @@
 package de.odinmatthias
 
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
+import de.odinmatthias.routes.registerUserRouting
+import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
-import io.ktor.gson.gson
+import io.ktor.gson.*
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.pingPeriod
-import io.ktor.http.cio.websocket.readText
-import io.ktor.http.cio.websocket.timeout
-import io.ktor.http.content.resources
-import io.ktor.http.content.static
-import io.ktor.locations.Location
-import io.ktor.locations.Locations
-import io.ktor.locations.get
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.get
-import io.ktor.routing.routing
+import io.ktor.http.cio.websocket.*
+import io.ktor.http.content.*
+import io.ktor.locations.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import io.ktor.sessions.*
-import io.ktor.thymeleaf.Thymeleaf
-import io.ktor.thymeleaf.ThymeleafContent
-import io.ktor.websocket.webSocket
+import io.ktor.thymeleaf.*
+import io.ktor.websocket.*
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import java.time.Duration
 import kotlin.collections.set
@@ -83,6 +73,7 @@ fun Application.module(testing: Boolean = false) {
         masking = false
     }
 
+    registerUserRouting()
     routing {
         get("/") {
             //            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
