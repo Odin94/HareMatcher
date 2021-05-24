@@ -1,8 +1,10 @@
 package de.odinmatthias.routes
 
+import de.odinmatthias.models.User
 import de.odinmatthias.models.userStorage
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
@@ -16,14 +18,32 @@ fun Route.userRouting() {
                 call.respondText("No users found", status = HttpStatusCode.NotFound)
             }
         }
+
         get("{id}") {
-
+            val id = call.parameters["id"] ?: return@get call.respondText(
+                "Missing or malformed id",
+                status = HttpStatusCode.BadRequest
+            )
+            val user = userStorage.find { it.id == id } ?: return@get call.respondText(
+                "No user with id $id",
+                status = HttpStatusCode.NotFound
+            )
+            call.respond(user)
         }
+
         post {
-
+            val user = call.receive<User>()
+            userStorage.add(user)
+            call.respondText("User stored correctly", status = HttpStatusCode.Created)
         }
-        delete("{id}") {
 
+        delete("{id}") {
+            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            if (userStorage.removeIf { it.id == id }) {
+                call.respondText("User removed correctly", status = HttpStatusCode.Accepted)
+            } else {
+                call.respondText("Not Found", status = HttpStatusCode.NotFound)
+            }
         }
     }
 }
