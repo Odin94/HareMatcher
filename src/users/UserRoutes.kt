@@ -1,12 +1,12 @@
 package de.odinmatthias.routes
 
-import de.odinmatthias.models.User
-import de.odinmatthias.models.userStorage
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import users.User
+import users.userStorage
 
 
 fun Route.userRouting() {
