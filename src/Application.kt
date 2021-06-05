@@ -1,5 +1,6 @@
 package de.odinmatthias
 
+import de.odinmatthias.routes.registerChatRouting
 import de.odinmatthias.routes.registerUserRouting
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -74,6 +75,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     registerUserRouting()
+    registerChatRouting()
     routing {
         get("/") {
             //            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)

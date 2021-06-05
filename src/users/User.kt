@@ -1,4 +1,4 @@
-package de.odinmatthias.models
+package users
 
 import kotlinx.serialization.Serializable
 
