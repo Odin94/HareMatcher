@@ -7,9 +7,15 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.thymeleaf.*
 
 
 fun Route.userRouting() {
+    route("/signup") {
+        get {
+            call.respond(ThymeleafContent("signup", mapOf()))
+        }
+    }
     route("/users") {
         get {
             if (userStorage.isNotEmpty()) {
@@ -32,7 +38,14 @@ fun Route.userRouting() {
         }
 
         post {
-            val user = call.receive<User>()
+            val formParameters = call.receiveParameters()
+            val name = formParameters["name"] ?: return@post call.respondText("Missing or malformed name", status = HttpStatusCode.BadRequest)
+            val email = formParameters["email"] ?: return@post call.respondText("Missing or malformed email", status = HttpStatusCode.BadRequest)
+            val password =
+                formParameters["password"] ?: return@post call.respondText("Missing or malformed password", status = HttpStatusCode.BadRequest)
+
+            val user = User(id = userStorage.size.toString(), name = name, email = email, password = password)
+
             userStorage.add(user)
             call.respondText("User stored correctly", status = HttpStatusCode.Created)
         }

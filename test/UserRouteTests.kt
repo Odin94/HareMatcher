@@ -1,15 +1,11 @@
 package de.odinmatthias
 
-import com.google.gson.Gson
-import de.odinmatthias.models.User
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class UserRouteTests {
-    var gson = Gson()
-
     @Test
     fun testGetNonExistentUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
@@ -24,10 +20,8 @@ class UserRouteTests {
     fun testCreateUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
             handleRequest(HttpMethod.Post, "/users") {
-                val user = User("1", "test user", "test@user.com")
-
-                addHeader(HttpHeaders.ContentType, "application/json")
-                setBody(gson.toJson(user))
+                addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+                setBody(listOf("name" to "testName", "email" to "test@test.de", "password" to "testPassword").formUrlEncode())
             }.apply {
                 assertEquals("User stored correctly", response.content)
                 assertEquals(HttpStatusCode.Created, response.status())

@@ -39,8 +39,8 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(ContentNegotiation) {
-        gson {
-        }
+        gson { }
+
     }
 
     install(Locations) {
