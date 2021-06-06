@@ -6,6 +6,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.matchesPattern
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mindrot.jbcrypt.BCrypt
@@ -17,6 +18,13 @@ class UserRouteTests {
     @Before
     fun init() {
         DatabaseConnector()
+        transaction {
+            Users.deleteAll()
+        }
+    }
+
+    @After
+    fun cleanup() {
         transaction {
             Users.deleteAll()
         }
@@ -80,14 +88,12 @@ class UserRouteTests {
     }
 
     private fun createUser(): UserDAO {
-        val user = transaction {
+        return transaction {
             return@transaction UserDAO.new {
                 email = "${BCrypt.gensalt()}_test@test.de"
                 name = "${BCrypt.gensalt()}_testName"
                 hashedPassword = BCrypt.hashpw("testPassword", BCrypt.gensalt()).toByteArray()
             }
         }
-
-        return user
     }
 }
