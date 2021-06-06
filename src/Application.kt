@@ -6,7 +6,7 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.gson.*
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
 import io.ktor.locations.*
@@ -14,8 +14,14 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
+import io.ktor.util.*
 import io.ktor.websocket.*
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.mindrot.jbcrypt.BCrypt
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+import users.UserDAO
+import users.Users
 import java.time.Duration
 import kotlin.collections.set
 
@@ -33,9 +39,45 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Authentication) {
-        basic("myBasicAuth") {
-            realm = "Ktor Server"
-            validate { if (it.name == "test" && it.password == "password") UserIdPrincipal(it.name) else null }
+        form("userAuth") {
+            skipWhen { call ->
+                val userSession = call.sessions.get<UserSession>()
+                userSession != null && userSession.loggedIn
+            }
+            challenge {
+                val errors: List<AuthenticationFailedCause> = call.authentication.allErrors
+
+                when (errors.singleOrNull()) {
+                    AuthenticationFailedCause.InvalidCredentials ->
+                        call.respondRedirect("/login?error=invalid")
+
+                    AuthenticationFailedCause.NoCredentials ->
+                        call.respondRedirect("/login?error=nocredentials")
+
+                    else ->
+                        call.respondRedirect("/login?error=other")
+                }
+            }
+
+            userParamName = "email"
+            passwordParamName = "password"
+            validate {
+                val email = it.name
+                val user = transaction {
+                    return@transaction UserDAO.find { Users.email eq email }.firstOrNull()
+                } ?: return@validate null
+
+                val passwordIsCorrect = BCrypt.checkpw(it.password, String(user.hashedPassword))
+                if (passwordIsCorrect) {
+                    val principal = UserIdPrincipal(it.name)
+                    val session = sessions.get<UserSession>() ?: UserSession()
+                    sessions.set(session.copy(loggedIn = true, email = principal.name))
+
+                    principal
+                } else {
+                    null
+                }
+            }
         }
     }
 
@@ -48,8 +90,11 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Sessions) {
-        cookie<MySession>("MY_SESSION") {
+        cookie<UserSession>("UserSession", SessionStorageMemory()) {
             cookie.extensions["SameSite"] = "lax"
+            val secretSignKeyRaw = this::class.java.classLoader.getResource("secretSignKey")?.readText() ?: "003502b3040a060108094a0b0d0dfe1f"
+            val secretSignKey = hex(secretSignKeyRaw)
+            transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
         }
     }
 
@@ -76,6 +121,18 @@ fun Application.module(testing: Boolean = false) {
 
     DatabaseConnector()
 
+    // TODO: somehow this doesn't really work and /users shows no users
+    transaction {
+        UserDAO.new {
+            this.name = "testUser"
+            this.email = "test@test.de"
+            this.hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
+        }
+
+        val users = Users.selectAll().map { it[Users.email] }
+        print(users)
+    }
+
     registerUserRouting()
     registerChatRouting()
     routing {
@@ -95,7 +152,7 @@ fun Application.module(testing: Boolean = false) {
             resources("js")
         }
 
-        authenticate("myBasicAuth") {
+        authenticate("userAuth") {
             get("/protected/route/basic") {
                 val principal = call.principal<UserIdPrincipal>()!!
                 call.respondText("Hello ${principal.name}")
@@ -118,9 +175,9 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/session/increment") {
-            val session = call.sessions.get<MySession>() ?: MySession()
-            call.sessions.set(session.copy(count = session.count + 1))
-            call.respondText("Counter is ${session.count}. Refresh to increment.")
+            val session = call.sessions.get<UserSession>() ?: UserSession()
+//            call.sessions.set(session.copy(count = session.count + 1))
+            call.respondText("Counter is ${session}. Refresh to increment.")
         }
 
         install(StatusPages) {
@@ -159,7 +216,7 @@ data class Type(val name: String) {
     data class List(val type: Type, val page: Int)
 }
 
-data class MySession(val count: Int = 0)
+data class UserSession(val loggedIn: Boolean = false, val email: String = "")
 
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()

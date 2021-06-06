@@ -2,10 +2,7 @@ package de.odinmatthias
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import users.Users
@@ -13,13 +10,15 @@ import java.nio.file.Paths
 import java.sql.Connection
 
 
-class DatabaseConnector() {
+class DatabaseConnector {
     init {
         connect()
         createSchema()
 
         transaction {
             addLogger(StdOutSqlLogger)
+
+            Users.deleteAll()
         }
     }
 

@@ -1,10 +1,13 @@
 package de.odinmatthias.users
 
+import de.odinmatthias.UserSession
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.selectAll
@@ -21,6 +24,39 @@ fun Route.userRouting() {
             call.respond(ThymeleafContent("signup", mapOf()))
         }
     }
+
+    route("/login") {
+        get {
+            val error = call.request.queryParameters["error"] ?: ""
+
+            call.respond(ThymeleafContent("login", mapOf("error" to error)))
+        }
+
+        authenticate("userAuth") {
+            post {
+                call.respondText("Session: ${call.sessions.get<UserSession>()}")
+            }
+        }
+    }
+
+    authenticate("userAuth") {
+        post("/logout") {
+            call.sessions.clear<UserIdPrincipal>()
+            call.sessions.clear<UserSession>()
+            call.respondRedirect("/login")
+        }
+    }
+
+    route("/profile") {
+        authenticate("userAuth") {
+            get {
+                val session = call.sessions.get<UserSession>()!!
+
+                call.respond(ThymeleafContent("profile", mapOf("email" to session.email)))
+            }
+        }
+    }
+
     route("/users") {
         get {
             val foundUsers: ArrayList<User> = arrayListOf()
@@ -69,14 +105,23 @@ fun Route.userRouting() {
             call.respondText("User with id ${newUser.id} stored correctly", status = HttpStatusCode.Created)
         }
 
-        delete("{id}") {
-            val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            val deletedItemsCount = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
+        authenticate("userAuth") {
+            delete("{id}") {
+                val session = call.sessions.get<UserSession>()!!
 
-            if (deletedItemsCount == 1) {
-                call.respondText("User with id $id removed correctly", status = HttpStatusCode.Accepted)
-            } else {
-                call.respondText("Not Found", status = HttpStatusCode.NotFound)
+                val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+                if (UserDAO.findById(id)?.email != session.email) {
+                    return@delete call.respond(HttpStatusCode.BadRequest)
+                }
+
+                val deletedItemsCount = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
+
+                if (deletedItemsCount == 1) {
+                    call.respondText("User with id $id removed correctly", status = HttpStatusCode.Accepted)
+                } else {
+                    call.respondText("Not Found", status = HttpStatusCode.NotFound)
+                }
             }
         }
     }

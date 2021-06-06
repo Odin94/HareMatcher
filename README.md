@@ -6,8 +6,11 @@ Harematcher is a pet project built to let you match with the cute bunny of your 
 
 
 ### How to run
+* create `resources/secretSignKey.secret` file with content similar to `003502b3040a060108094a0b0d0dfe1f`
 * `./gradlew run` to run
 * `./gradlew -t build &` to continuously build and hot-reload for development
+
+(omit `./` on Windows)
 
 ### Credits
 * Images from [Unsplash](https://unsplash.com)
