@@ -17,7 +17,9 @@ class UserRouteTests {
     @Before
     fun init() {
         DatabaseConnector()
-        transaction { Users.deleteAll() }
+        transaction {
+            Users.deleteAll()
+        }
     }
 
     @Test
@@ -33,15 +35,9 @@ class UserRouteTests {
     @Test
     fun testGetUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
-            val user = transaction {
-                return@transaction UserDAO.new {
-                    email = "test@test.de"
-                    name = "testName"
-                    hashedPassword = BCrypt.hashpw("testPassword", BCrypt.gensalt()).toByteArray()
-                }
-            }
+            val user = createUser()
             handleRequest(HttpMethod.Get, "/users/${user.id}").apply {
-                val expected = """{"id":${user.id},"name":"testName","email":"test@test.de"}"""
+                val expected = """{"id":${user.id},"name":"${user.name}","email":"${user.email}"}"""
                 assertEquals(expected, response.content)
                 assertEquals(HttpStatusCode.OK, response.status())
             }
@@ -69,5 +65,29 @@ class UserRouteTests {
                 assertEquals(HttpStatusCode.Created, response.status())
             }
         }
+    }
+
+    @Test
+    fun testDeleteUser() {
+        withTestApplication(moduleFunction = { module(testing = true) }) {
+            val user = createUser()
+
+            handleRequest(HttpMethod.Delete, "/users/${user.id}").apply {
+                assertEquals("User with id ${user.id} removed correctly", response.content)
+                assertEquals(HttpStatusCode.Accepted, response.status())
+            }
+        }
+    }
+
+    private fun createUser(): UserDAO {
+        val user = transaction {
+            return@transaction UserDAO.new {
+                email = "${BCrypt.gensalt()}_test@test.de"
+                name = "${BCrypt.gensalt()}_testName"
+                hashedPassword = BCrypt.hashpw("testPassword", BCrypt.gensalt()).toByteArray()
+            }
+        }
+
+        return user
     }
 }

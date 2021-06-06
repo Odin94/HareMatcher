@@ -71,10 +71,10 @@ fun Route.userRouting() {
 
         delete("{id}") {
             val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            val deletedId = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
+            val deletedItemsCount = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
 
-            if (deletedId == id) {
-                call.respondText("User removed correctly", status = HttpStatusCode.Accepted)
+            if (deletedItemsCount == 1) {
+                call.respondText("User with id $id removed correctly", status = HttpStatusCode.Accepted)
             } else {
                 call.respondText("Not Found", status = HttpStatusCode.NotFound)
             }
