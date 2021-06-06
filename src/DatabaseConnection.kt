@@ -1,5 +1,7 @@
 package de.odinmatthias
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -23,7 +25,15 @@ class DatabaseConnector() {
 
     private fun connect() {
         val projectPath = Paths.get("").toAbsolutePath().toString()
-        Database.connect("jdbc:sqlite:${projectPath}/database/db.sqlite", "org.sqlite.JDBC")
+
+        val config = HikariConfig().apply {
+            jdbcUrl = "jdbc:sqlite:${projectPath}/database/db.sqlite"
+            driverClassName = "org.sqlite.JDBC"
+            maximumPoolSize = 10
+        }
+        val dataSource = HikariDataSource(config)
+
+        Database.connect(dataSource)
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
     }
 
