@@ -1,4 +1,4 @@
-package de.odinmatthias.routes
+package de.odinmatthias.users
 
 import io.ktor.application.*
 import io.ktor.http.*

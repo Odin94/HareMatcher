@@ -1,4 +1,4 @@
-package de.odinmatthias.routes
+package chat
 
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
