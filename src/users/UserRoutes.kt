@@ -6,8 +6,13 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.thymeleaf.*
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.mindrot.jbcrypt.BCrypt
 import users.User
-import users.userStorage
+import users.UserDAO
+import users.Users
 
 
 fun Route.userRouting() {
@@ -18,23 +23,33 @@ fun Route.userRouting() {
     }
     route("/users") {
         get {
-            if (userStorage.isNotEmpty()) {
-                call.respond(userStorage)
+            val foundUsers: ArrayList<User> = arrayListOf()
+            transaction {
+                Users.selectAll().map {
+                    val foundUser = User(id = it[Users.id].value, name = it[Users.name], email = it[Users.email])
+                    foundUsers.add(foundUser)
+                }
+            }
+            if (foundUsers.isNotEmpty()) {
+                call.respond(foundUsers)
             } else {
                 call.respondText("No users found", status = HttpStatusCode.NotFound)
             }
         }
 
         get("{id}") {
-            val id = call.parameters["id"] ?: return@get call.respondText(
+            val id = call.parameters["id"]?.toInt() ?: return@get call.respondText(
                 "Missing or malformed id",
                 status = HttpStatusCode.BadRequest
             )
-            val user = userStorage.find { it.id == id } ?: return@get call.respondText(
-                "No user with id $id",
-                status = HttpStatusCode.NotFound
-            )
-            call.respond(user)
+
+            val user = transaction { return@transaction UserDAO.findById(id) }
+                ?: return@get call.respondText(
+                    "No user with id $id",
+                    status = HttpStatusCode.NotFound
+                )
+
+            call.respond(User(user.id.value, user.name, user.email))
         }
 
         post {
@@ -44,15 +59,21 @@ fun Route.userRouting() {
             val password =
                 formParameters["password"] ?: return@post call.respondText("Missing or malformed password", status = HttpStatusCode.BadRequest)
 
-            val user = User(id = userStorage.size.toString(), name = name, email = email, password = password)
-
-            userStorage.add(user)
-            call.respondText("User stored correctly", status = HttpStatusCode.Created)
+            val newUser = transaction {
+                return@transaction UserDAO.new {
+                    this.name = name
+                    this.email = email
+                    this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
+                }
+            }
+            call.respondText("User with id ${newUser.id} stored correctly", status = HttpStatusCode.Created)
         }
 
         delete("{id}") {
-            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            if (userStorage.removeIf { it.id == id }) {
+            val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val deletedId = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
+
+            if (deletedId == id) {
                 call.respondText("User removed correctly", status = HttpStatusCode.Accepted)
             } else {
                 call.respondText("Not Found", status = HttpStatusCode.NotFound)

@@ -1,7 +1,7 @@
 package de.odinmatthias
 
-import de.odinmatthias.routes.registerChatRouting
-import de.odinmatthias.routes.registerUserRouting
+import chat.registerChatRouting
+import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -73,6 +73,8 @@ fun Application.module(testing: Boolean = false) {
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
+
+    DatabaseConnector()
 
     registerUserRouting()
     registerChatRouting()
