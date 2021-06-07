@@ -28,13 +28,14 @@ fun Route.userRouting() {
     route("/login") {
         get {
             val error = call.request.queryParameters["error"] ?: ""
+            val email = call.request.queryParameters["email"] ?: ""
 
-            call.respond(ThymeleafContent("login", mapOf("error" to error)))
+            call.respond(ThymeleafContent("login", mapOf("error" to error, "email" to email)))
         }
 
         authenticate("userAuth") {
             post {
-                call.respondText("Session: ${call.sessions.get<UserSession>()}")
+                call.respondRedirect("/profile")
             }
         }
     }
@@ -51,8 +52,9 @@ fun Route.userRouting() {
         authenticate("userAuth") {
             get {
                 val session = call.sessions.get<UserSession>()!!
+                val user = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
 
-                call.respond(ThymeleafContent("profile", mapOf("email" to session.email)))
+                call.respond(ThymeleafContent("profile", mapOf("user" to user)))
             }
         }
     }
@@ -102,7 +104,8 @@ fun Route.userRouting() {
                     this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
                 }
             }
-            call.respondText("User with id ${newUser.id} stored correctly", status = HttpStatusCode.Created)
+
+            call.respondRedirect("/login?email=${newUser.email}")
         }
 
         authenticate("userAuth") {
@@ -111,7 +114,9 @@ fun Route.userRouting() {
 
                 val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
-                if (UserDAO.findById(id)?.email != session.email) {
+                val user = transaction { return@transaction UserDAO.findById(id) }
+
+                if (user?.email != session.email) {
                     return@delete call.respond(HttpStatusCode.BadRequest)
                 }
 

@@ -16,12 +16,12 @@ import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
 import io.ktor.websocket.*
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import users.UserDAO
 import users.Users
+import java.io.File
 import java.time.Duration
 import kotlin.collections.set
 
