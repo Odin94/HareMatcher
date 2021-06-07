@@ -27,7 +27,7 @@
     <form action="/login" method="post">
         <div class="mb-3">
             <label class="form-label" for="email">Email address</label>
-            <input class="form-control" id="email" name="email" type="email">
+            <input class="form-control" id="email" name="email" th:value="${email}" type="email">
         </div>
 
         <div class="mb-3">
