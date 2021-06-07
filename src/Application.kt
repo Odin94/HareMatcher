@@ -121,18 +121,6 @@ fun Application.module(testing: Boolean = false) {
 
     DatabaseConnector()
 
-    // TODO: somehow this doesn't really work and /users shows no users
-    transaction {
-        UserDAO.new {
-            this.name = "testUser"
-            this.email = "test@test.de"
-            this.hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
-        }
-
-        val users = Users.selectAll().map { it[Users.email] }
-        print(users)
-    }
-
     registerUserRouting()
     registerChatRouting()
     routing {

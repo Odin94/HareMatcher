@@ -2,23 +2,53 @@ package de.odinmatthias
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.mindrot.jbcrypt.BCrypt
+import org.slf4j.LoggerFactory
+import users.UserDAO
 import users.Users
 import java.nio.file.Paths
 import java.sql.Connection
 
 
 class DatabaseConnector {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    companion object {
+        var alreadyInitiated = false
+    }
+
     init {
-        connect()
-        createSchema()
+        if (!alreadyInitiated) {
+            connect()
+            createSchema()
 
-        transaction {
-            addLogger(StdOutSqlLogger)
+            transaction {
+                addLogger(StdOutSqlLogger)
+            }
 
-            Users.deleteAll()
+            transaction {
+                val testEmail = "test@test.de"
+                val user = UserDAO.find { Users.email eq testEmail }.firstOrNull()
+
+                if (user == null) {
+                    UserDAO.new {
+                        this.name = "testUser"
+                        this.email = testEmail
+                        this.hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
+                    }
+
+                    val users = Users.selectAll().map { it[Users.email] }
+                    logger.info("users: ${users.joinToString()}")
+                }
+            }
+
+            alreadyInitiated = true
         }
     }
 
@@ -38,7 +68,7 @@ class DatabaseConnector {
 
     private fun createSchema() {
         transaction {
-            SchemaUtils.create(Users)
+//            SchemaUtils.create(Users)
         }
     }
 
