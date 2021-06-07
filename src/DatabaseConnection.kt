@@ -58,7 +58,7 @@ class DatabaseConnector {
         val config = HikariConfig().apply {
             jdbcUrl = "jdbc:sqlite:${projectPath}/database/db.sqlite"
             driverClassName = "org.sqlite.JDBC"
-            maximumPoolSize = 10
+            maximumPoolSize = 1
         }
         val dataSource = HikariDataSource(config)
 
