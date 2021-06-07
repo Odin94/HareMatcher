@@ -90,7 +90,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Sessions) {
-        cookie<UserSession>("UserSession", SessionStorageMemory()) {
+        cookie<UserSession>("UserSession", directorySessionStorage(File(".sessions"), cached = false)) {
             cookie.extensions["SameSite"] = "lax"
             val secretSignKeyRaw = this::class.java.classLoader.getResource("secretSignKey")?.readText() ?: "003502b3040a060108094a0b0d0dfe1f"
             val secretSignKey = hex(secretSignKeyRaw)
