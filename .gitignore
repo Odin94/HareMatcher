@@ -33,3 +33,4 @@ database/db.sqlite
 **/*.secret
 resources/secretSignKey.secret
 .sessions
+resources/react

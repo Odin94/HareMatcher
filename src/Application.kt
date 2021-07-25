@@ -18,6 +18,7 @@ import io.ktor.util.*
 import io.ktor.websocket.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
+import org.slf4j.LoggerFactory
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import users.UserDAO
 import users.Users
@@ -26,13 +27,14 @@ import java.time.Duration
 import kotlin.collections.set
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+private val logger = LoggerFactory.getLogger("Application")
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
     install(Thymeleaf) {
         setTemplateResolver(ClassLoaderTemplateResolver().apply {
-            prefix = "templates/thymeleaf/"
+            prefix = "react/"
             suffix = ".html"
             characterEncoding = "utf-8"
         })
@@ -83,7 +85,6 @@ fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         gson { }
-
     }
 
     install(Locations) {
@@ -121,21 +122,25 @@ fun Application.module(testing: Boolean = false) {
 
     DatabaseConnector()
 
+    install(StatusPages) {
+        status(HttpStatusCode.NotFound) {
+            // render index.html on 404 and handle issues in react router
+            call.respond(ThymeleafContent("index", mapOf()))
+        }
+    }
+
     registerUserRouting()
     registerChatRouting()
     routing {
-        get("/") {
-            //            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-            call.respond(ThymeleafContent("index", mapOf("user" to ThymeleafUser(1, "user1"))))
-        }
-
-        get("/html-thymeleaf") {
-            call.respond(ThymeleafContent("index", mapOf("user" to ThymeleafUser(1, "user1"))))
+        static("/") {
+            default("resources/react/index.html")
+            resources("react")
         }
 
         // Static feature. Try to access `/static/ktor_logo.svg`
         static("/static") {
             resources("static")
+            resources("react/static")
             resources("css")  // access with /static/test.css
             resources("js")
         }
@@ -168,16 +173,6 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("Counter is ${session}. Refresh to increment.")
         }
 
-        install(StatusPages) {
-            exception<AuthenticationException> { cause ->
-                call.respond(HttpStatusCode.Unauthorized)
-            }
-            exception<AuthorizationException> { cause ->
-                call.respond(HttpStatusCode.Forbidden)
-            }
-
-        }
-
         webSocket("/myws/echo") {
             send(Frame.Text("Hi from server"))
             while (true) {
@@ -189,8 +184,6 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 }
-
-data class ThymeleafUser(val id: Int, val name: String)
 
 @Location("/location/{name}")
 class MyLocation(val name: String, val arg1: Int = 42, val arg2: String = "default")

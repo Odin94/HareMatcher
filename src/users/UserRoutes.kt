@@ -4,11 +4,11 @@ import de.odinmatthias.UserSession
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
-import io.ktor.thymeleaf.*
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -19,20 +19,7 @@ import users.Users
 
 
 fun Route.userRouting() {
-    route("/signup") {
-        get {
-            call.respond(ThymeleafContent("signup", mapOf()))
-        }
-    }
-
     route("/login") {
-        get {
-            val error = call.request.queryParameters["error"] ?: ""
-            val email = call.request.queryParameters["email"] ?: ""
-
-            call.respond(ThymeleafContent("login", mapOf("error" to error, "email" to email)))
-        }
-
         authenticate("userAuth") {
             post {
                 call.respondRedirect("/profile")
@@ -54,7 +41,7 @@ fun Route.userRouting() {
                 val session = call.sessions.get<UserSession>()!!
                 val user = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
 
-                call.respond(ThymeleafContent("profile", mapOf("user" to user)))
+                call.respond(User(user.id.value, user.name, user.email))
             }
         }
     }
@@ -91,21 +78,17 @@ fun Route.userRouting() {
         }
 
         post {
-            val formParameters = call.receiveParameters()
-            val name = formParameters["name"] ?: return@post call.respondText("Missing or malformed name", status = HttpStatusCode.BadRequest)
-            val email = formParameters["email"] ?: return@post call.respondText("Missing or malformed email", status = HttpStatusCode.BadRequest)
-            val password =
-                formParameters["password"] ?: return@post call.respondText("Missing or malformed password", status = HttpStatusCode.BadRequest)
+            val signupData = call.receive<SignupData>()
 
             val newUser = transaction {
                 return@transaction UserDAO.new {
-                    this.name = name
-                    this.email = email
-                    this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
+                    this.name = signupData.name
+                    this.email = signupData.email
+                    this.hashedPassword = BCrypt.hashpw(signupData.password, BCrypt.gensalt()).toByteArray()
                 }
             }
 
-            call.respondRedirect("/login?email=${newUser.email}")
+            call.respond(User(newUser.id.value, newUser.name, newUser.email))
         }
 
         authenticate("userAuth") {
@@ -131,6 +114,8 @@ fun Route.userRouting() {
         }
     }
 }
+
+data class SignupData(val email: String, val password: String, val name: String)
 
 fun Application.registerUserRouting() {
     routing {
