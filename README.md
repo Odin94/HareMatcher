@@ -15,5 +15,8 @@ Harematcher is a pet project built to let you match with the cute bunny of your 
 
 (omit `./` on Windows)
 
+`GlobalConfig.ts` contains configs to make react frontend target the localhost dev endpoint of the backend 
+to enable running both with hot reloading for development. 
+
 ### Credits
 * Images from [Unsplash](https://unsplash.com)

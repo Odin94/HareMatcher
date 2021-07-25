@@ -40,6 +40,12 @@ fun Application.module(testing: Boolean = false) {
         })
     }
 
+    install(CORS) {
+        host("localhost:3000") // TODO: disable for production usage
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
+    }
+
     install(Authentication) {
         form("userAuth") {
             skipWhen { call ->

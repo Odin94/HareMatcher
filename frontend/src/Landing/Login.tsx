@@ -1,6 +1,7 @@
 import React, { FormEvent } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useInput } from '../CustomHooks';
+import { baseUrl } from '../GlobalConfig';
 
 export default function Login() {
     const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
@@ -13,7 +14,7 @@ export default function Login() {
         formData.append('email', email);
         formData.append('password', password);
 
-        fetch("/login", {
+        fetch(`${baseUrl}/login`, {
             method: "POST",
             body: formData,
             credentials: 'include',

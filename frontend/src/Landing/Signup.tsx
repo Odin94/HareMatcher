@@ -2,6 +2,7 @@ import { setupMaster } from "cluster";
 import { FormEvent } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useInput } from "../CustomHooks";
+import { baseUrl } from '../GlobalConfig';
 
 
 export default function Signup() {
@@ -11,7 +12,7 @@ export default function Signup() {
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        fetch("/users", {
+        fetch(`${baseUrl}/users`, {
             method: "POST",
             body: JSON.stringify({ name, email, password }),
             headers: { 'Content-Type': 'application/json' },
