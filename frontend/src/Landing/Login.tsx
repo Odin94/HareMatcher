@@ -1,5 +1,6 @@
 import React, { FormEvent } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import { Redirect } from 'react-router-dom';
 import { useInput } from '../CustomHooks';
 import { baseUrl } from '../GlobalConfig';
 
@@ -20,7 +21,9 @@ export default function Login() {
             credentials: 'include',
         })
             .then(response => response.json())
-            .then(json => alert(JSON.stringify(json)))
+            .then(json => console.log(json))
+            .then(() => window.location.href = `${baseUrl}/profile`)
+            .catch(err => alert(err))
     }
 
     return (
