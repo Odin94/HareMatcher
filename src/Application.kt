@@ -1,6 +1,7 @@
 package de.odinmatthias
 
 import chat.registerChatRouting
+import com.google.gson.Gson
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -57,13 +58,22 @@ fun Application.module(testing: Boolean = false) {
 
                 when (errors.singleOrNull()) {
                     AuthenticationFailedCause.InvalidCredentials ->
-                        call.respondRedirect("/login?error=invalid")
+                        call.respondText(
+                            text = "invalid credentials",
+                            status = HttpStatusCode.Unauthorized
+                        )
 
                     AuthenticationFailedCause.NoCredentials ->
-                        call.respondRedirect("/login?error=nocredentials")
+                        call.respondText(
+                            text = "no credentials",
+                            status = HttpStatusCode.Unauthorized
+                        )
 
                     else ->
-                        call.respondRedirect("/login?error=other")
+                        call.respondText(
+                            text = "unknown error",
+                            status = HttpStatusCode.Unauthorized
+                        )
                 }
             }
 
