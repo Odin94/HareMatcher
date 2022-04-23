@@ -19,24 +19,20 @@ import users.Users
 
 fun Route.userRouting() {
     route("api/v1") {
-        route("/login") {
-            authenticate("userAuth") {
+        authenticate("userAuth") {
+            route("/login") {
                 post {
                     call.respond(HttpStatusCode.OK)
                 }
             }
-        }
 
-        authenticate("userAuth") {
             post("/logout") {
                 call.sessions.clear<UserIdPrincipal>()
                 call.sessions.clear<UserSession>()
                 call.respondRedirect("/login")
             }
-        }
 
-        route("profile") {
-            authenticate("userAuth") {
+            route("profile") {
                 get {
                     val session = call.sessions.get<UserSession>()!!
                     val user = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
@@ -44,7 +40,25 @@ fun Route.userRouting() {
                     call.respond(User(user.id.value, user.name, user.email))
                 }
             }
+
+            delete("{id}") {
+                val session = call.sessions.get<UserSession>()!!
+                val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+                val user = transaction { return@transaction UserDAO.findById(id) }
+
+                if (user?.email != session.email) {
+                    return@delete call.respond(HttpStatusCode.BadRequest)
+                }
+
+                val deletedItemsCount = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
+                if (deletedItemsCount == 1) {
+                    call.respondText("User with id $id removed correctly", status = HttpStatusCode.Accepted)
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
+                }
+            }
         }
+
         route("/users") {
             get {
                 val foundUsers: ArrayList<User> = arrayListOf()
@@ -54,7 +68,7 @@ fun Route.userRouting() {
                         foundUsers.add(foundUser)
                     }
                 }
-                    call.respond(foundUsers)
+                call.respond(foundUsers)
             }
 
             get("{id}") {
@@ -81,28 +95,6 @@ fun Route.userRouting() {
                 }
 
                 call.respond(User(newUser.id.value, newUser.name, newUser.email))
-            }
-
-            authenticate("userAuth") {
-                delete("{id}") {
-                    val session = call.sessions.get<UserSession>()!!
-
-                    val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
-
-                    val user = transaction { return@transaction UserDAO.findById(id) }
-
-                    if (user?.email != session.email) {
-                        return@delete call.respond(HttpStatusCode.BadRequest)
-                    }
-
-                    val deletedItemsCount = transaction { return@transaction Users.deleteWhere { Users.id eq id } }
-
-                    if (deletedItemsCount == 1) {
-                        call.respondText("User with id $id removed correctly", status = HttpStatusCode.Accepted)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound)
-                    }
-                }
             }
         }
     }
