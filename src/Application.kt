@@ -1,7 +1,6 @@
 package de.odinmatthias
 
 import chat.registerChatRouting
-import com.google.gson.Gson
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -141,7 +140,7 @@ fun Application.module(testing: Boolean = false) {
     install(StatusPages) {
         status(HttpStatusCode.NotFound) {
             // render index.html on 404 and handle issues in react router
-            call.respond(ThymeleafContent("index", mapOf()))
+            call.respond(HttpStatusCode.NotFound, ThymeleafContent("index", mapOf()))
         }
     }
 

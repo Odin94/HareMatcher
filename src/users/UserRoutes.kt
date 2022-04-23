@@ -4,7 +4,6 @@ import de.odinmatthias.UserSession
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -19,23 +18,23 @@ import users.Users
 
 
 fun Route.userRouting() {
-    route("/login") {
-        authenticate("userAuth") {
-            post {
-                call.respondRedirect("/profile")
+    route("api/v1") {
+        route("/login") {
+            authenticate("userAuth") {
+                post {
+                    call.respond(HttpStatusCode.OK)
+                }
             }
         }
-    }
 
-    authenticate("userAuth") {
-        post("/logout") {
-            call.sessions.clear<UserIdPrincipal>()
-            call.sessions.clear<UserSession>()
-            call.respondRedirect("/login")
+        authenticate("userAuth") {
+            post("/logout") {
+                call.sessions.clear<UserIdPrincipal>()
+                call.sessions.clear<UserSession>()
+                call.respondRedirect("/login")
+            }
         }
-    }
 
-    route("api/v1") {
         route("profile") {
             authenticate("userAuth") {
                 get {
@@ -47,21 +46,15 @@ fun Route.userRouting() {
             }
         }
         route("/users") {
-            authenticate("userAuth") {
-                get {
-                    val foundUsers: ArrayList<User> = arrayListOf()
-                    transaction {
-                        Users.selectAll().map {
-                            val foundUser = User(id = it[Users.id].value, name = it[Users.name], email = it[Users.email])
-                            foundUsers.add(foundUser)
-                        }
-                    }
-                    if (foundUsers.isNotEmpty()) {
-                        call.respond(foundUsers)
-                    } else {
-                        call.respondText("No users found", status = HttpStatusCode.NotFound)
+            get {
+                val foundUsers: ArrayList<User> = arrayListOf()
+                transaction {
+                    Users.selectAll().map {
+                        val foundUser = User(id = it[Users.id].value, name = it[Users.name], email = it[Users.email])
+                        foundUsers.add(foundUser)
                     }
                 }
+                    call.respond(foundUsers)
             }
 
             get("{id}") {
@@ -71,10 +64,7 @@ fun Route.userRouting() {
                 )
 
                 val user = transaction { return@transaction UserDAO.findById(id) }
-                    ?: return@get call.respondText(
-                        "No user with id $id",
-                        status = HttpStatusCode.NotFound
-                    )
+                    ?: return@get call.respond(HttpStatusCode.NotFound)
 
                 call.respond(User(user.id.value, user.name, user.email))
             }
@@ -110,7 +100,7 @@ fun Route.userRouting() {
                     if (deletedItemsCount == 1) {
                         call.respondText("User with id $id removed correctly", status = HttpStatusCode.Accepted)
                     } else {
-                        call.respondText("Not Found", status = HttpStatusCode.NotFound)
+                        call.respond(HttpStatusCode.NotFound)
                     }
                 }
             }

@@ -1,7 +1,7 @@
 import { FormEvent } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useInput } from "../CustomHooks";
-import { baseUrl } from '../GlobalConfig';
+import { baseUrl, apiVersion } from '../GlobalConfig';
 
 
 export default function Signup() {
@@ -11,7 +11,7 @@ export default function Signup() {
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        fetch(`${baseUrl}/users`, {
+        fetch(`${baseUrl}/api/${apiVersion}/users`, {
             method: "POST",
             body: JSON.stringify({ name, email, password }),
             headers: { 'Content-Type': 'application/json' },

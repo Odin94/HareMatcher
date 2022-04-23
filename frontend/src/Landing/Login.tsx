@@ -1,10 +1,11 @@
 import React, { FormEvent } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
 import { useInput } from '../CustomHooks';
-import { baseUrl } from '../GlobalConfig';
+import { baseUrl, apiVersion } from '../GlobalConfig';
+import { useHistory } from "react-router-dom";
 
 export default function Login() {
+    const history = useHistory();
     const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
     const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
 
@@ -15,14 +16,17 @@ export default function Login() {
         formData.append('email', email);
         formData.append('password', password);
 
-        fetch(`${baseUrl}/login`, {
+        fetch(`${baseUrl}/api/${apiVersion}/login`, {
             method: "POST",
             body: formData,
             credentials: 'include',
         })
-            .then(response => response.json())
-            .then(json => console.log(json))
-            .then(() => window.location.href = `${baseUrl}/profile`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then(() => history.push("/profile"))
             .catch(err => alert(err))
     }
 

@@ -1,5 +1,6 @@
 package de.odinmatthias
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.deleteAll
@@ -40,8 +41,7 @@ class UserRouteTests {
     @Test
     fun testGetNonExistentUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/users/1").apply {
-                assertEquals("No user with id 1", response.content)
+            handleRequest(HttpMethod.Get, "/api/v1/users/1").apply {
                 assertEquals(HttpStatusCode.NotFound, response.status())
             }
         }
@@ -50,8 +50,8 @@ class UserRouteTests {
     @Test
     fun testGetUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
-            val user = createUser()
-            handleRequest(HttpMethod.Get, "/users/${user.id}").apply {
+            val user = createUser("")
+            handleRequest(HttpMethod.Get, "/api/v1/users/${user.id}").apply {
                 val expected = """{"id":${user.id},"name":"${user.name}","email":"${user.email}"}"""
                 assertEquals(expected, response.content)
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -62,9 +62,9 @@ class UserRouteTests {
     @Test
     fun testGetEmptyUsers() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/users").apply {
-                assertEquals("No users found", response.content)
-                assertEquals(HttpStatusCode.NotFound, response.status())
+            handleRequest(HttpMethod.Get, "/api/v1/users").apply {
+                assertEquals("[]", response.content)
+                assertEquals(HttpStatusCode.OK, response.status())
             }
         }
     }
@@ -73,9 +73,9 @@ class UserRouteTests {
     fun testCreateUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
             val testEmail = "test@test.de"
-            handleRequest(HttpMethod.Post, "/users") {
-                addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
-                setBody(listOf("name" to "testName", "email" to testEmail, "password" to "testPassword").formUrlEncode())
+            handleRequest(HttpMethod.Post, "/api/v1/users") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(Gson().toJson(mapOf("name" to "testName", "email" to testEmail, "password" to "testPassword")))
             }.apply {
                 val user = transaction { return@transaction UserDAO.find { Users.email eq testEmail }.firstOrNull() }
                 assertNotNull(user)
@@ -85,20 +85,11 @@ class UserRouteTests {
 
     @Test
     fun testDeleteUser() {
-        val password = "testPassword"
-        val user = createUser(password)
-
         withTestApplication(moduleFunction = { module(testing = true) }) {
             cookiesSession(listOf()) {
-                handleRequest(HttpMethod.Post, "/login") {
-                    addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
-                    setBody(listOf("email" to user.email, "password" to password).formUrlEncode())
-                }.apply {
-                    assertEquals(302, response.status()?.value)
-                    assertEquals("/profile", response.headers["Location"])
-                }
+                val user = createAndSignInUser(this)
 
-                handleRequest(HttpMethod.Delete, "/users/${user.id}") {
+                handleRequest(HttpMethod.Delete, "/api/v1/users/${user.id}") {
                     addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
                 }.apply {
                     assertEquals("User with id ${user.id} removed correctly", response.content)
@@ -109,7 +100,22 @@ class UserRouteTests {
     }
 }
 
-private fun createUser(password: String = "testPassword"): UserDAO {
+private fun createAndSignInUser(engine: CookieTrackerTestApplicationEngine): UserDAO {
+    val password = "testPassword"
+    val user = createUser(password)
+
+    engine.handleRequest(HttpMethod.Post, "/api/v1/login") {
+        addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+        setBody(listOf("email" to user.email, "password" to password).formUrlEncode())
+    }.apply {
+        assertEquals(302, response.status()?.value)
+        assertEquals("/profile", response.headers["Location"])
+    }
+
+    return user
+}
+
+private fun createUser(password: String): UserDAO {
     return transaction {
         return@transaction UserDAO.new {
             email = "${BCrypt.gensalt()}_test@test.de"
@@ -117,11 +123,4 @@ private fun createUser(password: String = "testPassword"): UserDAO {
             hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
         }
     }
-}
-
-private fun createUserAndSignIn() {
-    val password = "testPassword"
-    val user = createUser(password)
-
-
 }
