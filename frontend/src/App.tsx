@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import {
   BrowserRouter as Router,
-  Switch,
+  Routes,
   Route,
   Link
 } from "react-router-dom";
@@ -25,12 +25,12 @@ export default function App() {
           </ul>
         </nav>
 
-        <Switch>
-          <Route path="/signup"><Signup /></Route>
-          <Route path="/login"><Login /></Route>
-          <Route path="/profile"><Profile /></Route>
-          <Route path="/"><Landing /></Route>
-        </Switch>
+        <Routes>
+          <Route path="/signup" element={<Signup/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/profile" element={<Profile/>} />
+          <Route path="/" element={<Landing/>} />
+        </Routes>
       </div>
     </Router>
   );

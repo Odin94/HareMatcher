@@ -2,10 +2,10 @@ import React, { FormEvent } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useInput } from '../CustomHooks';
 import { baseUrl, apiVersion } from '../GlobalConfig';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
     const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
 
@@ -26,7 +26,7 @@ export default function Login() {
                     throw new Error(response.statusText);
                 }
             })
-            .then(() => history.push("/profile"))
+            .then(() => navigate("/profile", { replace: true }))
             .catch(err => alert(err))
     }
 
