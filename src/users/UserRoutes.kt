@@ -1,6 +1,7 @@
 package de.odinmatthias.users
 
 import de.odinmatthias.UserSession
+import de.odinmatthias.profiles.profileRouting
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -8,8 +9,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import users.User
@@ -35,9 +35,9 @@ fun Route.userRouting() {
             route("profile") {
                 get {
                     val session = call.sessions.get<UserSession>()!!
-                    val user = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
+                    val userDao = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
 
-                    call.respond(User(user.id.value, user.name, user.email))
+                    call.respond(userDao.toUser())
                 }
             }
 
@@ -63,9 +63,8 @@ fun Route.userRouting() {
             get {
                 val foundUsers: ArrayList<User> = arrayListOf()
                 transaction {
-                    Users.selectAll().map {
-                        val foundUser = User(id = it[Users.id].value, name = it[Users.name], email = it[Users.email])
-                        foundUsers.add(foundUser)
+                    Users.selectAll().forEach {
+                        foundUsers.add(UserDAO.wrapRow(it).toUser())
                     }
                 }
                 call.respond(foundUsers)
@@ -77,16 +76,16 @@ fun Route.userRouting() {
                     status = HttpStatusCode.BadRequest
                 )
 
-                val user = transaction { return@transaction UserDAO.findById(id) }
+                val userDao = transaction { return@transaction UserDAO.findById(id) }
                     ?: return@get call.respond(HttpStatusCode.NotFound)
 
-                call.respond(User(user.id.value, user.name, user.email))
+                call.respond(userDao.toUser())
             }
 
             post {
                 val signupData = call.receive<SignupData>()
 
-                val newUser = transaction {
+                val newUserDao = transaction {
                     return@transaction UserDAO.new {
                         this.name = signupData.name
                         this.email = signupData.email
@@ -94,7 +93,7 @@ fun Route.userRouting() {
                     }
                 }
 
-                call.respond(User(newUser.id.value, newUser.name, newUser.email))
+                call.respond(newUserDao.toUser())
             }
         }
     }

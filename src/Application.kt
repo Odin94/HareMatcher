@@ -1,6 +1,8 @@
 package de.odinmatthias
 
 import chat.registerChatRouting
+import de.odinmatthias.profiles.ProfileDAO
+import de.odinmatthias.profiles.registerProfileRouting
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -16,15 +18,19 @@ import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
 import io.ktor.websocket.*
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import users.UserDAO
 import users.Users
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Duration
+import javax.imageio.ImageIO
 import kotlin.collections.set
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 private val logger = LoggerFactory.getLogger("Application")
@@ -145,6 +151,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     registerUserRouting()
+    registerProfileRouting()
     registerChatRouting()
     routing {
         static("/") {
@@ -196,6 +203,35 @@ fun Application.module(testing: Boolean = false) {
                     send(Frame.Text("Client said: " + frame.readText()))
                 }
             }
+        }
+
+        createSampleData()
+    }
+}
+
+fun createSampleData() {
+    transaction {
+        val freddo = UserDAO.new {
+            name = "Freddo"
+            email = "freddo@test.de"
+            hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
+        }
+
+        val image = ImageIO.read(File("resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg"))
+        val byteArrayOutStream = ByteArrayOutputStream()
+        ImageIO.write(image, "jpg", byteArrayOutStream)
+        val bytes = byteArrayOutStream.toByteArray()
+
+        ProfileDAO.new {
+            name = "FreddoBunny"
+            user = freddo
+            city = "Frankfurt"
+            race = "Flemish Giant"
+            furColor = "Black"
+            age = 2
+            weightInKG = 8.0
+            description = "A cute bunny"
+            picture = ExposedBlob(bytes)
         }
     }
 }
