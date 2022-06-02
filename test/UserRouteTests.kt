@@ -4,12 +4,14 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.mindrot.jbcrypt.BCrypt
+import users.User
 import users.UserDAO
 import users.Users
 import kotlin.test.assertEquals
@@ -52,7 +54,7 @@ class UserRouteTests {
         withTestApplication(moduleFunction = { module(testing = true) }) {
             val user = createUser("")
             handleRequest(HttpMethod.Get, "/api/v1/users/${user.id}").apply {
-                val expected = """{"id":${user.id},"name":"${user.name}","email":"${user.email}"}"""
+                val expected = Gson().toJson(user.toUser())
                 assertEquals(expected, response.content)
                 assertEquals(HttpStatusCode.OK, response.status())
             }
@@ -60,10 +62,18 @@ class UserRouteTests {
     }
 
     @Test
-    fun testGetEmptyUsers() {
+    fun testGetUsers() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
             handleRequest(HttpMethod.Get, "/api/v1/users").apply {
-                assertEquals("[]", response.content)
+                val foundUsers: ArrayList<User> = arrayListOf()
+                transaction {
+                    Users.selectAll().forEach {
+                        foundUsers.add(UserDAO.wrapRow(it).toUser())
+                    }
+                }
+
+                val expected = Gson().toJson(foundUsers)
+                assertEquals(expected, response.content)
                 assertEquals(HttpStatusCode.OK, response.status())
             }
         }
@@ -108,8 +118,7 @@ private fun createAndSignInUser(engine: CookieTrackerTestApplicationEngine): Use
         addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
         setBody(listOf("email" to user.email, "password" to password).formUrlEncode())
     }.apply {
-        assertEquals(302, response.status()?.value)
-        assertEquals("/profile", response.headers["Location"])
+        assertEquals(HttpStatusCode.OK, response.status())
     }
 
     return user
