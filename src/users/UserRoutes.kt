@@ -32,15 +32,6 @@ fun Route.userRouting() {
                 call.respondRedirect("/login")
             }
 
-            route("profile") {
-                get {
-                    val session = call.sessions.get<UserSession>()!!
-                    val userDao = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
-
-                    call.respond(userDao.toUser())
-                }
-            }
-
             delete("{id}") {
                 val session = call.sessions.get<UserSession>()!!
                 val id = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
@@ -80,6 +71,15 @@ fun Route.userRouting() {
                     ?: return@get call.respond(HttpStatusCode.NotFound)
 
                 call.respond(userDao.toUser())
+            }
+
+            authenticate("userAuth") {
+                get("me") {
+                    val session = call.sessions.get<UserSession>()!!
+                    val userDao = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
+
+                    call.respond(userDao.toUser())
+                }
             }
 
             post {

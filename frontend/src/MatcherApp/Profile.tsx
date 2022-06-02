@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useParams } from 'react-router';
 import { apiVersion, baseUrl } from "../GlobalConfig";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -14,13 +15,13 @@ const defaultEmptyPictureSource = "https://images.unsplash.com/photo-16105591760
 const secondPictureSource = "https://images.unsplash.com/photo-1654077013798-8465c12f9672?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=700&q=80";
 
 export default function Profile() {
+    const { id } = useParams();
     const [profileData, setProfileData] = useState(new ProfileData("", "", "", "", 0, 0, "", undefined));
-    const [userData, setUserData] = useState(new UserData("", "", []));
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profile`, {
+        fetch(`${baseUrl}/api/${apiVersion}/profiles/${id}`, {
             credentials: 'include',
         })
             .then(response => {
@@ -37,25 +38,7 @@ export default function Profile() {
             })
     }, []);
 
-    useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profile`, {
-            credentials: 'include',
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(json => {
-                console.log(json);
-                setUserData(new UserData(json.name, json.email, json.profileIds));
-            })
-            .catch((err: Error) => {
-                console.log(`error when fetching: ${err}`);
-                setFetchError(err.message);
-            })
-    }, []);
-
-    const imageSrc = profileData.pictureBlob ? URL.createObjectURL(profileData.pictureBlob) : defaultEmptyPictureSource;
+    const imageSrc = profileData.pictureBase64 ? profileData.pictureBase64 : defaultEmptyPictureSource;
     const profilePictures = [
         new ProfilePicture(imageSrc, 0),
         new ProfilePicture(secondPictureSource, 1),
@@ -78,7 +61,7 @@ export default function Profile() {
                                         swipeable={true}
                                         draggable={true}
                                         showDots={false}
-                                        responsive={responsive}
+                                        responsive={carouselResponsive}
                                         infinite={false}
                                         autoPlay={false}
                                         shouldResetAutoplay={false}
@@ -90,7 +73,6 @@ export default function Profile() {
                                             <img src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer" }}></img>
                                         ))}
                                     </Carousel>
-                                    <p>This user has not set up their profile properly yet</p>
                                 </div>
                             </div>
                         </div>
@@ -116,8 +98,6 @@ export default function Profile() {
                             </div>
                         </div>
                     </div>
-
-                    <ul>{userData.profileIds?.map((profileId) => <li>{profileId}</li>)}</ul>
                 </div>
             }
             {lightBoxStatus.isOpen && (
@@ -138,16 +118,12 @@ export default function Profile() {
     )
 }
 
-class UserData {
-    constructor(public name: string, public email: string, public profileIds: number[]) { }
-}
-
 class ProfileData {
     constructor(public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public pictureBlob?: Blob) { }
+        public age: number, public weightInKG: number, public description: string, public pictureBase64?: string) { }
 
     static fromJson(json: any): ProfileData {
-        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.picture);
+        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, "data:image/jpg;base64," + json.picture);
     }
 }
 
@@ -159,7 +135,7 @@ class ProfilePicture {
     constructor(public imageSource: string, public index: number) { }
 }
 
-const responsive = {
+const carouselResponsive = {
     desktop: {
         breakpoint: { max: 3000, min: 1024 },
         items: 3,

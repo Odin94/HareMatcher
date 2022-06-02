@@ -9,10 +9,11 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import users.UserDAO
 import users.Users
+import java.util.*
 
 
 @Serializable
-data class Profile(val id: Int?, val userId: Int, val name: String, val city: String, val race: String, val furColor: String, val age: Int, val weightInKG: Double, val description: String, val picture: ByteArray) {
+data class Profile(val id: Int?, val userId: Int, val name: String, val city: String, val race: String, val furColor: String, val age: Int, val weightInKG: Double, val description: String, val picture: String) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -39,7 +40,7 @@ data class Profile(val id: Int?, val userId: Int, val name: String, val city: St
         result = 31 * result + furColor.hashCode()
         result = 31 * result + age
         result = 31 * result + weightInKG.hashCode()
-        result = 31 * result + picture.contentHashCode()
+        result = 31 * result + picture.hashCode()
         return result
     }
 }
@@ -69,5 +70,5 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
     var description by Profiles.description
     var picture by Profiles.picture
 
-    fun toProfile() = Profile(id.value, user.id.value, name, city, race, furColor, age, weightInKG, description, picture.bytes)
+    fun toProfile() = Profile(id.value, user.id.value, name, city, race, furColor, age, weightInKG, description, Base64.getEncoder().encodeToString(picture.bytes))
 }
