@@ -4,6 +4,11 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faWeightHanging, faPalette } from '@fortawesome/free-solid-svg-icons'
+import '../index.css';
+
+
 
 const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
 const secondPictureSource = "https://images.unsplash.com/photo-1654077013798-8465c12f9672?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=700&q=80";
@@ -15,7 +20,7 @@ export default function Profile() {
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profile`, {  // TODO: Move this to an actual profile page; turn this page into profile-selection-page
+        fetch(`${baseUrl}/api/${apiVersion}/profile`, {
             credentials: 'include',
         })
             .then(response => {
@@ -50,7 +55,6 @@ export default function Profile() {
             })
     }, []);
 
-    const profiles = userData.profileIds?.map((profileId) => <li>{profileId}</li>);  // TODO: Turn into link to actual profile page
     const imageSrc = profileData.pictureBlob ? URL.createObjectURL(profileData.pictureBlob) : defaultEmptyPictureSource;
     const profilePictures = [
         new ProfilePicture(imageSrc, 0),
@@ -62,27 +66,58 @@ export default function Profile() {
         <div>
             {fetchError
                 ? <h1>{fetchError}</h1>
-                : <div style={{ width: "50%", margin: "0 auto" }}>
-                    <Carousel
-                        swipeable={true}
-                        draggable={true}
-                        showDots={false}
-                        responsive={responsive}
-                        infinite={false}
-                        autoPlay={false}
-                        shouldResetAutoplay={false}
-                        keyBoardControl={true}
-                        containerClass="carousel-container"
-                        itemClass="carousel-item-padding-40-px"
-                    >
-                        {profilePictures.map((profilePicture) => (
-                            <img src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer" }}></img>
-                        ))}
-                    </Carousel>
-                    <h1>{profileData.name}</h1>
-                    <p>This user has not set up their profile properly yet</p>
+                : <div className="container" style={{ width: "50%", margin: "0 auto" }}>
+                    <div className="row">
+                        <div className="col">
+                            <div className="card">
+                                <div className="card-body">
+                                    <h1>{profileData.name}</h1>
+                                    <p>{profileData.race} • {profileData.age} • {profileData.city}</p>
 
-                    <ul>{profiles}</ul>
+                                    <Carousel
+                                        swipeable={true}
+                                        draggable={true}
+                                        showDots={false}
+                                        responsive={responsive}
+                                        infinite={false}
+                                        autoPlay={false}
+                                        shouldResetAutoplay={false}
+                                        keyBoardControl={true}
+                                        containerClass="carousel-container"
+                                        itemClass="carousel-item-padding-40-px"
+                                    >
+                                        {profilePictures.map((profilePicture) => (
+                                            <img src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer" }}></img>
+                                        ))}
+                                    </Carousel>
+                                    <p>This user has not set up their profile properly yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row" style={{marginTop: "20px"}}>
+                        <div className="col">
+                            <div className="card">
+                                <h5 className="card-header">Description</h5>
+                                <div className="card-body">
+                                  <p style={{fontSize: "1.23rem"}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget pharetra augue. Fusce lectus lorem, suscipit vitae consequat blandit, dignissim ac metus. Fusce sodales, orci quis varius sollicitudin, orci metus aliquet urna, sit amet varius nunc nibh non augue. Donec porta consequat urna malesuada iaculis. Nulla sit amet sem congue felis sagittis imperdiet nec et dui. In cursus, dolor venenatis bibendum hendrerit, turpis ante porta massa, et tempus nisl quam in nibh</p>
+
+                                   <p style={{fontSize: "1.23rem"}}>Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col">
+                            <div className="card">
+                                <h5 className="card-header">Details</h5>
+                                <div className="card-body">
+                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{marginRight: "20px"}}/>{profileData.weightInKG} kg</p>
+                                    <p><FontAwesomeIcon icon={faPalette} style={{marginRight: "20px"}}/>{profileData.furColor}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul>{userData.profileIds?.map((profileId) => <li>{profileId}</li>)}</ul>
                 </div>
             }
             {lightBoxStatus.isOpen && (
