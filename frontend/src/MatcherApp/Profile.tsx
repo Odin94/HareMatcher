@@ -70,7 +70,7 @@ export default function Profile() {
                                         itemClass="carousel-item-padding-40-px"
                                     >
                                         {profilePictures.map((profilePicture) => (
-                                            <img src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer" }}></img>
+                                            <img src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                         ))}
                                     </Carousel>
                                 </div>
