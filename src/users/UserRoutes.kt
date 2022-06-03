@@ -50,18 +50,18 @@ fun Route.userRouting() {
                     status = HttpStatusCode.BadRequest
                 )
 
-                val userDao = transaction { return@transaction UserDAO.findById(id) }
+                val user = transaction { return@transaction UserDAO.findById(id)?.toUser() }
                     ?: return@get call.respond(HttpStatusCode.NotFound)
 
-                call.respond(userDao.toUser())
+                call.respond(user)
             }
 
             authenticate("userAuth") {
                 get("me") {
                     val session = call.sessions.get<UserSession>()!!
-                    val userDao = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first() }
+                    val user = transaction { return@transaction UserDAO.find { Users.email eq session.email }.first().toUser() }
 
-                    call.respond(userDao.toUser())
+                    call.respond(user)
                 }
 
                 delete("{id}") {
@@ -85,15 +85,16 @@ fun Route.userRouting() {
             post {
                 val signupData = call.receive<SignupData>()
 
-                val newUserDao = transaction {
-                    return@transaction UserDAO.new {
+                val newUser = transaction {
+                    val userDAO = UserDAO.new {
                         this.name = signupData.name
                         this.email = signupData.email
                         this.hashedPassword = BCrypt.hashpw(signupData.password, BCrypt.gensalt()).toByteArray()
                     }
+                    return@transaction userDAO.toUser()
                 }
 
-                call.respond(newUserDao.toUser())
+                call.respond(newUser)
             }
         }
     }

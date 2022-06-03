@@ -1,6 +1,5 @@
 package users
 
-import de.odinmatthias.profiles.Profile
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
 import kotlinx.serialization.Serializable
@@ -9,7 +8,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
 data class User(val id: Int?, val name: String, val email: String, val profileIds: List<Int>)
@@ -28,9 +26,5 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
     var hashedPassword by Users.hashedPassword
     val profiles by ProfileDAO referrersOn Profiles.user
 
-    fun toUser(): User {
-        return transaction {
-            return@transaction User(this@UserDAO.id.value, name, email, profiles.map { it.id.value })
-        }
-    }
+    fun toUser() = User(this@UserDAO.id.value, name, email, profiles.map { it.id.value })
 }

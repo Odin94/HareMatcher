@@ -54,7 +54,7 @@ class UserRouteTests {
         withTestApplication(moduleFunction = { module(testing = true) }) {
             val user = createUser("")
             handleRequest(HttpMethod.Get, "/api/v1/users/${user.id}").apply {
-                val expected = Gson().toJson(user.toUser())
+                val expected = transaction { return@transaction Gson().toJson(user.toUser()) }
                 assertEquals(expected, response.content)
                 assertEquals(HttpStatusCode.OK, response.status())
             }
