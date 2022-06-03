@@ -26,7 +26,7 @@ export default function Login() {
                     throw new Error(response.statusText);
                 }
             })
-            .then(() => navigate("/profile", { replace: true }))
+            .then(() => navigate("/me", { replace: true }))
             .catch(err => alert(err))
     }
 
