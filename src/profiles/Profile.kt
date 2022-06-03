@@ -27,7 +27,7 @@ data class Profile(val id: Int?, val userId: Int, val name: String, val city: St
         if (furColor != other.furColor) return false
         if (age != other.age) return false
         if (weightInKG != other.weightInKG) return false
-        if (!picture.contentEquals(other.picture)) return false
+        if (picture != other.picture) return false
 
         return true
     }
