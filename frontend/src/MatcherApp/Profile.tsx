@@ -6,7 +6,7 @@ import "react-multi-carousel/lib/styles.css";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faWeightHanging, faPalette } from '@fortawesome/free-solid-svg-icons'
+import { faWeightHanging, faPalette, faSyringe } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
 
 
@@ -16,7 +16,7 @@ const secondPictureSource = "https://images.unsplash.com/photo-1654077013798-846
 
 export default function Profile() {
     const { id } = useParams();
-    const [profileData, setProfileData] = useState(new ProfileData("", "", "", "", 0, 0, "", undefined));
+    const [profileData, setProfileData] = useState(new ProfileData("", "", "", "", 0, 0, "", [], undefined));
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
     const [fetchError, setFetchError] = useState("");
 
@@ -94,6 +94,9 @@ export default function Profile() {
                                 <div className="card-body">
                                     <p><FontAwesomeIcon icon={faWeightHanging} style={{marginRight: "20px"}}/>{profileData.weightInKG} kg</p>
                                     <p><FontAwesomeIcon icon={faPalette} style={{marginRight: "20px"}}/>{profileData.furColor}</p>
+                                    {profileData.vaccinations.map((vac) => (
+                                        <p><FontAwesomeIcon icon={faSyringe} style={{marginRight: "20px"}}/>{vac.disease} <span style={{float: "right"}}>{vac.date}</span></p>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -120,11 +123,15 @@ export default function Profile() {
 
 class ProfileData {
     constructor(public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public pictureBase64?: string) { }
+        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public pictureBase64?: string) { }
 
     static fromJson(json: any): ProfileData {
-        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, "data:image/jpg;base64," + json.picture);
+        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, "data:image/jpg;base64," + json.picture);
     }
+}
+
+class Vaccination {
+    constructor(public disease: string, public date: string) { }
 }
 
 class LightBoxStatus {

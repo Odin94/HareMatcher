@@ -3,6 +3,7 @@ package de.odinmatthias
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import de.odinmatthias.profiles.Profiles
+import de.odinmatthias.profiles.Vaccinations
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -69,6 +70,7 @@ class DatabaseConnector {
         transaction {
             SchemaUtils.create(Users)
             SchemaUtils.create(Profiles)
+            SchemaUtils.create(Vaccinations)
         }
     }
 

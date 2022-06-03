@@ -2,6 +2,7 @@ package de.odinmatthias
 
 import chat.registerChatRouting
 import de.odinmatthias.profiles.ProfileDAO
+import de.odinmatthias.profiles.VaccinationDAO
 import de.odinmatthias.profiles.registerProfileRouting
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
@@ -28,6 +29,7 @@ import users.Users
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Duration
+import java.time.LocalDate
 import javax.imageio.ImageIO
 import kotlin.collections.set
 
@@ -222,7 +224,7 @@ fun createSampleData() {
         ImageIO.write(image, "jpg", byteArrayOutStream)
         val bytes = byteArrayOutStream.toByteArray()
 
-        ProfileDAO.new {
+        val freddoBunny = ProfileDAO.new {
             name = "FreddoBunny"
             user = freddo
             city = "Frankfurt"
@@ -232,6 +234,17 @@ fun createSampleData() {
             weightInKG = 8.0
             description = "A cute bunny"
             picture = ExposedBlob(bytes)
+        }
+
+        VaccinationDAO.new {
+            profile = freddoBunny
+            disease = "Myxomatosis"
+            date = LocalDate.of(2021, 6, 18)
+        }
+        VaccinationDAO.new {
+            profile = freddoBunny
+            disease = "RVHD"
+            date = LocalDate.of(2022, 6, 3)
         }
     }
 }
