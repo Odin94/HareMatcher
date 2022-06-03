@@ -4,14 +4,12 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.mindrot.jbcrypt.BCrypt
-import users.User
 import users.UserDAO
 import users.Users
 import kotlin.test.assertEquals
@@ -65,12 +63,7 @@ class UserRouteTests {
     fun testGetUsers() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
             handleRequest(HttpMethod.Get, "/api/v1/users").apply {
-                val foundUsers: ArrayList<User> = arrayListOf()
-                transaction {
-                    Users.selectAll().forEach {
-                        foundUsers.add(UserDAO.wrapRow(it).toUser())
-                    }
-                }
+                val foundUsers = transaction { UserDAO.all().map { it.toUser() } }
 
                 val expected = Gson().toJson(foundUsers)
                 assertEquals(expected, response.content)

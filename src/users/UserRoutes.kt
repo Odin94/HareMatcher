@@ -9,10 +9,8 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
-import users.User
 import users.UserDAO
 import users.Users
 
@@ -35,12 +33,7 @@ fun Route.userRouting() {
 
         route("/users") {
             get {
-                val foundUsers: ArrayList<User> = arrayListOf()
-                transaction {
-                    Users.selectAll().forEach {
-                        foundUsers.add(UserDAO.wrapRow(it).toUser())
-                    }
-                }
+                val foundUsers = transaction { UserDAO.all().map { it.toUser() } }
                 call.respond(foundUsers)
             }
 
