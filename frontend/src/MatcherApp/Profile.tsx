@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from 'react-router';
-import { apiVersion, baseUrl } from "../GlobalConfig";
+import { apiVersion, baseUrl, hashCode } from "../Globals";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import Lightbox from 'react-image-lightbox';
@@ -159,14 +159,3 @@ const carouselResponsive = {
         slidesToSlide: 1
     }
 };
-
-// js implementation of Java's String.hashCode
-function hashCode(str: string) {
-    let hash = 0;
-    for (let i = 0, len = str.length; i < len; i++) {
-        let chr = str.charCodeAt(i);
-        hash = (hash << 5) - hash + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
-}
