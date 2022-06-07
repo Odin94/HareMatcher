@@ -4,6 +4,7 @@ import de.odinmatthias.UserSession
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
@@ -37,10 +38,25 @@ fun Route.profileRouting() {
 
                     call.respond(profile)
                 }
+
+                post {
+                    val profileCreationData = call.receive<ProfileCreationData>()
+
+                    val session = call.sessions.get<UserSession>()!!
+                    val profile = transaction {
+                        val userDAO = UserDAO.find { Users.email eq session.email }.first()
+
+                        return@transaction createProfile(userDAO, profileCreationData)
+                    }
+
+                    call.respond(profile)
+                }
             }
         }
     }
 }
+
+data class ProfileCreationData(val name: String, val city: String, val race: String, val furColor: String, val age: Int, val weightInKg: Double, val description: String)
 
 fun Application.registerProfileRouting() {
     routing {

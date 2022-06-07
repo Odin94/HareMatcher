@@ -10,7 +10,11 @@ import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import users.UserDAO
 import users.Users
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.time.LocalDate
 import java.util.*
+import javax.imageio.ImageIO
 
 
 @Serializable
@@ -87,4 +91,36 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
         description,
         Base64.getEncoder().encodeToString(picture.bytes),
         transaction { vaccinations.map { it.toVaccination() } })
+}
+
+fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): Profile {
+    val image = ImageIO.read(File("resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg"))
+    val byteArrayOutStream = ByteArrayOutputStream()
+    ImageIO.write(image, "jpg", byteArrayOutStream)
+    val bytes = byteArrayOutStream.toByteArray()
+
+    val newProfileDao = ProfileDAO.new {
+        name = profileCreationData.name
+        user = userDao
+        city = profileCreationData.city
+        race = profileCreationData.race
+        furColor = profileCreationData.furColor
+        age = profileCreationData.age
+        weightInKG = profileCreationData.weightInKg
+        description = profileCreationData.description
+        picture = ExposedBlob(bytes)
+    }
+
+    VaccinationDAO.new {
+        profile = newProfileDao
+        disease = "Myxomatosis"
+        date = LocalDate.of(2021, 6, 18)
+    }
+    VaccinationDAO.new {
+        profile = newProfileDao
+        disease = "RVHD"
+        date = LocalDate.of(2022, 6, 3)
+    }
+
+    return newProfileDao.toProfile()
 }

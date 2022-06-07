@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useInput } from '../CustomHooks';
-import { baseUrl, apiVersion } from '../GlobalConfig';
+import { baseUrl, apiVersion } from '../Globals';
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {

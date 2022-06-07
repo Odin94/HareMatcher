@@ -12,6 +12,7 @@ import Login from './Landing/Login';
 import Landing from './Landing/Landing';
 import User from './MatcherApp/User';
 import Profile from './MatcherApp/Profile';
+import CreateProfile from './MatcherApp/CreateProfile';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/login" element={<Login/>} />
           <Route path="/me" element={<User/>} />
           <Route path="/profile/:id" element={<Profile/>} />
+          <Route path="/profile/create" element={<CreateProfile/>} />
           <Route path="/" element={<Landing/>} />
         </Routes>
       </div>

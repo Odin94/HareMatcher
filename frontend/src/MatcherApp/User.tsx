@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiVersion, baseUrl } from "../GlobalConfig";
+import { apiVersion, baseUrl } from "../Globals";
 import '../index.css';
 
 
@@ -67,6 +67,8 @@ export default function Profile() {
                     </div>
 
                     <ul>{userData.profileIds?.map((profileId) => <li key={profileId}><a href={`/profile/${profileId}`}>{profileId}</a></li>)}</ul>
+
+                    <a href={`/profile/create`}>create new profile</a>
                 </div>
             }
         </div>
