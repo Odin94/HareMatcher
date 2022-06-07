@@ -70,7 +70,7 @@ export default function Profile() {
                                         itemClass="carousel-item-padding-40-px"
                                     >
                                         {profilePictures.map((profilePicture) => (
-                                            <img src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
+                                            <img key={hashCode(profilePicture.imageSource)} src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                         ))}
                                     </Carousel>
                                 </div>
@@ -95,7 +95,7 @@ export default function Profile() {
                                     <p><FontAwesomeIcon icon={faWeightHanging} style={{marginRight: "20px"}}/>{profileData.weightInKG} kg</p>
                                     <p><FontAwesomeIcon icon={faPalette} style={{marginRight: "20px"}}/>{profileData.furColor}</p>
                                     {profileData.vaccinations.map((vac) => (
-                                        <p><FontAwesomeIcon icon={faSyringe} style={{marginRight: "20px"}}/>{vac.disease} <span style={{float: "right"}}>{vac.date}</span></p>
+                                        <p key={vac.disease}><FontAwesomeIcon icon={faSyringe} style={{marginRight: "20px"}}/>{vac.disease} <span style={{float: "right"}}>{vac.date}</span></p>
                                     ))}
                                 </div>
                             </div>
@@ -160,3 +160,13 @@ const carouselResponsive = {
     }
 };
 
+// js implementation of Java's String.hashCode
+function hashCode(str: string) {
+    let hash = 0;
+    for (let i = 0, len = str.length; i < len; i++) {
+        let chr = str.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
