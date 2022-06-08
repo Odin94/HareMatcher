@@ -73,9 +73,8 @@ export default function CreateProfile() {
                                         <label className="col-sm-2 col-form-label"><h3>Age</h3></label>
                                         <div className="col-sm-10" style={{maxWidth: "400px"}}>
                                         <select className="custom-select" {...bindAge}>
-                                            <option selected>0</option>
-                                            {Array.from(Array(19).keys()).map((num: number) => (
-                                                <option value={num + 1}>{num + 1}</option>
+                                            {Array.from(Array(20).keys()).map((num: number) => (
+                                                <option key={num} value={num}>{num}</option>
                                             ))}
                                         </select>
                                         </div>
