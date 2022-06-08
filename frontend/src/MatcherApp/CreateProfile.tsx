@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { apiVersion, baseUrl, hashCode } from "../Globals";
+import { apiVersion, baseUrl, convertBase64, hashCode } from "../Globals";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -20,15 +20,18 @@ export default function CreateProfile() {
     const { value: furColor, bind: bindFurColor, reset: resetFurColor } = useInput('brown');
     const { value: weightInKg, bind: bindWeightInKg, reset: resetWeightInKg } = useInput('0.0');
     const { value: description, bind: bindDescription, reset: resetDescription } = useInput('');
+    const [pictureSources, setPictureSources] = useState([] as File[]);
 
     const [postError, setPostError] = useState("");
 
 
-    const handleSubmit = (event: FormEvent) => {
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
+        const imagesBase64 = await Promise.all(pictureSources.map(async (file) => await convertBase64(file)));
+
         fetch(`${baseUrl}/api/${apiVersion}/profiles`, {
             method: "POST",
-            body: JSON.stringify({ name, race, age, city, description, furColor, weightInKg }),
+            body: JSON.stringify({ name, race, age, city, description, furColor, weightInKg, imagesBase64 }),
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
         })
@@ -104,8 +107,26 @@ export default function CreateProfile() {
                                         containerClass="carousel-container"
                                         itemClass="carousel-item-padding-40-px"
                                     >
-                                        <img src={defaultEmptyPictureSource} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
+                                        <img src={pictureSources[0] ? URL.createObjectURL(pictureSources[0]) : defaultEmptyPictureSource} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                     </Carousel>
+
+                                    <div className="form-group row" style={{marginTop: "20px"}}>
+                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
+                                            <Form.Group controlId="formFile" className="mb-3">
+                                                <Form.Control type="file" onChange={async (event: any) => {
+                                                        const newPictureSources = [...pictureSources];
+                                                        newPictureSources[0] = event.target.files[0];
+                                                        setPictureSources(newPictureSources);
+
+                                                        const file = event.target.files[0];
+                                                        const base64 = await convertBase64(file);
+
+                                                        console.log(URL.createObjectURL(event.target.files[0]))
+                                                    }}/>
+                                            </Form.Group>
+                                        </div>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>

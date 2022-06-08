@@ -56,7 +56,16 @@ fun Route.profileRouting() {
     }
 }
 
-data class ProfileCreationData(val name: String, val city: String, val race: String, val furColor: String, val age: Int, val weightInKg: Double, val description: String)
+data class ProfileCreationData(
+    val name: String,
+    val city: String,
+    val race: String,
+    val furColor: String,
+    val age: Int,
+    val weightInKg: Double,
+    val description: String,
+    val imagesBase64: Array<String>
+)
 
 fun Application.registerProfileRouting() {
     routing {

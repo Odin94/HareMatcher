@@ -10,11 +10,8 @@ import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import users.UserDAO
 import users.Users
-import java.io.ByteArrayOutputStream
-import java.io.File
 import java.time.LocalDate
 import java.util.*
-import javax.imageio.ImageIO
 
 
 @Serializable
@@ -94,10 +91,12 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
 }
 
 fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): Profile {
-    val image = ImageIO.read(File("resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg"))
-    val byteArrayOutStream = ByteArrayOutputStream()
-    ImageIO.write(image, "jpg", byteArrayOutStream)
-    val bytes = byteArrayOutStream.toByteArray()
+    val imageBytes = if (profileCreationData.imagesBase64[0].contains(",")) {
+        // split out 'data:image/png;base64,'
+        Base64.getDecoder().decode(profileCreationData.imagesBase64[0].split(",")[1])
+    } else {
+        Base64.getDecoder().decode(profileCreationData.imagesBase64[0])
+    }
 
     val newProfileDao = ProfileDAO.new {
         name = profileCreationData.name
@@ -108,7 +107,7 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
         age = profileCreationData.age
         weightInKG = profileCreationData.weightInKg
         description = profileCreationData.description
-        picture = ExposedBlob(bytes)
+        picture = ExposedBlob(imageBytes)
     }
 
     VaccinationDAO.new {

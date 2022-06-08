@@ -9,6 +9,19 @@ export const hashCode = (str: string) => {
         hash = (hash << 5) - hash + chr;
         hash |= 0; // Convert to 32bit integer
     }
-    
+
     return hash;
+}
+
+export const convertBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(file)
+        fileReader.onload = () => {
+            resolve(fileReader.result);
+        }
+        fileReader.onerror = (error) => {
+            reject(error);
+        }
+    });
 }
