@@ -9,7 +9,7 @@ export const useInput = (initialValue: any) => {
         reset: () => setValue(""),
         bind: {
             value,
-            onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                 setValue(event.target.value);
             }
         }

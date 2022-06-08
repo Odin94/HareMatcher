@@ -15,10 +15,10 @@ const defaultEmptyPictureSource = "https://images.unsplash.com/photo-16105591760
 export default function CreateProfile() {
     const { value: name, bind: bindName, reset: resetName } = useInput('');
     const { value: race, bind: bindRace, reset: resetRace } = useInput('');
-    const { value: age, bind: bindAge, reset: resetAge } = useInput('');
+    const { value: age, bind: bindAge, reset: resetAge } = useInput('0');
     const { value: city, bind: bindCity, reset: resetCity } = useInput('');
-    const { value: furColor, bind: bindFurColor, reset: resetFurColor } = useInput('');
-    const { value: weightInKg, bind: bindWeightInKg, reset: resetWeightInKg } = useInput('');
+    const { value: furColor, bind: bindFurColor, reset: resetFurColor } = useInput('brown');
+    const { value: weightInKg, bind: bindWeightInKg, reset: resetWeightInKg } = useInput('0.0');
     const { value: description, bind: bindDescription, reset: resetDescription } = useInput('');
 
     const [postError, setPostError] = useState("");
@@ -54,54 +54,35 @@ export default function CreateProfile() {
                         <div className="col">
                             <div className="card">
                                 <div className="card-body">
-                                    <h3>
-                                        <div className="mb-3">
-                                            <label className="form-label">
-                                                Name
-                                                <input className="form-control" type="text" {...bindName} />
-                                            </label>
+                                    <div className="form-group row">
+                                        <label className="col-sm-2 col-form-label"><h3>Name</h3></label>
+                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
+                                        <input className="form-control" {...bindName}/>
                                         </div>
-                                    </h3>
-                                    <h3>
-                                        <div className="mb-3">
-                                            <label className="form-label">
-                                                Race
-                                                <input className="form-control" type="text" {...bindRace} />
-                                            </label>
+                                    </div>
+                                    <div className="form-group row">
+                                        <label className="col-sm-2 col-form-label"><h3>Race</h3></label>
+                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
+                                        <input className="form-control" {...bindRace}/>
                                         </div>
-                                    </h3>
-                                    <h3>
-                                        <div className="mb-3">
-                                            <label className="form-label">
-                                                Age
-                                                <input className="form-control" type="text" {...bindAge} />
-                                            </label>
+                                    </div>
+                                    <div className="form-group row">
+                                        <label className="col-sm-2 col-form-label"><h3>Age</h3></label>
+                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
+                                        <select className="custom-select" {...bindAge}>
+                                            <option selected>0</option>
+                                            {Array.from(Array(19).keys()).map((num: number) => (
+                                                <option value={num + 1}>{num + 1}</option>
+                                            ))}
+                                        </select>
                                         </div>
-                                    </h3>
-                                    <h3>
-                                        <div className="mb-3">
-                                            <label className="form-label">
-                                                City
-                                                <input className="form-control" type="text" {...bindCity} />
-                                            </label>
+                                    </div>
+                                    <div className="form-group row">
+                                        <label className="col-sm-2 col-form-label"><h3>City</h3></label>
+                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
+                                        <input className="form-control" {...bindCity}/>
                                         </div>
-                                    </h3>
-                                    <h3>
-                                        <div className="mb-3">
-                                            <label className="form-label">
-                                                FurColor
-                                                <input className="form-control" type="text" {...bindFurColor} />
-                                            </label>
-                                        </div>
-                                    </h3>
-                                    <h3>
-                                        <div className="mb-3">
-                                            <label className="form-label">
-                                                WeightInKg
-                                                <input className="form-control" type="text" {...bindWeightInKg} />
-                                            </label>
-                                        </div>
-                                    </h3>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -144,8 +125,8 @@ export default function CreateProfile() {
                             <div className="card">
                                 <h5 className="card-header">Details</h5>
                                 <div className="card-body">
-                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} /> kg</p>
-                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} /></p>
+                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} /><input style={{width: "70px", display: "inline-block"}} className="form-control" type="text" {...bindWeightInKg} /> kg</p>
+                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} /><input style={{width: "140px", display: "inline-block"}} className="form-control" type="text" {...bindFurColor} /></p>
                                 </div>
                             </div>
                         </div>
