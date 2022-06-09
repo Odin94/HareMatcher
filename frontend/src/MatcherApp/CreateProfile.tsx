@@ -191,8 +191,3 @@ const carouselResponsive = {
         slidesToSlide: 1
     }
 };
-
-class CreateProfileFormData {
-    constructor(public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public images: File[]) { }
-}
