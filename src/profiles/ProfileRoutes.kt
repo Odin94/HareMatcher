@@ -96,7 +96,7 @@ suspend fun <T> multiPartDataToClass(data: MultiPartData, javaClass: Class<T>): 
         }
     }
 
-    mapData["images"] = images.map { (_, byteStream) -> byteStream.toByteArray() }
+    mapData["images"] = images.toSortedMap().map { (_, byteStream) -> byteStream.toByteArray() }
 
     val gson = Gson()
     val jsonData = gson.toJson(mapData)

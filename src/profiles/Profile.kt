@@ -11,13 +11,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import users.UserDAO
 import users.Users
 import java.time.LocalDate
-import java.util.*
 
 
 @Serializable
 data class Profile(
     val id: Int?, val userId: Int, val name: String, val city: String, val race: String, val furColor: String,
-    val age: Int, val weightInKG: Double, val description: String, val picture: String, val vaccinations: List<Vaccination>
+    val age: Int, val weightInKG: Double, val description: String, val profilePictures: List<ProfilePicture>, val vaccinations: List<Vaccination>
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -32,7 +31,6 @@ data class Profile(
         if (furColor != other.furColor) return false
         if (age != other.age) return false
         if (weightInKG != other.weightInKG) return false
-        if (picture != other.picture) return false
 
         return true
     }
@@ -45,7 +43,6 @@ data class Profile(
         result = 31 * result + furColor.hashCode()
         result = 31 * result + age
         result = 31 * result + weightInKG.hashCode()
-        result = 31 * result + picture.hashCode()
         return result
     }
 }
@@ -59,7 +56,6 @@ object Profiles : IntIdTable() {
     val age: Column<Int> = integer("age")
     val weightInKG: Column<Double> = double("weightInKG")
     val description: Column<String> = text("description")
-    val picture: Column<ExposedBlob> = blob("picture")
 }
 
 class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
@@ -73,7 +69,7 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
     var age by Profiles.age
     var weightInKG by Profiles.weightInKG
     var description by Profiles.description
-    var picture by Profiles.picture
+    val pictures by ProfilePictureDAO referrersOn ProfilePictures.profile
     val vaccinations by VaccinationDAO referrersOn Vaccinations.profile
 
     fun toProfile() = Profile(
@@ -86,13 +82,11 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
         age,
         weightInKG,
         description,
-        Base64.getEncoder().encodeToString(picture.bytes),
+        transaction { pictures.map { it.toProfilePicture() } },
         transaction { vaccinations.map { it.toVaccination() } })
 }
 
 fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): Profile {
-    val imageBytes = profileCreationData.images[0]
-
     val newProfileDao = ProfileDAO.new {
         name = profileCreationData.name
         user = userDao
@@ -102,7 +96,14 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
         age = profileCreationData.age
         weightInKG = profileCreationData.weightInKg
         description = profileCreationData.description
-        picture = ExposedBlob(imageBytes)
+    }
+
+    profileCreationData.images.forEachIndexed { i, bytes ->
+        ProfilePictureDAO.new {
+            profile = newProfileDao
+            picture = ExposedBlob(bytes)
+            index = i
+        }
     }
 
     VaccinationDAO.new {

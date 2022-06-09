@@ -2,6 +2,7 @@ package de.odinmatthias
 
 import chat.registerChatRouting
 import de.odinmatthias.profiles.ProfileDAO
+import de.odinmatthias.profiles.ProfilePictureDAO
 import de.odinmatthias.profiles.VaccinationDAO
 import de.odinmatthias.profiles.registerProfileRouting
 import de.odinmatthias.users.registerUserRouting
@@ -219,11 +220,6 @@ fun createSampleData() {
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
         }
 
-        val image = ImageIO.read(File("resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg"))
-        val byteArrayOutStream = ByteArrayOutputStream()
-        ImageIO.write(image, "jpg", byteArrayOutStream)
-        val bytes = byteArrayOutStream.toByteArray()
-
         val freddoBunny = ProfileDAO.new {
             name = "FreddoBunny"
             user = freddo
@@ -237,7 +233,22 @@ fun createSampleData() {
 
                 Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
             """
-            picture = ExposedBlob(bytes)
+        }
+
+        arrayOf(
+            "resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg",
+            "resources/images/li-yan-3m4it24gFSg-unsplash.jpg"
+        ).forEachIndexed { i, path ->
+            val image = ImageIO.read(File(path))
+            val byteArrayOutStream = ByteArrayOutputStream()
+            ImageIO.write(image, "jpg", byteArrayOutStream)
+            val bytes = byteArrayOutStream.toByteArray()
+
+            ProfilePictureDAO.new {
+                profile = freddoBunny
+                picture = ExposedBlob(bytes)
+                index = i
+            }
         }
 
         VaccinationDAO.new {

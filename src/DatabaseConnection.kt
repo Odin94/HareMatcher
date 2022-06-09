@@ -2,6 +2,7 @@ package de.odinmatthias
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import de.odinmatthias.profiles.ProfilePictures
 import de.odinmatthias.profiles.Profiles
 import de.odinmatthias.profiles.Vaccinations
 import org.jetbrains.exposed.sql.*
@@ -71,6 +72,7 @@ class DatabaseConnector {
             SchemaUtils.create(Users)
             SchemaUtils.create(Profiles)
             SchemaUtils.create(Vaccinations)
+            SchemaUtils.create(ProfilePictures)
         }
     }
 

@@ -38,13 +38,7 @@ export default function Profile() {
             })
     }, []);
 
-    const imageSrc = profileData.pictureBase64 ? profileData.pictureBase64 : defaultEmptyPictureSource;
-    const profilePictures = [
-        new ProfilePicture(imageSrc, 0),
-        new ProfilePicture(secondPictureSource, 1),
-        new ProfilePicture(imageSrc, 2),
-        new ProfilePicture(secondPictureSource, 3),
-    ];
+    const profilePictures = profileData.pictures || [new ProfilePicture(defaultEmptyPictureSource, 0)];
     return (
         <div>
             {fetchError
@@ -70,7 +64,7 @@ export default function Profile() {
                                         itemClass="carousel-item-padding-40-px"
                                     >
                                         {profilePictures.map((profilePicture) => (
-                                            <img key={hashCode(profilePicture.imageSource)} src={profilePicture.imageSource} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
+                                            <img key={hashCode(profilePicture.picture)} src={profilePicture.picture} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                         ))}
                                     </Carousel>
                                 </div>
@@ -105,9 +99,9 @@ export default function Profile() {
             }
             {lightBoxStatus.isOpen && (
                 <Lightbox
-                    mainSrc={profilePictures[lightBoxStatus.index].imageSource}
-                    nextSrc={lightBoxStatus.index === profilePictures.length - 1 ? undefined : profilePictures[lightBoxStatus.index + 1].imageSource}
-                    prevSrc={lightBoxStatus.index === 0 ? undefined : profilePictures[(lightBoxStatus.index - 1)].imageSource}
+                    mainSrc={profilePictures[lightBoxStatus.index].picture}
+                    nextSrc={lightBoxStatus.index === profilePictures.length - 1 ? undefined : profilePictures[lightBoxStatus.index + 1].picture}
+                    prevSrc={lightBoxStatus.index === 0 ? undefined : profilePictures[(lightBoxStatus.index - 1)].picture}
                     onCloseRequest={() => setLightBoxStatus(new LightBoxStatus(false, 0))}
                     onMovePrevRequest={() =>
                         setLightBoxStatus(new LightBoxStatus(true, (lightBoxStatus.index + profilePictures.length - 1) % profilePictures.length))
@@ -121,12 +115,18 @@ export default function Profile() {
     )
 }
 
+
+
 class ProfileData {
     constructor(public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public pictureBase64?: string) { }
+        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public pictures?: ProfilePicture[]) { }
 
     static fromJson(json: any): ProfileData {
-        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, "data:image/jpg;base64," + json.picture);
+        const picturesBase64 = json.profilePictures
+            ?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index) 
+            ?.map((p: ProfilePicture) => new ProfilePicture("data:image/jpg;base64," + p.picture, p.index));
+
+        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, picturesBase64);
     }
 }
 
@@ -139,7 +139,7 @@ class LightBoxStatus {
 }
 
 class ProfilePicture {
-    constructor(public imageSource: string, public index: number) { }
+    constructor(public picture: string, public index: number) { }
 }
 
 const carouselResponsive = {
