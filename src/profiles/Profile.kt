@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import users.UserDAO
 import users.Users
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Serializable
@@ -106,15 +107,13 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
         }
     }
 
-    VaccinationDAO.new {
-        profile = newProfileDao
-        disease = "Myxomatosis"
-        date = LocalDate.of(2021, 6, 18)
-    }
-    VaccinationDAO.new {
-        profile = newProfileDao
-        disease = "RVHD"
-        date = LocalDate.of(2022, 6, 3)
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    profileCreationData.vaccinations.forEach {
+        VaccinationDAO.new {
+            profile = newProfileDao
+            disease = it.disease
+            date = LocalDate.parse(it.date, formatter)
+        }
     }
 
     return newProfileDao.toProfile()

@@ -70,8 +70,11 @@ data class ProfileCreationData(
     val age: Int,
     val weightInKg: Double,
     val description: String,
-    val images: Array<ByteArray>
+    val images: Array<ByteArray>,
+    val vaccinations: Array<VaccinationDTO>
 )
+
+data class VaccinationDTO(val disease: String, val date: String)
 
 suspend fun <T> multiPartDataToClass(data: MultiPartData, javaClass: Class<T>): T {
     val mapData = mutableMapOf<String, Any>()
@@ -100,6 +103,9 @@ suspend fun <T> multiPartDataToClass(data: MultiPartData, javaClass: Class<T>): 
 
     val gson = Gson()
     val jsonData = gson.toJson(mapData)
+        .replace("\\", "")  // ugly hack to allow JSON.stringify'd lists :(
+        .replace("\"[", "[")
+        .replace("]\"", "]")
     return gson.fromJson(jsonData, javaClass)
 }
 

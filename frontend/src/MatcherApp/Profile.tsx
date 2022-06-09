@@ -8,11 +8,11 @@ import 'react-image-lightbox/style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWeightHanging, faPalette, faSyringe } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
+import { Vaccination } from "./Types";
 
 
 
 const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
-const secondPictureSource = "https://images.unsplash.com/photo-1654077013798-8465c12f9672?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=700&q=80";
 
 export default function Profile() {
     const { id } = useParams();
@@ -128,10 +128,6 @@ class ProfileData {
 
         return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, picturesBase64);
     }
-}
-
-class Vaccination {
-    constructor(public disease: string, public date: string) { }
 }
 
 class LightBoxStatus {

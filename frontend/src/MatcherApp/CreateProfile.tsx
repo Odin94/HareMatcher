@@ -1,12 +1,13 @@
 import { FormEvent, useState } from "react";
-import { apiVersion, baseUrl, convertBase64, hashCode } from "../Globals";
+import { apiVersion, baseUrl } from "../Globals";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faWeightHanging, faPalette, faSyringe } from '@fortawesome/free-solid-svg-icons'
+import { faWeightHanging, faPalette, faSyringe, faPlus } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
 import { useInput } from "../CustomHooks";
 import { Button, Form } from "react-bootstrap";
+import { Vaccination } from "./Types";
 
 
 const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
@@ -21,9 +22,9 @@ export default function CreateProfile() {
     const { value: weightInKg, bind: bindWeightInKg, reset: resetWeightInKg } = useInput('0.0');
     const { value: description, bind: bindDescription, reset: resetDescription } = useInput('');
     const [pictureSources, setPictureSources] = useState([] as File[]);
+    const [vaccinations, setVaccinations] = useState([new Vaccination("", "")] as Vaccination[]);
 
     const [postError, setPostError] = useState("");
-
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -39,6 +40,7 @@ export default function CreateProfile() {
         for (const i in pictureSources) {
             formData.append(`image${i}`, pictureSources[i]);
         }
+        formData.append("vaccinations", JSON.stringify(vaccinations));
 
         fetch(`${baseUrl}/api/${apiVersion}/profiles`, {
             method: "POST",
@@ -156,6 +158,27 @@ export default function CreateProfile() {
                                 <div className="card-body">
                                     <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} /><input style={{width: "70px", display: "inline-block"}} className="form-control" type="text" {...bindWeightInKg} /> kg</p>
                                     <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} /><input style={{width: "140px", display: "inline-block"}} className="form-control" type="text" {...bindFurColor} /></p>
+                                    {vaccinations.map((vac, i) => (
+                                        <p key={i}><FontAwesomeIcon icon={faSyringe} style={{marginRight: "20px"}}/>
+                                            <input style={{width: "280px", display: "inline-block"}} className="form-control" type="text" value={vac.disease} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { 
+                                                const newVaccinations = [...vaccinations];
+                                                newVaccinations[i].disease = (event.currentTarget.value);
+                                                setVaccinations(newVaccinations);
+                                             }} />
+                                            <span style={{float: "right"}}>
+                                                <input style={{width: "140px", display: "inline-block"}} className="form-control" type="date" value={vac.date} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { 
+                                                    const newVaccinations = [...vaccinations];
+                                                    newVaccinations[i].date = (event.currentTarget.value);
+                                                    setVaccinations(newVaccinations);
+                                                 }} />
+                                             </span>
+                                         </p>
+                                    ))}
+                                    <p style={{ marginTop: "30px", fontSize: "40px" }}><button onClick={() => {
+                                        const newVaccinations = [...vaccinations];
+                                        newVaccinations.push(new Vaccination("", ""));
+                                        setVaccinations(newVaccinations);
+                                    }} type="button" className="btn btn-outline-success"><FontAwesomeIcon icon={faPlus}/> Add Vaccination</button></p>
                                 </div>
                             </div>
                         </div>
