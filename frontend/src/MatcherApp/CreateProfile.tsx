@@ -27,12 +27,22 @@ export default function CreateProfile() {
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-        const imagesBase64 = await Promise.all(pictureSources.map(async (file) => await convertBase64(file)));
+        
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("race", race);
+        formData.append("age", age);
+        formData.append("city", city);
+        formData.append("description", description);
+        formData.append("furColor", furColor);
+        formData.append("weightInKg", weightInKg);
+        for (const i in pictureSources) {
+            formData.append(`image${i}`, pictureSources[i]);
+        }
 
         fetch(`${baseUrl}/api/${apiVersion}/profiles`, {
             method: "POST",
-            body: JSON.stringify({ name, race, age, city, description, furColor, weightInKg, imagesBase64 }),
-            headers: { 'Content-Type': 'application/json' },
+            body: formData,
             credentials: 'include',
         })
             .then(response => response.json())
@@ -182,3 +192,8 @@ const carouselResponsive = {
         slidesToSlide: 1
     }
 };
+
+class CreateProfileFormData {
+    constructor(public name: string, public city: string, public race: string, public furColor: string,
+        public age: number, public weightInKG: number, public description: string, public images: File[]) { }
+}

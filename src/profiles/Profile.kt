@@ -91,12 +91,7 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
 }
 
 fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): Profile {
-    val imageBytes = if (profileCreationData.imagesBase64[0].contains(",")) {
-        // split out 'data:image/png;base64,'
-        Base64.getDecoder().decode(profileCreationData.imagesBase64[0].split(",")[1])
-    } else {
-        Base64.getDecoder().decode(profileCreationData.imagesBase64[0])
-    }
+    val imageBytes = profileCreationData.images[0]
 
     val newProfileDao = ProfileDAO.new {
         name = profileCreationData.name

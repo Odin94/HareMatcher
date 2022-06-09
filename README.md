@@ -27,6 +27,7 @@ to enable running both with hot reloading for development.
 * Add actual matching (two profiles matched each other, displayed on "your matches" page, can unmatch)
 * Add chat for matches
 * Add filtering for matches (looking for bunnies of specific size, age, fluffiness etc)
+* Validate input: https://stackoverflow.com/questions/54204190/ktor-how-can-i-validate-json-request**
 
 ### Credits
 * Images from [Unsplash](https://unsplash.com)
