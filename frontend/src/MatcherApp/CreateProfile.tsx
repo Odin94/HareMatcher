@@ -126,11 +126,6 @@ export default function CreateProfile() {
                                                         const newPictureSources = [...pictureSources];
                                                         newPictureSources[0] = event.target.files[0];
                                                         setPictureSources(newPictureSources);
-
-                                                        const file = event.target.files[0];
-                                                        const base64 = await convertBase64(file);
-
-                                                        console.log(URL.createObjectURL(event.target.files[0]))
                                                     }}/>
                                             </Form.Group>
                                         </div>
