@@ -6,7 +6,7 @@ import "react-multi-carousel/lib/styles.css";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faWeightHanging, faPalette, faSyringe } from '@fortawesome/free-solid-svg-icons'
+import { faWeightHanging, faPalette, faSyringe, faHeart, faX } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
 import { Vaccination } from "./Types";
 
@@ -48,8 +48,16 @@ export default function Profile() {
                         <div className="col">
                             <div className="card">
                                 <div className="card-body">
-                                    <h1>{profileData.name}</h1>
-                                    <p>{profileData.race} • {profileData.age} • {profileData.city}</p>
+                                    <div className="row">
+                                        <div className="col">
+                                            <h1>{profileData.name}</h1>
+                                            <p>{profileData.race} • {profileData.age} • {profileData.city}</p>
+                                        </div>
+                                        <div className="col">
+                                            <button className="btn btn-danger btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faHeart} style={{ marginRight: "10px" }} />Match Me!</button>
+                                            <button className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
+                                        </div>
+                                    </div>
 
                                     <Carousel
                                         swipeable={true}
