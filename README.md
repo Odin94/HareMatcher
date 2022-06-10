@@ -19,10 +19,8 @@ Harematcher is a pet project built to let you match with the cute bunny of your 
 to enable running both with hot reloading for development. 
 
 ### TODOs
-* Make all 404s just return your index (prevents errors when directly going to URLs that are made for react router)
-* Set up basic profile page (picture, basic info section, description)
-  * add test accounts that get created on startup
-  * add page for updating basic profile page
+* Fix images not loading in lightbox when clicking until re-render is triggered
+* add page for updating profile page
 * Add basic matching page (see profile, allow selecting Match or Skip)
 * Add actual matching (two profiles matched each other, displayed on "your matches" page, can unmatch)
 * Add chat for matches
