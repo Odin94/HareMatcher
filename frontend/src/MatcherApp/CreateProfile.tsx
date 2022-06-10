@@ -28,7 +28,7 @@ export default function CreateProfile() {
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-        
+
         const formData = new FormData();
         formData.append("name", name);
         formData.append("race", race);
@@ -71,30 +71,30 @@ export default function CreateProfile() {
                                 <div className="card-body">
                                     <div className="form-group row">
                                         <label className="col-sm-2 col-form-label"><h3>Name</h3></label>
-                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
-                                        <input className="form-control" {...bindName}/>
+                                        <div className="col-sm-10" style={{ maxWidth: "400px" }}>
+                                            <input className="form-control" {...bindName} />
                                         </div>
                                     </div>
                                     <div className="form-group row">
                                         <label className="col-sm-2 col-form-label"><h3>Race</h3></label>
-                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
-                                        <input className="form-control" {...bindRace}/>
+                                        <div className="col-sm-10" style={{ maxWidth: "400px" }}>
+                                            <input className="form-control" {...bindRace} />
                                         </div>
                                     </div>
                                     <div className="form-group row">
                                         <label className="col-sm-2 col-form-label"><h3>Age</h3></label>
-                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
-                                        <select className="custom-select" {...bindAge}>
-                                            {Array.from(Array(20).keys()).map((num: number) => (
-                                                <option key={num} value={num}>{num}</option>
-                                            ))}
-                                        </select>
+                                        <div className="col-sm-10" style={{ maxWidth: "400px" }}>
+                                            <select className="custom-select" {...bindAge}>
+                                                {Array.from(Array(20).keys()).map((num: number) => (
+                                                    <option key={num} value={num}>{num}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
                                     <div className="form-group row">
                                         <label className="col-sm-2 col-form-label"><h3>City</h3></label>
-                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
-                                        <input className="form-control" {...bindCity}/>
+                                        <div className="col-sm-10" style={{ maxWidth: "400px" }}>
+                                            <input className="form-control" {...bindCity} />
                                         </div>
                                     </div>
                                 </div>
@@ -125,18 +125,18 @@ export default function CreateProfile() {
                                         )}
                                     </Carousel>
 
-                                    <div className="form-group row" style={{marginTop: "20px"}}>
-                                        <div className="col-sm-10" style={{maxWidth: "400px"}}>
+                                    <div className="form-group row" style={{ marginTop: "20px" }}>
+                                        <div className="col-sm-10" style={{ maxWidth: "400px" }}>
                                             <Form.Group controlId="formFile" className="mb-3">
                                                 <Form.Control type="file" onChange={async (event: any) => {
-                                                        const newPictureSources = [...pictureSources];
-                                                        newPictureSources.push(event.target.files[0]);
-                                                        setPictureSources(newPictureSources);
-                                                    }}/>
+                                                    const newPictureSources = [...pictureSources];
+                                                    newPictureSources.push(event.target.files[0]);
+                                                    setPictureSources(newPictureSources);
+                                                }} />
                                             </Form.Group>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -156,29 +156,29 @@ export default function CreateProfile() {
                             <div className="card">
                                 <h5 className="card-header">Details</h5>
                                 <div className="card-body">
-                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} /><input style={{width: "70px", display: "inline-block"}} className="form-control" type="text" {...bindWeightInKg} /> kg</p>
-                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} /><input style={{width: "140px", display: "inline-block"}} className="form-control" type="text" {...bindFurColor} /></p>
+                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} /><input style={{ width: "70px", display: "inline-block" }} className="form-control" type="text" {...bindWeightInKg} /> kg</p>
+                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} /><input style={{ width: "140px", display: "inline-block" }} className="form-control" type="text" {...bindFurColor} /></p>
                                     {vaccinations.map((vac, i) => (
-                                        <p key={i}><FontAwesomeIcon icon={faSyringe} style={{marginRight: "20px"}}/>
-                                            <input style={{width: "280px", display: "inline-block"}} className="form-control" type="text" value={vac.disease} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { 
+                                        <p key={i}><FontAwesomeIcon icon={faSyringe} style={{ marginRight: "20px" }} />
+                                            <input style={{ width: "280px", display: "inline-block" }} className="form-control" type="text" value={vac.disease} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                                 const newVaccinations = [...vaccinations];
                                                 newVaccinations[i].disease = (event.currentTarget.value);
                                                 setVaccinations(newVaccinations);
-                                             }} />
-                                            <span style={{float: "right"}}>
-                                                <input style={{width: "140px", display: "inline-block"}} className="form-control" type="date" value={vac.date} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { 
+                                            }} />
+                                            <span style={{ float: "right" }}>
+                                                <input style={{ width: "140px", display: "inline-block" }} className="form-control" type="date" value={vac.date} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                                     const newVaccinations = [...vaccinations];
                                                     newVaccinations[i].date = (event.currentTarget.value);
                                                     setVaccinations(newVaccinations);
-                                                 }} />
-                                             </span>
-                                         </p>
+                                                }} />
+                                            </span>
+                                        </p>
                                     ))}
                                     <p style={{ marginTop: "30px", fontSize: "40px" }}><button onClick={() => {
                                         const newVaccinations = [...vaccinations];
                                         newVaccinations.push(new Vaccination("", ""));
                                         setVaccinations(newVaccinations);
-                                    }} type="button" className="btn btn-outline-success"><FontAwesomeIcon icon={faPlus}/> Add Vaccination</button></p>
+                                    }} type="button" className="btn btn-outline-success"><FontAwesomeIcon icon={faPlus} /> Add Vaccination</button></p>
                                 </div>
                             </div>
                         </div>

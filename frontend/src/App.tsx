@@ -28,12 +28,12 @@ export default function App() {
         </nav>
 
         <Routes>
-          <Route path="/signup" element={<Signup/>} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/me" element={<User/>} />
-          <Route path="/profile/:id" element={<Profile/>} />
-          <Route path="/profile/create" element={<CreateProfile/>} />
-          <Route path="/" element={<Landing/>} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/me" element={<User />} />
+          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/profile/create" element={<CreateProfile />} />
+          <Route path="/" element={<Landing />} />
         </Routes>
       </div>
     </Router>

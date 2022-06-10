@@ -79,13 +79,13 @@ export default function Profile() {
                             </div>
                         </div>
                     </div>
-                    <div className="row" style={{marginTop: "20px"}}>
+                    <div className="row" style={{ marginTop: "20px" }}>
                         <div className="col">
                             <div className="card">
                                 <h5 className="card-header">Description</h5>
                                 <div className="card-body">
                                     {profileData.description.split("\n\n").map((paragraph) => (
-                                        <p key={hashCode(paragraph)} style={{fontSize: "1.23rem"}}>{paragraph}</p>
+                                        <p key={hashCode(paragraph)} style={{ fontSize: "1.23rem" }}>{paragraph}</p>
                                     ))}
                                 </div>
                             </div>
@@ -94,10 +94,10 @@ export default function Profile() {
                             <div className="card">
                                 <h5 className="card-header">Details</h5>
                                 <div className="card-body">
-                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{marginRight: "20px"}}/>{profileData.weightInKG} kg</p>
-                                    <p><FontAwesomeIcon icon={faPalette} style={{marginRight: "20px"}}/>{profileData.furColor}</p>
+                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} />{profileData.weightInKG} kg</p>
+                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} />{profileData.furColor}</p>
                                     {profileData.vaccinations.map((vac) => (
-                                        <p key={vac.disease}><FontAwesomeIcon icon={faSyringe} style={{marginRight: "20px"}}/>{vac.disease} <span style={{float: "right"}}>{vac.date}</span></p>
+                                        <p key={vac.disease}><FontAwesomeIcon icon={faSyringe} style={{ marginRight: "20px" }} />{vac.disease} <span style={{ float: "right" }}>{vac.date}</span></p>
                                     ))}
                                 </div>
                             </div>
@@ -131,7 +131,7 @@ class ProfileData {
 
     static fromJson(json: any): ProfileData {
         const picturesBase64 = json.profilePictures
-            ?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index) 
+            ?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index)
             ?.map((p: ProfilePicture) => new ProfilePicture("data:image/jpg;base64," + p.picture, p.index));
 
         return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, picturesBase64);

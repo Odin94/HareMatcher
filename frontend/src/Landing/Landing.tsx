@@ -13,7 +13,7 @@ export default function Landing() {
                     <button className="btn btn-outline-secondary btn-lg px-4" type="button">Read more</button>
                 </div>
             </div>
-            <div style={{maxHeight: "30vh"}}>
+            <div style={{ maxHeight: "30vh" }}>
                 <div className="container px-5">
                     <img alt=""
                         className="img-fluid border rounded-3 shadow-lg" loading="lazy"
