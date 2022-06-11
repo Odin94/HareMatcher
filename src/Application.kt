@@ -96,8 +96,8 @@ fun Application.module(testing: Boolean = false) {
                 val passwordIsCorrect = BCrypt.checkpw(it.password, String(user.hashedPassword))
                 if (passwordIsCorrect) {
                     val principal = UserIdPrincipal(it.name)
-                    val session = sessions.get<UserSession>() ?: UserSession()
-                    sessions.set(session.copy(loggedIn = true, email = principal.name))
+                    val session = sessions.get<UserSession>() ?: UserSession(true, user.id.value, principal.name)
+                    sessions.set(session.copy(loggedIn = true, userId = user.id.value, email = principal.name))
 
                     principal
                 } else {
@@ -192,12 +192,6 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("Inside $it")
         }
 
-        get("/session/increment") {
-            val session = call.sessions.get<UserSession>() ?: UserSession()
-//            call.sessions.set(session.copy(count = session.count + 1))
-            call.respondText("Counter is ${session}. Refresh to increment.")
-        }
-
         webSocket("/myws/echo") {
             send(Frame.Text("Hi from server"))
             while (true) {
@@ -276,7 +270,7 @@ data class Type(val name: String) {
     data class List(val type: Type, val page: Int)
 }
 
-data class UserSession(val loggedIn: Boolean = false, val email: String = "")
+data class UserSession(val loggedIn: Boolean = false, val userId: Int, val email: String = "")
 
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()
