@@ -1,10 +1,8 @@
 package de.odinmatthias
 
 import chat.registerChatRouting
-import de.odinmatthias.profiles.ProfileDAO
-import de.odinmatthias.profiles.ProfilePictureDAO
-import de.odinmatthias.profiles.VaccinationDAO
-import de.odinmatthias.profiles.registerProfileRouting
+import de.odinmatthias.chat.Swipes
+import de.odinmatthias.profiles.*
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -20,6 +18,7 @@ import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
 import io.ktor.websocket.*
+import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
@@ -202,7 +201,18 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
+        deleteAllData()  // TODO: Remove for production usage
         createSampleData()
+    }
+}
+
+fun deleteAllData() {
+    transaction {
+        Swipes.deleteAll()
+        Vaccinations.deleteAll()
+        ProfilePictures.deleteAll()
+        Profiles.deleteAll()
+        Users.deleteAll()
     }
 }
 
@@ -228,6 +238,7 @@ fun createSampleData() {
                 Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
             """
         }
+        logger.info("FreddoBunny profile id: ${freddoBunny.id}")
 
         arrayOf(
             "resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg",
@@ -256,6 +267,14 @@ fun createSampleData() {
             date = LocalDate.of(2022, 6, 3)
         }
     }
+
+    transaction {
+        val frado = UserDAO.new {
+            name = "Frado"
+            email = "frado@test.de"
+            hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
+        }
+    }
 }
 
 @Location("/location/{name}")
@@ -270,7 +289,10 @@ data class Type(val name: String) {
     data class List(val type: Type, val page: Int)
 }
 
-data class UserSession(val loggedIn: Boolean = false, val userId: Int, val email: String = "")
+data class UserSession(val loggedIn: Boolean = false, val userId: Int = -1, val email: String = "") {
+    fun getCurrentUser() = transaction { return@transaction UserDAO.findById(userId)?.toUser() }
+    fun getCurrentUserDAO() = transaction { return@transaction UserDAO.findById(userId) }
+}
 
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()

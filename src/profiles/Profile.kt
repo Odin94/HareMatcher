@@ -1,5 +1,8 @@
 package de.odinmatthias.profiles
 
+import de.odinmatthias.chat.LikeDAO
+import de.odinmatthias.chat.Swipe
+import de.odinmatthias.chat.Swipes
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -17,7 +20,8 @@ import java.time.format.DateTimeFormatter
 @Serializable
 data class Profile(
     val id: Int?, val userId: Int, val name: String, val city: String, val race: String, val furColor: String,
-    val age: Int, val weightInKG: Double, val description: String, val profilePictures: List<ProfilePicture>, val vaccinations: List<Vaccination>
+    val age: Int, val weightInKG: Double, val description: String, val profilePictures: List<ProfilePicture>,
+    val vaccinations: List<Vaccination>, val receivedSwipes: List<Swipe>, val matchable: Boolean
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -72,8 +76,9 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
     var description by Profiles.description
     val pictures by ProfilePictureDAO referrersOn ProfilePictures.profile
     val vaccinations by VaccinationDAO referrersOn Vaccinations.profile
+    val receivedLikes by LikeDAO referrersOn Swipes.likedProfile
 
-    fun toProfile() = Profile(
+    fun toProfile(matchable: Boolean = false) = Profile(
         id.value,
         user.id.value,
         name,
@@ -84,7 +89,10 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
         weightInKG,
         description,
         transaction { pictures.map { it.toProfilePicture() } },
-        transaction { vaccinations.map { it.toVaccination() } })
+        transaction { vaccinations.map { it.toVaccination() } },
+        transaction { receivedLikes.map { it.toLike() } },
+        matchable
+    )
 }
 
 fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): Profile {

@@ -12,8 +12,6 @@ import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import users.UserDAO
-import users.Users
 import java.io.ByteArrayOutputStream
 
 private val logger = LoggerFactory.getLogger("ProfileRouting")
@@ -23,22 +21,17 @@ fun Route.profileRouting() {
         authenticate("userAuth") {
             route("profiles") {
                 get("{id}") {
-                    val session = call.sessions.get<UserSession>()!!
-                    val id = call.parameters["id"]?.toInt() ?: return@get call.respondText(
+                    val profileId = call.parameters["id"]?.toInt() ?: return@get call.respondText(
                         "Missing or malformed id",
                         status = HttpStatusCode.BadRequest
                     )
 
-                    val profileBelongsToUser = transaction {
-                        val profiles = UserDAO.find { Users.email eq session.email }.first().profiles
-                        return@transaction profiles.map { it.id.value }.contains(id)
-                    }
-                    if (!profileBelongsToUser) {
-                        return@get call.respond(HttpStatusCode.BadRequest)
-                    }
+                    val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                        ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
+                    val matchable = !currentUser.profileIds.contains(profileId)
                     val profile = transaction {
-                        return@transaction ProfileDAO.findById(id)?.toProfile()
+                        return@transaction ProfileDAO.findById(profileId)?.toProfile(matchable)
                     } ?: return@get call.respond(HttpStatusCode.NotFound)
 
                     call.respond(profile)
@@ -48,12 +41,9 @@ fun Route.profileRouting() {
                     val multiPartData = call.receiveMultipart()
                     val profileCreationData = multiPartDataToClass(multiPartData, ProfileCreationData::class.java)
 
-                    val session = call.sessions.get<UserSession>()!!
-                    val profile = transaction {
-                        val userDAO = UserDAO.find { Users.email eq session.email }.first()
-
-                        return@transaction createProfile(userDAO, profileCreationData)
-                    }
+                    val currentUserDao = call.sessions.get<UserSession>()?.getCurrentUserDAO()
+                        ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                    val profile = createProfile(currentUserDao, profileCreationData)
 
                     call.respond(profile)
                 }

@@ -16,7 +16,7 @@ const defaultEmptyPictureSource = "https://images.unsplash.com/photo-16105591760
 
 export default function Profile() {
     const { id } = useParams();
-    const [profileData, setProfileData] = useState(new ProfileData("", "", "", "", 0, 0, "", [], undefined));
+    const [profileData, setProfileData] = useState(new ProfileData("", "", "", "", 0, 0, "", [], false, undefined));
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
     const [fetchError, setFetchError] = useState("");
 
@@ -38,6 +38,20 @@ export default function Profile() {
             })
     }, []);
 
+    const swipe = (likeOrPass: "LIKE" | "PASS") => {
+        fetch(`${baseUrl}/api/${apiVersion}/users/swipe`, {
+            method: "POST",
+            body: JSON.stringify({ profileId: id, likeOrPass: likeOrPass }),
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+        })
+            .then(response => response.status)
+            .then(status => console.log(`posted: ${status}`))
+            .catch((err: Error) => {
+                console.log(`error when posting: ${err}`);
+            })
+    }
+
     const profilePictures = profileData.pictures || [new ProfilePicture(defaultEmptyPictureSource, 0)];
     return (
         <div>
@@ -54,8 +68,13 @@ export default function Profile() {
                                             <p>{profileData.race} • {profileData.age} • {profileData.city}</p>
                                         </div>
                                         <div className="col">
-                                            <button className="btn btn-danger btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faHeart} style={{ marginRight: "10px" }} />Match Me!</button>
-                                            <button className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
+                                            {profileData.matchable
+                                                ? <div>
+                                                    <button onClick={() => swipe("LIKE")} className="btn btn-danger btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faHeart} style={{ marginRight: "10px" }} />Match Me!</button>
+                                                    <button onClick={() => swipe("PASS")} className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
+                                                </div>
+                                                : <div></div>
+                                            }
                                         </div>
                                     </div>
 
@@ -124,17 +143,16 @@ export default function Profile() {
 }
 
 
-
 class ProfileData {
     constructor(public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public pictures?: ProfilePicture[]) { }
+        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public matchable: boolean, public pictures?: ProfilePicture[]) { }
 
     static fromJson(json: any): ProfileData {
         const picturesBase64 = json.profilePictures
             ?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index)
             ?.map((p: ProfilePicture) => new ProfilePicture("data:image/jpg;base64," + p.picture, p.index));
 
-        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, picturesBase64);
+        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, picturesBase64);
     }
 }
 
