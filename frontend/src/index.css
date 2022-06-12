@@ -17,3 +17,7 @@ code {
   background-color: #1b1b1b !important;
   color: white;
 }
+
+img {
+  object-fit: cover;
+}
