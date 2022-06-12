@@ -45,8 +45,11 @@ export default function Profile() {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
         })
-            .then(response => response.status)
-            .then(status => console.log(`posted: ${status}`))
+            .then(response => {
+                if (!response.ok) throw new Error(response.statusText);
+                return response.status;
+            })
+            .then(status => console.log(`post successful: ${status}`))
             .catch((err: Error) => {
                 console.log(`error when posting: ${err}`);
             })
