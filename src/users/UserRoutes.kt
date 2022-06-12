@@ -29,9 +29,8 @@ fun Route.userRouting() {
             }
 
             post("/logout") {
-                call.sessions.clear<UserIdPrincipal>()
                 call.sessions.clear<UserSession>()
-                call.respondRedirect("/login")
+                call.respond(HttpStatusCode.OK)
             }
         }
 
