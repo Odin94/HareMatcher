@@ -65,7 +65,7 @@ export default function Matches() {
                                     selectedProfileWithMatches.matches.length === 0
                                         ? <div><h4>{selectedProfileWithMatches.selectedProfilePreview.name} has no matches yet</h4></div>
                                         : selectedProfileWithMatches.matches.map((match, i) => (
-                                            <div className={`card${(i === 0) ? "" : " mt-1"}`}>
+                                            <div key={match.matchingUser.name} className={`card${(i === 0) ? "" : " mt-1"}`}>
                                                 <div className="card-body">
                                                     <div className="row">
                                                         <div className="col-2">
