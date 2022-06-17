@@ -1,4 +1,4 @@
-package de.odinmatthias.chat
+package de.odinmatthias.matches
 
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
@@ -16,7 +16,13 @@ import java.time.format.DateTimeFormatter
 
 
 @Serializable
-data class Swipe(val id: Int?, val userId: Int, val likedProfileId: Int, val createdOn: String, val likeOrPass: LikeOrPass)
+data class Swipe(
+    val id: Int?,
+    val userId: Int,
+    val likedProfileId: Int,
+    val createdOn: String,
+    val likeOrPass: LikeOrPass
+)
 
 object Swipes : IntIdTable() {
     val user = reference("user", Users)
@@ -33,7 +39,13 @@ class LikeDAO(id: EntityID<Int>) : IntEntity(id) {
     var createdOn by Swipes.createdOn
     var likeOrPass by Swipes.likeOrPass
 
-    fun toLike() = Swipe(id.value, user.id.value, likedProfile.id.value, createdOn.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), likeOrPass)
+    fun toLike() = Swipe(
+        id.value,
+        user.id.value,
+        likedProfile.id.value,
+        createdOn.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
+        likeOrPass
+    )
 }
 
 enum class LikeOrPass {

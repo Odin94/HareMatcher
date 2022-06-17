@@ -1,9 +1,7 @@
 package de.odinmatthias.users
 
 import de.odinmatthias.UserSession
-import de.odinmatthias.chat.LikeDAO
-import de.odinmatthias.chat.LikeOrPass
-import de.odinmatthias.profiles.ProfileDAO
+import de.odinmatthias.matches.LikeOrPass
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -16,7 +14,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import users.UserDAO
 import users.Users
-import java.time.LocalDateTime
 
 
 fun Route.userRouting() {
@@ -58,33 +55,6 @@ fun Route.userRouting() {
                         ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                     call.respond(user)
-                }
-
-                post("swipe") {
-                    val swipeData = call.receive<SwipeData>()
-
-                    val userDao = call.sessions.get<UserSession>()?.getCurrentUserDAO()
-                        ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                    val profileDAO = transaction { ProfileDAO.findById(swipeData.profileId) }
-                        ?: return@post call.respond(HttpStatusCode.NotFound)
-
-                    val isDuplicate = transaction {
-                        userDao.givenSwipes.any { it.likedProfile.id.value == swipeData.profileId }
-                    }
-                    if (isDuplicate) {
-                        return@post call.respond(HttpStatusCode.Conflict)
-                    }
-
-                    transaction {
-                        LikeDAO.new {
-                            user = userDao
-                            likedProfile = profileDAO
-                            createdOn = LocalDateTime.now()
-                            likeOrPass = swipeData.likeOrPass
-                        }
-                    }
-
-                    call.respond(HttpStatusCode.Accepted)
                 }
 
                 delete("{id}") {

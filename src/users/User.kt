@@ -1,7 +1,7 @@
 package users
 
-import de.odinmatthias.chat.LikeDAO
-import de.odinmatthias.chat.Swipes
+import de.odinmatthias.matches.LikeDAO
+import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
 import kotlinx.serialization.Serializable

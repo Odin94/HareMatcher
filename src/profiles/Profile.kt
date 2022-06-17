@@ -1,8 +1,8 @@
 package de.odinmatthias.profiles
 
-import de.odinmatthias.chat.LikeDAO
-import de.odinmatthias.chat.Swipe
-import de.odinmatthias.chat.Swipes
+import de.odinmatthias.matches.LikeDAO
+import de.odinmatthias.matches.Swipe
+import de.odinmatthias.matches.Swipes
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass

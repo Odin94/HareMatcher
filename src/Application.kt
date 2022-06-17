@@ -1,7 +1,6 @@
 package de.odinmatthias
 
-import chat.registerChatRouting
-import de.odinmatthias.chat.Swipes
+import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.*
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
@@ -18,6 +17,7 @@ import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
 import io.ktor.websocket.*
+import matches.registerMatchRouting
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -154,7 +154,7 @@ fun Application.module(testing: Boolean = false) {
 
     registerUserRouting()
     registerProfileRouting()
-    registerChatRouting()
+    registerMatchRouting()
     routing {
         static("/") {
             default("resources/react/index.html")

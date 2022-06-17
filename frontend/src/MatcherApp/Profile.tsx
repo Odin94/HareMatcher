@@ -14,10 +14,9 @@ const defaultEmptyPictureSource = "https://images.unsplash.com/photo-16105591760
 
 const Profile: React.FC<ProfileProps> = ({ profile, fetchError }: ProfileProps) => {
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
-    console.log(profile.id);
 
     const swipe = (likeOrPass: "LIKE" | "PASS") => {
-        fetch(`${baseUrl}/api/${apiVersion}/users/swipe`, {
+        fetch(`${baseUrl}/api/${apiVersion}/swipe`, {
             method: "POST",
             body: JSON.stringify({ profileId: profile.id, likeOrPass: likeOrPass }),
             headers: { 'Content-Type': 'application/json' },

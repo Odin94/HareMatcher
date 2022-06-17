@@ -2,7 +2,7 @@ package de.odinmatthias
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import de.odinmatthias.chat.Swipes
+import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfilePictures
 import de.odinmatthias.profiles.Profiles
 import de.odinmatthias.profiles.Vaccinations
