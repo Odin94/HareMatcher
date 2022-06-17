@@ -31,6 +31,20 @@ export default function Matches() {
             })
     }, []);
 
+    useEffect(() => {
+        fetch(`${baseUrl}/api/${apiVersion}/profileForMatching`, {
+            method: "GET",
+            credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+                return response.json();
+            }).then(json => console.log(JSON.stringify(json)))
+            .catch((err: Error) => {
+                console.log(`error when posting: ${err}`);
+            })
+    }, [])
+
     return (
         <div>
             <div className="container" style={{ width: "80%", margin: "0 auto" }}>

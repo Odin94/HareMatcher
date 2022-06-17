@@ -11,10 +11,11 @@ import Signup from './Landing/Signup';
 import Login from './Landing/Login';
 import Landing from './Landing/Landing';
 import User from './MatcherApp/User';
-import Profile from './MatcherApp/Profile';
 import CreateProfile from './MatcherApp/CreateProfile';
 import { apiVersion, baseUrl } from './Globals';
 import Matches from './MatcherApp/Matches';
+import SpecificProfile from './MatcherApp/SpecificProfile';
+import Discover from './MatcherApp/Discover';
 
 export default function App() {
   const logout = () => {
@@ -40,6 +41,7 @@ export default function App() {
             <li><Link to="/login">Login</Link></li>
             <li><a href='/' onClick={logout}>Logout</a></li>
             <li><Link to="/me">My Profile</Link></li>
+            <li><Link to="/discover">Discover</Link></li>
             <li><Link to="/matches">Matches</Link></li>
           </ul>
         </nav>
@@ -49,7 +51,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/me" element={<User />} />
           <Route path="/matches" element={<Matches />} />
-          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/profile/:id" element={<SpecificProfile />} />
           <Route path="/profile/create" element={<CreateProfile />} />
           <Route path="/" element={<Landing />} />
         </Routes>

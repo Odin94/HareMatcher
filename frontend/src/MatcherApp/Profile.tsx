@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useParams } from 'react-router';
+import { useState } from "react";
 import { apiVersion, baseUrl, hashCode } from "../Globals";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -8,40 +7,19 @@ import 'react-image-lightbox/style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWeightHanging, faPalette, faSyringe, faHeart, faX } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
-import { Vaccination } from "./Types";
-
+import { ProfileData, ProfilePicture } from "./Types";
 
 
 const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
 
-export default function Profile() {
-    const { id } = useParams();
-    const [profileData, setProfileData] = useState(new ProfileData("", "", "", "", 0, 0, "", [], false, undefined));
+const Profile: React.FC<ProfileProps> = ({ profile, fetchError }: ProfileProps) => {
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
-    const [fetchError, setFetchError] = useState("");
-
-    useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profiles/${id}`, {
-            credentials: 'include',
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(json => {
-                console.log(json);
-                setProfileData(ProfileData.fromJson(json));
-            })
-            .catch((err: Error) => {
-                console.log(`error when fetching: ${err}`);
-                setFetchError(err.message);
-            })
-    }, []);
+    console.log(profile.id);
 
     const swipe = (likeOrPass: "LIKE" | "PASS") => {
         fetch(`${baseUrl}/api/${apiVersion}/users/swipe`, {
             method: "POST",
-            body: JSON.stringify({ profileId: id, likeOrPass: likeOrPass }),
+            body: JSON.stringify({ profileId: profile.id, likeOrPass: likeOrPass }),
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
         })
@@ -55,7 +33,7 @@ export default function Profile() {
             })
     }
 
-    const profilePictures = profileData.pictures || [new ProfilePicture(defaultEmptyPictureSource, 0)];
+    const profilePictures = profile.pictures || [new ProfilePicture(defaultEmptyPictureSource, 0)];
     return (
         <div>
             {fetchError
@@ -67,11 +45,11 @@ export default function Profile() {
                                 <div className="card-body">
                                     <div className="row">
                                         <div className="col">
-                                            <h1>{profileData.name}</h1>
-                                            <p>{profileData.race} • {profileData.age} • {profileData.city}</p>
+                                            <h1>{profile.name}</h1>
+                                            <p>{profile.race} • {profile.age} • {profile.city}</p>
                                         </div>
                                         <div className="col">
-                                            {profileData.matchable
+                                            {profile.matchable
                                                 ? <div>
                                                     <button onClick={() => swipe("LIKE")} className="btn btn-danger btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faHeart} style={{ marginRight: "10px" }} />Match Me!</button>
                                                     <button onClick={() => swipe("PASS")} className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
@@ -106,7 +84,7 @@ export default function Profile() {
                             <div className="card">
                                 <h5 className="card-header">Description</h5>
                                 <div className="card-body">
-                                    {profileData.description.split("\n\n").map((paragraph) => (
+                                    {profile.description.split("\n\n").map((paragraph) => (
                                         <p key={hashCode(paragraph)} style={{ fontSize: "1.23rem" }}>{paragraph}</p>
                                     ))}
                                 </div>
@@ -116,9 +94,9 @@ export default function Profile() {
                             <div className="card">
                                 <h5 className="card-header">Details</h5>
                                 <div className="card-body">
-                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} />{profileData.weightInKG} kg</p>
-                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} />{profileData.furColor}</p>
-                                    {profileData.vaccinations.map((vac) => (
+                                    <p><FontAwesomeIcon icon={faWeightHanging} style={{ marginRight: "20px" }} />{profile.weightInKG} kg</p>
+                                    <p><FontAwesomeIcon icon={faPalette} style={{ marginRight: "20px" }} />{profile.furColor}</p>
+                                    {profile.vaccinations.map((vac) => (
                                         <p key={vac.disease}><FontAwesomeIcon icon={faSyringe} style={{ marginRight: "20px" }} />{vac.disease} <span style={{ float: "right" }}>{vac.date}</span></p>
                                     ))}
                                 </div>
@@ -145,26 +123,8 @@ export default function Profile() {
     )
 }
 
-
-class ProfileData {
-    constructor(public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public matchable: boolean, public pictures?: ProfilePicture[]) { }
-
-    static fromJson(json: any): ProfileData {
-        const picturesBase64 = json.profilePictures
-            ?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index)
-            ?.map((p: ProfilePicture) => new ProfilePicture("data:image/jpg;base64," + p.picture, p.index));
-
-        return new ProfileData(json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, picturesBase64);
-    }
-}
-
 class LightBoxStatus {
     constructor(public isOpen: boolean, public index: number) { }
-}
-
-class ProfilePicture {
-    constructor(public picture: string, public index: number) { }
 }
 
 const carouselResponsive = {
@@ -184,3 +144,10 @@ const carouselResponsive = {
         slidesToSlide: 1
     }
 };
+
+export interface ProfileProps {
+    profile: ProfileData,
+    fetchError?: string
+}
+
+export default Profile;
