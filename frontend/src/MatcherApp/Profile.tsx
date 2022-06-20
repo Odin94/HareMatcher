@@ -5,14 +5,15 @@ import "react-multi-carousel/lib/styles.css";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faWeightHanging, faPalette, faSyringe, faHeart, faX } from '@fortawesome/free-solid-svg-icons'
+import { faWeightHanging, faPalette, faSyringe, faX } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
 import { ProfileData, ProfilePicture } from "./Types";
+import MatchButton from "./MatchButton";
 
 
 const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
 
-const Profile: React.FC<ProfileProps> = ({ profile, fetchError }: ProfileProps) => {
+const Profile: React.FC<ProfileProps> = ({ profile, fetchError, onSwipeComplete = () => { } }: ProfileProps) => {
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
 
     const swipe = (likeOrPass: "LIKE" | "PASS") => {
@@ -50,8 +51,8 @@ const Profile: React.FC<ProfileProps> = ({ profile, fetchError }: ProfileProps) 
                                         <div className="col">
                                             {profile.matchable
                                                 ? <div>
-                                                    <button onClick={() => swipe("LIKE")} className="btn btn-danger btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faHeart} style={{ marginRight: "10px" }} />Match Me!</button>
-                                                    <button onClick={() => swipe("PASS")} className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
+                                                    <MatchButton swipe={() => swipe("LIKE")} onSwipeComplete={onSwipeComplete} />
+                                                    <button onClick={() => { swipe("PASS"); setTimeout(onSwipeComplete, 500); }} className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
                                                 </div>
                                                 : <div></div>
                                             }
@@ -146,6 +147,7 @@ const carouselResponsive = {
 
 export interface ProfileProps {
     profile: ProfileData,
+    onSwipeComplete?: () => void,
     fetchError?: string
 }
 

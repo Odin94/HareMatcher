@@ -11,7 +11,7 @@ export default function Discover() {
     const [profileData, setProfileData] = useState(new ProfileData(-1, "", "", "", "", 0, 0, "", [], false, undefined));
     const [fetchError, setFetchError] = useState("");
 
-    useEffect(() => {
+    const discoverProfile = async () => {
         fetch(`${baseUrl}/api/${apiVersion}/discover`, {
             credentials: 'include',
         })
@@ -27,12 +27,17 @@ export default function Discover() {
                 console.log(`error when fetching: ${err}`);
                 setFetchError(err.message);
             })
+    }
+
+    useEffect(() => {
+        discoverProfile()
     }, []);
 
 
     return (
         <div>
-            <Profile profile={profileData} fetchError={fetchError} />;
+            <Profile profile={profileData} fetchError={fetchError} onSwipeComplete={() => discoverProfile()} />;
         </div>
     )
 }
+

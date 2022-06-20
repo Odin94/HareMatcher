@@ -21,7 +21,6 @@ to enable running both with hot reloading for development.
 ### TODOs
 * Fix images not loading in lightbox when clicking until re-render is triggered
 * add page for updating profile page
-* Add basic matching page (see profile, allow selecting Match or Skip)
 * Add actual matching (two profiles matched each other, displayed on "your matches" page, can unmatch)
 * Add chat for matches
 * Add filtering for matches (looking for bunnies of specific size, age, fluffiness etc)

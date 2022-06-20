@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 export const useInput = (initialValue: any) => {
     const [value, setValue] = useState(initialValue);
@@ -15,3 +15,32 @@ export const useInput = (initialValue: any) => {
         }
     };
 };
+
+export const useRepeat = <T>(callback: () => Promise<T> | (() => void), delay: number, enabled: boolean = true) => {
+    const savedCallback = useRef(callback);
+
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+        function tick() {
+            if (enabled) {
+                const maybePromise = savedCallback.current();
+
+                if (maybePromise instanceof Promise) {
+                    maybePromise.then(() => {
+                        timeout = setTimeout(tick, delay);
+                    });
+                } else {
+                    timeout = setTimeout(tick, delay);
+                }
+            }
+        }
+        if (enabled) {
+            timeout = setTimeout(tick, delay);
+            return () => timeout && clearTimeout(timeout);
+        }
+    }, [delay, enabled]);
+}
