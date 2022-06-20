@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { apiVersion, baseUrl } from "../Globals";
+import { apiVersion, baseUrl, range } from "../Globals";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -85,7 +85,7 @@ export default function CreateProfile() {
                                         <label className="col-sm-2 col-form-label"><h3>Age</h3></label>
                                         <div className="col-sm-10" style={{ maxWidth: "400px" }}>
                                             <select className="custom-select" {...bindAge}>
-                                                {Array.from(Array(20).keys()).map((num: number) => (
+                                                {range(0, 20).map((num: number) => (
                                                     <option key={num} value={num}>{num}</option>
                                                 ))}
                                             </select>

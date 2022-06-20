@@ -25,3 +25,5 @@ export const convertBase64 = (file: File) => {
         }
     });
 }
+
+export const range = (start: number, end: number) => Array.from(Array(1 + end - start).keys());
