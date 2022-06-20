@@ -238,34 +238,24 @@ fun createSampleData() {
                 Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
             """
         }
-        ProfileDAO.new {
-            name = "FreddoBunny2"
-            user = freddo
-            city = "Frankfurt"
-            race = "Flemish Giant"
-            furColor = "Black"
-            age = 2
-            weightInKG = 8.0
-            description = """
+
+        for (i in 1..20) {
+            ProfileDAO.new {
+                name = "FreddoBunny$i"
+                user = freddo
+                city = "Frankfurt"
+                race = "Flemish Giant"
+                furColor = "Black"
+                age = 2
+                weightInKG = 8.0
+                description = """
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget pharetra augue. Fusce lectus lorem, suscipit vitae consequat blandit, dignissim ac metus. Fusce sodales, orci quis varius sollicitudin, orci metus aliquet urna, sit amet varius nunc nibh non augue. Donec porta consequat urna malesuada iaculis. Nulla sit amet sem congue felis sagittis imperdiet nec et dui. In cursus, dolor venenatis bibendum hendrerit, turpis ante porta massa, et tempus nisl quam in nibh
 
                 Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
             """
+            }
         }
-        ProfileDAO.new {
-            name = "FreddoBunny3"
-            user = freddo
-            city = "Frankfurt"
-            race = "Flemish Giant"
-            furColor = "Black"
-            age = 2
-            weightInKG = 8.0
-            description = """
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget pharetra augue. Fusce lectus lorem, suscipit vitae consequat blandit, dignissim ac metus. Fusce sodales, orci quis varius sollicitudin, orci metus aliquet urna, sit amet varius nunc nibh non augue. Donec porta consequat urna malesuada iaculis. Nulla sit amet sem congue felis sagittis imperdiet nec et dui. In cursus, dolor venenatis bibendum hendrerit, turpis ante porta massa, et tempus nisl quam in nibh
 
-                Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
-            """
-        }
         logger.info("FreddoBunny profile id: ${freddoBunny.id}")
 
         arrayOf(
