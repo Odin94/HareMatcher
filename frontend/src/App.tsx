@@ -14,7 +14,8 @@ import CreateProfile from './MatcherApp/CreateProfile';
 import Matches from './MatcherApp/Matches';
 import SpecificProfile from './MatcherApp/SpecificProfile';
 import Discover from './MatcherApp/Discover';
-import NavBar from './MatcherApp/NavBar';
+import MatcherNavigation from './MatcherApp/MatcherNavigation';
+import LandingNavigation from './Landing/LandingNavigation';
 
 
 export default function App() {
@@ -22,17 +23,18 @@ export default function App() {
     <Router>
       <div>
         <Routes>
-          <Route path="/me" element={<NavBar><User /></NavBar>} />
-          <Route path="/matches" element={<NavBar><Matches /></NavBar>} />
-          <Route path="/discover" element={<NavBar><Discover /></NavBar>} />
-          <Route path="/profile/:id" element={<NavBar><SpecificProfile /></NavBar>} />
-          <Route path="/profile/create" element={<NavBar><CreateProfile /></NavBar>} />
+          <Route path="/me" element={<MatcherNavigation><User /></MatcherNavigation>} />
+          <Route path="/matches" element={<MatcherNavigation><Matches /></MatcherNavigation>} />
+          <Route path="/discover" element={<MatcherNavigation><Discover /></MatcherNavigation>} />
+          <Route path="/profile/:id" element={<MatcherNavigation><SpecificProfile /></MatcherNavigation>} />
+          <Route path="/profile/create" element={<MatcherNavigation><CreateProfile /></MatcherNavigation>} />
 
-          <Route path="/" element={<Landing />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<LandingNavigation><Landing /></LandingNavigation>} />
+          <Route path="/signup" element={<LandingNavigation><Signup /></LandingNavigation>} />
+          <Route path="/login" element={<LandingNavigation><Login /></LandingNavigation>} />
         </Routes>
       </div>
     </Router>
   );
 }
+

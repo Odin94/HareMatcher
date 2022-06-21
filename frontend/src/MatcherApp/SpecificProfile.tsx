@@ -4,7 +4,7 @@ import { apiVersion, baseUrl } from "../Globals";
 import "react-multi-carousel/lib/styles.css";
 import 'react-image-lightbox/style.css';
 import '../index.css';
-import { ProfileData } from "./Types";
+import { ProfileData } from "../Types";
 import Profile from "./Profile";
 
 

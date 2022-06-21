@@ -7,7 +7,7 @@ import 'react-image-lightbox/style.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWeightHanging, faPalette, faSyringe, faX } from '@fortawesome/free-solid-svg-icons'
 import '../index.css';
-import { ProfileData, ProfilePicture } from "./Types";
+import { ProfileData, ProfilePicture } from "../Types";
 import MatchButton from "./MatchButton";
 
 

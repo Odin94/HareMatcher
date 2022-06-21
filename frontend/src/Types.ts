@@ -18,3 +18,7 @@ export class ProfileData {
         return new ProfileData(json.id, json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, picturesBase64);
     }
 }
+
+export interface NavBarProps {
+    children: React.ReactNode
+}
