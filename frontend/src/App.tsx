@@ -5,56 +5,32 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link
 } from "react-router-dom";
 import Signup from './Landing/Signup';
 import Login from './Landing/Login';
 import Landing from './Landing/Landing';
 import User from './MatcherApp/User';
 import CreateProfile from './MatcherApp/CreateProfile';
-import { apiVersion, baseUrl } from './Globals';
 import Matches from './MatcherApp/Matches';
 import SpecificProfile from './MatcherApp/SpecificProfile';
 import Discover from './MatcherApp/Discover';
+import NavBar from './MatcherApp/NavBar';
+
 
 export default function App() {
-  const logout = () => {
-    fetch(`${baseUrl}/api/${apiVersion}/logout`, {
-      method: "POST",
-      credentials: 'include',
-  })
-      .then(response => {
-          if (!response.ok) {
-              throw new Error(response.statusText);
-          }
-      })
-      .catch(err => alert(err))          
-  }
-
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/signup">Signup</Link></li>
-            <li><Link to="/login">Login</Link></li>
-            <li><a href='/' onClick={logout}>Logout</a></li>
-            <li><Link to="/me">My Profile</Link></li>
-            <li><Link to="/discover">Discover</Link></li>
-            <li><Link to="/matches">Matches</Link></li>
-          </ul>
-        </nav>
-
         <Routes>
+          <Route path="/me" element={<NavBar><User /></NavBar>} />
+          <Route path="/matches" element={<NavBar><Matches /></NavBar>} />
+          <Route path="/discover" element={<NavBar><Discover /></NavBar>} />
+          <Route path="/profile/:id" element={<NavBar><SpecificProfile /></NavBar>} />
+          <Route path="/profile/create" element={<NavBar><CreateProfile /></NavBar>} />
+
+          <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/me" element={<User />} />
-          <Route path="/matches" element={<Matches />} />
-          <Route path="/discover" element={<Discover />} />
-          <Route path="/profile/:id" element={<SpecificProfile />} />
-          <Route path="/profile/create" element={<CreateProfile />} />
-          <Route path="/" element={<Landing />} />
         </Routes>
       </div>
     </Router>
