@@ -1,5 +1,6 @@
 package de.odinmatthias.matches
 
+import de.odinmatthias.matches.Swipe.Companion.swipeDateTimeFormatter
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
 import kotlinx.serialization.Serializable
@@ -22,7 +23,11 @@ data class Swipe(
     val swipedProfileId: Int,
     val createdOn: String,
     val likeOrPass: LikeOrPass
-)
+) {
+    companion object {
+        public val swipeDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+    }
+}
 
 object Swipes : IntIdTable() {
     val user = reference("user", Users)
@@ -43,7 +48,7 @@ class SwipeDAO(id: EntityID<Int>) : IntEntity(id) {
         id.value,
         user.id.value,
         swipedProfile.id.value,
-        createdOn.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
+        createdOn.format(swipeDateTimeFormatter),
         likeOrPass
     )
 }

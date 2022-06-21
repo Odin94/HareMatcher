@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiVersion, baseUrl } from "../Globals";
+import { ProfileData } from "../Types";
 
 const defaultPictureSource = "https://images.unsplash.com/photo-1629898471270-d4f5f525b8dc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=360&q=80";
 
@@ -7,15 +8,21 @@ const defaultPictureSourceTwo = "https://images.unsplash.com/photo-1585110396000
 
 const defaultUserPicture = "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=360&q=80";
 
+const formattedDateToday = new Date().toLocaleDateString("de-DE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+});
+
 export default function Matches() {
     const testingProfilePreviews = [new ProfilePreview(0, defaultPictureSource, "Test One"), new ProfilePreview(1, defaultPictureSourceTwo, "Test Two"), new ProfilePreview(2, defaultPictureSourceTwo, "Test Three")];
-    const testingMatches = [[new Match({ name: "TestUser" }, new Date())], [new Match({ name: "TestUser" }, new Date()), new Match({ name: "TastUser" }, new Date())], []];
+    const testingMatches = [[new Match(-1, "TestUser", formattedDateToday)], [new Match(-1, "TestUser", formattedDateToday), new Match(-1, "TestUser", formattedDateToday)], []];
 
-    const [profilePreviews, setProfilePreviews] = useState(testingProfilePreviews);
-    const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(new SelectedProfileWithMatches(testingProfilePreviews[0], testingMatches[0]));
+    const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState(testingProfilePreviews.map((preview, i) => { return new ProfilePreviewWithMatch(preview, testingMatches[i]) }));
+    const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(new ProfilePreviewWithMatch(testingProfilePreviews[0], testingMatches[0]));
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profiles`, {
+        fetch(`${baseUrl}/api/${apiVersion}/matches`, {
             credentials: 'include',
         })
             .then(response => {
@@ -23,27 +30,19 @@ export default function Matches() {
                 return response.json();
             })
             .then(json => {
-                console.log(json);
-                setProfilePreviews([]);
+                const profilePreviewsWithMatches = json.map(({ profile, matches }: { profile: ProfileData, matches: Match[] }) => {
+                    const thumbnail = profile.pictures?.find(picture => picture.index === 0)?.picture || defaultPictureSource
+                    const preview = new ProfilePreview(profile.id, thumbnail, profile.name)
+
+                    return new ProfilePreviewWithMatch(preview, matches)
+                });
+
+                setProfilePreviewsWithMatches(profilePreviewsWithMatches);
             })
             .catch((err: Error) => {
-                console.log(`error when fetching: ${err}`);
+                console.log(`error when fetching profiles: ${err}`);
             })
     }, []);
-
-    useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profileForMatching`, {
-            method: "GET",
-            credentials: 'include',
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
-            }).then(json => console.log(JSON.stringify(json)))
-            .catch((err: Error) => {
-                console.log(`error when posting: ${err}`);
-            })
-    }, [])
 
     return (
         <div>
@@ -51,18 +50,18 @@ export default function Matches() {
                 <div className="row">
                     <div className="col-4">
                         {
-                            profilePreviews.map((preview) => (
-                                <div key={preview.id} className="row" style={{ cursor: "pointer" }} onClick={() => {
-                                    setSelectedProfileWithMatches(new SelectedProfileWithMatches(preview, testingMatches[preview.id]))
+                            profilePreviewsWithMatches.map((profileWithMatch) => (
+                                <div key={profileWithMatch.profilePreview.id} className="row" style={{ cursor: "pointer" }} onClick={() => {
+                                    setSelectedProfileWithMatches(profileWithMatch);
                                 }}>
-                                    <div className={`card${preview.id === selectedProfileWithMatches.selectedProfilePreview.id ? " shadow-sm border border-success" : ""}`}>
+                                    <div className={`card${profileWithMatch.profilePreview.id === selectedProfileWithMatches.profilePreview.id ? " shadow-sm border border-success" : ""}`}>
                                         <div className="card-body">
                                             <div className="row justify-content-center align-items-center">
                                                 <div className="col">
-                                                    <img src={preview.thumbnailBase64} width="70px" height="70px" className="rounded-circle float-start" />
+                                                    <img src={profileWithMatch.profilePreview.thumbnailBase64} width="70px" height="70px" className="rounded-circle float-start" />
                                                 </div>
                                                 <div className="col d-flex flex-column">
-                                                    <h3>{preview.name}</h3>
+                                                    <h3>{profileWithMatch.profilePreview.name}</h3>
                                                 </div>
                                             </div>
                                         </div>
@@ -77,9 +76,9 @@ export default function Matches() {
                             <div className="col-10">
                                 {
                                     selectedProfileWithMatches.matches.length === 0
-                                        ? <div><h4>{selectedProfileWithMatches.selectedProfilePreview.name} has no matches yet</h4></div>
+                                        ? <div><h4>{selectedProfileWithMatches.profilePreview.name} has no matches yet</h4></div>
                                         : selectedProfileWithMatches.matches.map((match, i) => (
-                                            <div key={match.matchingUser.name} className={`card${(i === 0) ? "" : " mt-1"}`}>
+                                            <div key={match.userName} className={`card${(i === 0) ? "" : " mt-1"}`}>
                                                 <div className="card-body">
                                                     <div className="row">
                                                         <div className="col-2">
@@ -87,13 +86,9 @@ export default function Matches() {
                                                         </div>
                                                         <div className="col text-center">
                                                             <h1>
-                                                                {match.matchingUser.name}
+                                                                {match.userName}
                                                             </h1>
-                                                            <p>{match.matchedOn.toLocaleDateString("de-DE", {
-                                                                day: "numeric",
-                                                                month: "long",
-                                                                year: "numeric"
-                                                            })}</p>
+                                                            <p>{match.matchedOn}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -114,9 +109,9 @@ class ProfilePreview {
 }
 
 class Match {
-    constructor(public matchingUser: { name: string }, public matchedOn: Date) { }
+    constructor(public userId: number, public userName: string, public matchedOn: string) { }
 }
 
-class SelectedProfileWithMatches {
-    constructor(public selectedProfilePreview: ProfilePreview, public matches: Match[]) { }
+class ProfilePreviewWithMatch {
+    constructor(public profilePreview: ProfilePreview, public matches: Match[]) { }
 }

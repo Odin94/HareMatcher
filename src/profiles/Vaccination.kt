@@ -1,5 +1,6 @@
 package de.odinmatthias.profiles
 
+import de.odinmatthias.profiles.Vaccination.Companion.vaccinationDateTimeFormatter
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -12,7 +13,11 @@ import java.time.format.DateTimeFormatter
 
 
 @Serializable
-data class Vaccination(val id: Int?, val profileId: Int, val disease: String, val date: String)
+data class Vaccination(val id: Int?, val profileId: Int, val disease: String, val date: String) {
+    companion object {
+        public val vaccinationDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    }
+}
 
 object Vaccinations : IntIdTable() {
     val profile = reference("profile", Profiles)
@@ -27,5 +32,5 @@ class VaccinationDAO(id: EntityID<Int>) : IntEntity(id) {
     var disease by Vaccinations.disease
     var date by Vaccinations.date
 
-    fun toVaccination() = Vaccination(id.value, profile.id.value, disease, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+    fun toVaccination() = Vaccination(id.value, profile.id.value, disease, date.format(vaccinationDateTimeFormatter))
 }

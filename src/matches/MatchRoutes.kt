@@ -1,8 +1,11 @@
 package matches
 
 import de.odinmatthias.UserSession
+import de.odinmatthias.matches.LikeOrPass
+import de.odinmatthias.matches.Swipe.Companion.swipeDateTimeFormatter
 import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
+import de.odinmatthias.profiles.Profile
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
 import de.odinmatthias.users.SwipeData
@@ -16,6 +19,8 @@ import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.websocket.*
 import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.orWhere
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
@@ -41,6 +46,37 @@ fun Route.matchRouting() {
                 } ?: return@get call.respond(HttpStatusCode.NotFound)
 
                 call.respond(unswipedProfile)
+            }
+
+            get("matches") {
+                val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
+
+                val matchesByProfiles = transaction {
+                    val matchProfileDAOs =
+                        (Profiles leftJoin Swipes)
+                            .select { Profiles.user eq currentUser.id }
+                            .andWhere { Swipes.likeOrPass eq LikeOrPass.LIKE }  // TODO: test if this really excludes PASSes
+                            .orWhere { Swipes.swipedProfile eq null }
+                            .map {
+                                ProfileDAO.findById(it[Profiles.id])!!
+                            }
+
+                    val matchesByProfiles = matchProfileDAOs.map {
+                        val matches = it.receivedSwipes.map { match ->
+                            Match(
+                                match.user.id.value,
+                                match.user.name,
+                                match.createdOn.format(swipeDateTimeFormatter)
+                            )
+                        }
+                        return@map MatchesByProfile(it.toProfile(matchable = true), matches)
+                    }
+
+                    return@transaction matchesByProfiles
+                }
+
+                call.respond(matchesByProfiles)
             }
 
             post("swipe") {
@@ -87,3 +123,6 @@ fun Application.registerMatchRouting() {
         matchRouting()
     }
 }
+
+data class Match(public val userId: Int, public val userName: String, public val matchedOn: String)
+data class MatchesByProfile(public val profile: Profile, public val matches: List<Match>)

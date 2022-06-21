@@ -1,5 +1,7 @@
 package de.odinmatthias
 
+import de.odinmatthias.matches.LikeOrPass
+import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.*
 import de.odinmatthias.users.registerUserRouting
@@ -30,6 +32,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.imageio.ImageIO
 import kotlin.collections.set
 
@@ -284,13 +287,19 @@ fun createSampleData() {
             disease = "RVHD"
             date = LocalDate.of(2022, 6, 3)
         }
-    }
 
-    transaction {
+        // Frado
         val frado = UserDAO.new {
             name = "Frado"
             email = "frado@test.de"
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
+        }
+
+        SwipeDAO.new {
+            user = frado
+            swipedProfile = freddoBunny
+            createdOn = LocalDateTime.now()
+            likeOrPass = LikeOrPass.LIKE
         }
     }
 }
