@@ -1,10 +1,11 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiVersion, baseUrl } from "../Globals";
-import { NavBarProps } from "../Types";
 
 
 const MatcherNavigation: React.FC<NavBarProps> = ({ children }) => {
+    const navigate = useNavigate();
+
     const logout = () => {
         fetch(`${baseUrl}/api/${apiVersion}/logout`, {
             method: "POST",
@@ -15,7 +16,8 @@ const MatcherNavigation: React.FC<NavBarProps> = ({ children }) => {
                     throw new Error(response.statusText);
                 }
             })
-            .catch(err => alert(err))
+            .catch(err => console.log(err))
+            .finally(() => navigate("/"))
     }
 
     return (
@@ -40,6 +42,10 @@ const MatcherNavigation: React.FC<NavBarProps> = ({ children }) => {
             </div>
         </div>
     )
+}
+
+interface NavBarProps {
+    children: React.ReactNode
 }
 
 export default MatcherNavigation;
