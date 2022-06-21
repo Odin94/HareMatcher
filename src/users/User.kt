@@ -1,6 +1,6 @@
 package users
 
-import de.odinmatthias.matches.LikeDAO
+import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
@@ -12,7 +12,13 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 
 @Serializable
-data class User(val id: Int?, val name: String, val email: String, val profileIds: List<Int>, val givenLikeIds: List<Int>)
+data class User(
+    val id: Int?,
+    val name: String,
+    val email: String,
+    val profileIds: List<Int>,
+    val givenSwipeIds: List<Int>
+)
 
 object Users : IntIdTable() {
     val email: Column<String> = varchar("email", 320)
@@ -27,7 +33,7 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
     var name by Users.name
     var hashedPassword by Users.hashedPassword
     val profiles by ProfileDAO referrersOn Profiles.user
-    val givenSwipes by LikeDAO referrersOn Swipes.user
+    val givenSwipes by SwipeDAO referrersOn Swipes.user
 
     fun toUser() = User(this@UserDAO.id.value, name, email, profiles.map { it.id.value }, givenSwipes.map { it.id.value })
 }

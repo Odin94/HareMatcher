@@ -19,30 +19,30 @@ import java.time.format.DateTimeFormatter
 data class Swipe(
     val id: Int?,
     val userId: Int,
-    val likedProfileId: Int,
+    val swipedProfileId: Int,
     val createdOn: String,
     val likeOrPass: LikeOrPass
 )
 
 object Swipes : IntIdTable() {
     val user = reference("user", Users)
-    val likedProfile = reference("likedProfile", Profiles)
+    val swipedProfile = reference("swipedProfile", Profiles)
     val createdOn: Column<LocalDateTime> = datetime("createdOn")
     val likeOrPass: Column<LikeOrPass> = enumerationByName("likeOrPass", 4, LikeOrPass::class)
 }
 
-class LikeDAO(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<LikeDAO>(Swipes)
+class SwipeDAO(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<SwipeDAO>(Swipes)
 
     var user by UserDAO referencedOn Swipes.user
-    var likedProfile by ProfileDAO referencedOn Swipes.likedProfile
+    var swipedProfile by ProfileDAO referencedOn Swipes.swipedProfile
     var createdOn by Swipes.createdOn
     var likeOrPass by Swipes.likeOrPass
 
-    fun toLike() = Swipe(
+    fun toSwipe() = Swipe(
         id.value,
         user.id.value,
-        likedProfile.id.value,
+        swipedProfile.id.value,
         createdOn.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
         likeOrPass
     )

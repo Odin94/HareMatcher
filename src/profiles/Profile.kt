@@ -1,7 +1,7 @@
 package de.odinmatthias.profiles
 
-import de.odinmatthias.matches.LikeDAO
 import de.odinmatthias.matches.Swipe
+import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
@@ -76,7 +76,7 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
     var description by Profiles.description
     val pictures by ProfilePictureDAO referrersOn ProfilePictures.profile
     val vaccinations by VaccinationDAO referrersOn Vaccinations.profile
-    val receivedLikes by LikeDAO referrersOn Swipes.likedProfile
+    val receivedSwipes by SwipeDAO referrersOn Swipes.swipedProfile
 
     fun toProfile(matchable: Boolean = false) = Profile(
         id.value,
@@ -90,7 +90,7 @@ class ProfileDAO(id: EntityID<Int>) : IntEntity(id) {
         description,
         transaction { pictures.map { it.toProfilePicture() } },
         transaction { vaccinations.map { it.toVaccination() } },
-        transaction { receivedLikes.map { it.toLike() } },
+        transaction { receivedSwipes.map { it.toSwipe() } },
         matchable
     )
 }

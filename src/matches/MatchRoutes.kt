@@ -1,7 +1,7 @@
 package matches
 
 import de.odinmatthias.UserSession
-import de.odinmatthias.matches.LikeDAO
+import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
@@ -33,7 +33,7 @@ fun Route.matchRouting() {
                         .selectAll()
                         .limit(1)
                         .andWhere { Profiles.user neq currentUser.id }
-                        .andWhere { Swipes.likedProfile eq null }
+                        .andWhere { Swipes.swipedProfile eq null }
                         .map {
                             ProfileDAO.findById(it[Profiles.id])?.toProfile(matchable = true)
                         }
@@ -52,16 +52,16 @@ fun Route.matchRouting() {
                     ?: return@post call.respond(HttpStatusCode.NotFound)
 
                 val isDuplicate = transaction {
-                    userDao.givenSwipes.any { it.likedProfile.id.value == swipeData.profileId }
+                    userDao.givenSwipes.any { it.swipedProfile.id.value == swipeData.profileId }
                 }
                 if (isDuplicate) {
                     return@post call.respond(HttpStatusCode.Conflict)
                 }
 
                 transaction {
-                    LikeDAO.new {
+                    SwipeDAO.new {
                         user = userDao
-                        likedProfile = profileDAO
+                        swipedProfile = profileDAO
                         createdOn = LocalDateTime.now()
                         likeOrPass = swipeData.likeOrPass
                     }
