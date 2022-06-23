@@ -19,8 +19,6 @@ Harematcher is a pet project built to let you match with the cute bunny of your 
 to enable running both with hot reloading for development. 
 
 ### TODOs
-* Make pretty top bar for navigation
-* Add actual matching (two profiles matched each other, displayed on "your matches" page, can unmatch)
 * add page for updating profile page
 * Add chat for matches
 * Fix images not loading in lightbox when clicking until re-render is triggered
