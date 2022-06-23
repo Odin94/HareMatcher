@@ -43,7 +43,11 @@ fun Route.userRouting() {
                     status = HttpStatusCode.BadRequest
                 )
 
-                val user = transaction { return@transaction UserDAO.findById(id)?.toUser() }
+                val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
+
+                val isMe = currentUser.id == id
+                val user = transaction { return@transaction UserDAO.findById(id)?.toUser(isMe) }
                     ?: return@get call.respond(HttpStatusCode.NotFound)
 
                 call.respond(user)

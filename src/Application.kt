@@ -317,7 +317,7 @@ data class Type(val name: String) {
 }
 
 data class UserSession(val loggedIn: Boolean = false, val userId: Int = -1, val email: String = "") {
-    fun getCurrentUser() = transaction { return@transaction UserDAO.findById(userId)?.toUser() }
+    fun getCurrentUser() = transaction { return@transaction UserDAO.findById(userId)?.toUser(true) }
     fun getCurrentUserDAO() = transaction { return@transaction UserDAO.findById(userId) }
 }
 

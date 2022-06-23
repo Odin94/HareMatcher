@@ -1,34 +1,7 @@
-import { useEffect, useState } from "react";
-import { apiVersion, baseUrl } from "../Globals";
 import '../index.css';
+import { UserData } from "../Types";
 
-
-
-const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
-const secondPictureSource = "https://images.unsplash.com/photo-1654077013798-8465c12f9672?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=700&q=80";
-
-export default function Profile() {
-    const [userData, setUserData] = useState(new UserData("", "", []));
-    const [fetchError, setFetchError] = useState("");
-
-    useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/users/me`, {
-            credentials: 'include',
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(json => {
-                console.log(json);
-                setUserData(new UserData(json.name, json.email, json.profileIds));
-            })
-            .catch((err: Error) => {
-                console.log(`error when fetching: ${err}`);
-                setFetchError(err.message);
-            })
-    }, []);
-
+const User: React.FC<UserProps> = ({ user, fetchError }) => {
     return (
         <div>
             {fetchError
@@ -66,15 +39,23 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    <ul>{userData.profileIds?.map((profileId) => <li key={profileId}><a href={`/profile/${profileId}`}>{profileId}</a></li>)}</ul>
+                    <ul>{user.profileIds?.map((profileId) => <li key={profileId}><a href={`/profile/${profileId}`}>{profileId}</a></li>)}</ul>
 
-                    <a href={`/profile/create`}>create new profile</a>
+                    {user.isMe
+                        ? <a href={`/profile/create`}>create new profile</a>
+                        : <div></div>
+                    }
+
                 </div>
             }
         </div>
     )
 }
 
-class UserData {
-    constructor(public name: string, public email: string, public profileIds: number[]) { }
+export interface UserProps {
+    user: UserData,
+    fetchError?: string
 }
+
+
+export default User;

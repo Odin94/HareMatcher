@@ -17,7 +17,8 @@ data class User(
     val name: String,
     val email: String,
     val profileIds: List<Int>,
-    val givenSwipeIds: List<Int>
+    val givenSwipeIds: List<Int>,
+    val isMe: Boolean
 )
 
 object Users : IntIdTable() {
@@ -35,5 +36,5 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
     val profiles by ProfileDAO referrersOn Profiles.user
     val givenSwipes by SwipeDAO referrersOn Swipes.user
 
-    fun toUser() = User(this@UserDAO.id.value, name, email, profiles.map { it.id.value }, givenSwipes.map { it.id.value })
+    fun toUser(isMe: Boolean = false) = User(this@UserDAO.id.value, name, email, profiles.map { it.id.value }, givenSwipes.map { it.id.value }, isMe)
 }
