@@ -117,6 +117,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, fetchError, onSwipeComplete 
                     onMoveNextRequest={() =>
                         setLightBoxStatus(new LightBoxStatus(true, (lightBoxStatus.index + 1) % profilePictures.length))
                     }
+                    onImageLoad={() => { window.dispatchEvent(new Event('resize')); }}
                 />
             )}
         </div>

@@ -20,8 +20,8 @@ to enable running both with hot reloading for development.
 
 ### TODOs
 * add page for updating profile page
+* Make list of profiles on User page prettier
 * Add chat for matches
-* Fix images not loading in lightbox when clicking until re-render is triggered
 * Add filtering for matches (looking for bunnies of specific size, age, fluffiness etc)
 * Validate input: https://stackoverflow.com/questions/54204190/ktor-how-can-i-validate-json-request**
 * Test-users getting deleted and re-created on restart makes session cookies invalid and requires deleting them from the
