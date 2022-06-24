@@ -14,7 +14,7 @@ const User: React.FC<UserProps> = ({ user, fetchError }) => {
                                 <h1 className="card-header">{user.name}</h1>
                                 <div className="card-body">
                                     <div className="row">
-                                        <div className="col d-flex flex-column justify-content-center align-items-center">{user.description.split("\n\n").map((paragraph) => (
+                                        <div className="col d-flex flex-column justify-content-center">{user.description.split("\n\n").map((paragraph) => (
                                             <p key={hashCode(paragraph)} style={{ fontSize: "1.23rem" }}>{paragraph}</p>
                                         ))}
                                         </div>
