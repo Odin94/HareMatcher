@@ -6,12 +6,13 @@ import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfilePictures
 import de.odinmatthias.profiles.Profiles
 import de.odinmatthias.profiles.Vaccinations
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
-import users.UserDAO
 import users.Users
 import java.nio.file.Paths
 import java.sql.Connection
@@ -31,23 +32,6 @@ class DatabaseConnector {
 
             transaction {
                 addLogger(StdOutSqlLogger)
-            }
-
-            transaction {
-                // TODO: Move this to application for default data creation?
-                val testEmail = "test@test.de"
-                val user = UserDAO.find { Users.email eq testEmail }.firstOrNull()
-
-                if (user == null) {
-                    UserDAO.new {
-                        this.name = "testUser"
-                        this.email = testEmail
-                        this.hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
-                    }
-
-                    val users = Users.selectAll().map { it[Users.email] }
-                    logger.info("users: ${users.joinToString()}")
-                }
             }
 
             alreadyInitiated = true
