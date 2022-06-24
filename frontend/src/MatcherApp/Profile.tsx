@@ -72,7 +72,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, fetchError, onSwipeComplete 
                                         itemClass="carousel-item-padding-40-px"
                                     >
                                         {profilePictures.map((profilePicture) => (
-                                            <img key={hashCode(profilePicture.picture)} src={profilePicture.picture} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
+                                            <img key={hashCode(profilePicture.picture)} src={profilePicture.picture} onClick={() => setLightBoxStatus(new LightBoxStatus(true, profilePicture.index))} alt={`Profile picture of ${profile.name}`} width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                         ))}
                                     </Carousel>
                                 </div>
