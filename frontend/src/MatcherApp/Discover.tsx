@@ -36,7 +36,17 @@ export default function Discover() {
 
     return (
         <div>
-            <Profile profile={profileData} fetchError={fetchError} onSwipeComplete={() => discoverProfile()} />
+            {fetchError === "404: Not Found"
+                ? <div className="container" style={{ width: "50%", margin: "0 auto" }}>
+                    <div className="card">
+                        <div className="card-body">
+                            <h1>No more profiles to discover</h1>
+                            <p>Please come back later or consider changing your search preferences</p>
+                        </div>
+                    </div>
+                </div>
+                : <Profile profile={profileData} fetchError={fetchError} onSwipeComplete={() => discoverProfile()} />
+            }
         </div>
     )
 }
