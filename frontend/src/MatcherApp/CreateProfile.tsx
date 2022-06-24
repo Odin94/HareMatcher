@@ -59,7 +59,7 @@ export default function CreateProfile() {
         <div>
             {postError
                 ? <h1>{postError}</h1>
-                : <div className="container" style={{ margin: "0 auto" }}>
+                : <div className="container container-xxl" style={{ margin: "0 auto" }}>
                     <div className="row">
                         <div className="col">
                             <h1>Create new Profile</h1>

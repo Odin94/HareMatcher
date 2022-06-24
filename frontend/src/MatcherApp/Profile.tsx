@@ -38,7 +38,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, fetchError, onSwipeComplete 
         <div>
             {fetchError
                 ? <h1>{fetchError}</h1>
-                : <div className="container" style={{ width: "50%", margin: "0 auto" }}>
+                : <div className="container container-xxl" style={{ margin: "0 auto" }}>
                     <div className="row">
                         <div className="col">
                             <div className="card">

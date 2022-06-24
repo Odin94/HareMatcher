@@ -37,7 +37,7 @@ export default function Discover() {
     return (
         <div>
             {fetchError === "404: Not Found"
-                ? <div className="container" style={{ width: "50%", margin: "0 auto" }}>
+                ? <div className="container container-xxl" style={{ margin: "0 auto" }}>
                     <div className="card">
                         <div className="card-body">
                             <h1>No more profiles to discover</h1>

@@ -46,7 +46,7 @@ export default function Matches() {
 
     return (
         <div>
-            <div className="container" style={{ width: "80%", margin: "0 auto" }}>
+            <div className="container container-xxl" style={{ margin: "0 auto" }}>
                 <div className="row">
                     <div className="col-4">
                         {
