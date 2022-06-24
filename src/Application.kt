@@ -234,24 +234,13 @@ fun createSampleData() {
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
         }
 
-        val freddoBunny = ProfileDAO.new {
-            name = "FreddoBunny"
-            user = freddo
-            city = "Frankfurt"
-            race = "Flemish Giant"
-            furColor = "Black"
-            age = 2
-            weightInKG = 8.0
-            description = """
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget pharetra augue. Fusce lectus lorem, suscipit vitae consequat blandit, dignissim ac metus. Fusce sodales, orci quis varius sollicitudin, orci metus aliquet urna, sit amet varius nunc nibh non augue. Donec porta consequat urna malesuada iaculis. Nulla sit amet sem congue felis sagittis imperdiet nec et dui. In cursus, dolor venenatis bibendum hendrerit, turpis ante porta massa, et tempus nisl quam in nibh
-
-                Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
-            """
-        }
-
-        for (i in 1..20) {
-            ProfileDAO.new {
-                name = "FreddoBunny$i"
+        val profilePictures = arrayOf(
+            "resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg",
+            "resources/images/li-yan-3m4it24gFSg-unsplash.jpg"
+        ).map { imageBytesFromPath(it) }
+        val freddoBunnies = (1..20).map {
+            val bunnyProfile = ProfileDAO.new {
+                name = "FreddoBunny$it"
                 user = freddo
                 city = "Frankfurt"
                 race = "Flemish Giant"
@@ -264,33 +253,30 @@ fun createSampleData() {
                 Proin convallis dui ut pharetra venenatis. Vivamus id faucibus sem. Nunc blandit pellentesque facilisis. Etiam egestas et mauris eget convallis. Aliquam laoreet egestas neque, eget ornare odio faucibus et. Donec placerat eros neque, sit amet egestas mi auctor a. Nulla gravida velit enim, vitae sodales odio egestas
             """
             }
-        }
 
-        logger.info("FreddoBunny profile id: ${freddoBunny.id}")
-
-        arrayOf(
-            "resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg",
-            "resources/images/li-yan-3m4it24gFSg-unsplash.jpg"
-        ).forEachIndexed { i, path ->
-            val imageBytes = imageBytesFromPath(path)
-
-            ProfilePictureDAO.new {
-                profile = freddoBunny
-                picture = ExposedBlob(imageBytes)
-                index = i
+            profilePictures.forEachIndexed { i, imageBytes ->
+                ProfilePictureDAO.new {
+                    profile = bunnyProfile
+                    picture = ExposedBlob(imageBytes)
+                    index = i
+                }
             }
-        }
 
-        VaccinationDAO.new {
-            profile = freddoBunny
-            disease = "Myxomatosis"
-            date = LocalDate.of(2021, 6, 18)
+            VaccinationDAO.new {
+                profile = bunnyProfile
+                disease = "Myxomatosis"
+                date = LocalDate.of(2021, 6, 18)
+            }
+            VaccinationDAO.new {
+                profile = bunnyProfile
+                disease = "RVHD"
+                date = LocalDate.of(2022, 6, 3)
+            }
+
+            return@map bunnyProfile
         }
-        VaccinationDAO.new {
-            profile = freddoBunny
-            disease = "RVHD"
-            date = LocalDate.of(2022, 6, 3)
-        }
+        logger.info("Bunny profile id: ${freddoBunnies[0].id}")
+
 
         // Frado
         val fradoPictureBytes = imageBytesFromPath("resources/images/christopher-campbell-XvPYzoPSheA-unsplash.jpg")
@@ -308,7 +294,7 @@ fun createSampleData() {
 
         SwipeDAO.new {
             user = frado
-            swipedProfile = freddoBunny
+            swipedProfile = freddoBunnies[0]
             createdOn = LocalDateTime.now()
             likeOrPass = LikeOrPass.LIKE
         }
