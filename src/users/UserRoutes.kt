@@ -10,6 +10,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import users.UserDAO
@@ -86,6 +87,8 @@ fun Route.userRouting() {
                     val userDAO = UserDAO.new {
                         this.name = signupData.name
                         this.email = signupData.email
+                        this.description = ""
+                        this.picture = ExposedBlob(ByteArray(0))
                         this.hashedPassword = BCrypt.hashpw(signupData.password, BCrypt.gensalt()).toByteArray()
                     }
                     return@transaction userDAO.toUser()
