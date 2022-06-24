@@ -221,9 +221,16 @@ fun deleteAllData() {
 
 fun createSampleData() {
     transaction {
+        val freddoPictureBytes = imageBytesFromPath("resources/images/christopher-campbell-rDEOVtE7vOs-unsplash.jpg")
         val freddo = UserDAO.new {
             name = "Freddo"
             email = "freddo@test.de"
+            description = """
+                Bunny lover, parent, book club organizer.
+                
+                I love reading books, especially about how to care for bunnies or fiction about bunnies that can talk but they shouldn't wear human clothing cause that's weird they have fur why would they need clothes lol
+            """.trimIndent()
+            picture = ExposedBlob(freddoPictureBytes)
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
         }
 
@@ -265,14 +272,11 @@ fun createSampleData() {
             "resources/images/ankur-madan-Dv97xGwCidg-unsplash.jpg",
             "resources/images/li-yan-3m4it24gFSg-unsplash.jpg"
         ).forEachIndexed { i, path ->
-            val image = ImageIO.read(File(path))
-            val byteArrayOutStream = ByteArrayOutputStream()
-            ImageIO.write(image, "jpg", byteArrayOutStream)
-            val bytes = byteArrayOutStream.toByteArray()
+            val imageBytes = imageBytesFromPath(path)
 
             ProfilePictureDAO.new {
                 profile = freddoBunny
-                picture = ExposedBlob(bytes)
+                picture = ExposedBlob(imageBytes)
                 index = i
             }
         }
@@ -289,9 +293,16 @@ fun createSampleData() {
         }
 
         // Frado
+        val fradoPictureBytes = imageBytesFromPath("resources/images/christopher-campbell-XvPYzoPSheA-unsplash.jpg")
         val frado = UserDAO.new {
             name = "Frado"
             email = "frado@test.de"
+            description = """
+                Loving Husband, train operator by day and painter by night, father to a cute little bunny
+                
+                I'm looking to find a friend for my bunny. His brother died recently :(  and I don't want him to get lonely
+            """.trimIndent()
+            picture = ExposedBlob(fradoPictureBytes)
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
         }
 
@@ -302,6 +313,16 @@ fun createSampleData() {
             likeOrPass = LikeOrPass.LIKE
         }
     }
+}
+
+private fun imageBytesFromPath(path: String): ByteArray {
+    val picture = ImageIO.read(File(path))
+    val byteArrayOutStream = ByteArrayOutputStream()
+
+    val format = path.split(".").last()
+    ImageIO.write(picture, format, byteArrayOutStream)
+
+    return byteArrayOutStream.toByteArray()
 }
 
 @Location("/location/{name}")

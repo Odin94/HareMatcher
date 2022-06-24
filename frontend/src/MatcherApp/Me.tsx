@@ -8,7 +8,7 @@ import User from "./User";
 
 
 export default function Me() {
-    const [user, setUser] = useState(new UserData(-1, "", "", [], [], true));
+    const [user, setUser] = useState(new UserData(-1, "", "", "", "", [], [], true));
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {
@@ -32,7 +32,7 @@ export default function Me() {
 
     return (
         <div>
-            <User user={user} fetchError={fetchError} />;
+            <User user={user} fetchError={fetchError} />
         </div>
     )
 }

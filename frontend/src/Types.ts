@@ -20,10 +20,11 @@ export class ProfileData {
 }
 
 export class UserData {
-    constructor(public id: number, public name: string, public email: string, public profileIds: number[], public givenSwipeIds: number[], public isMe: boolean) { }
+    constructor(public id: number, public name: string, public email: string, public description: string, public picture: string, public profileIds: number[], public givenSwipeIds: number[], public isMe: boolean) { }
 
     static fromJson(json: any): UserData {
-        return new UserData(json.id, json.name, json.email, json.profileIds, json.givenSwipeIds, json.isMe);
+        const pictureBase64 = "data:image/jpg;base64," + json.picture;
+        return new UserData(json.id, json.name, json.email, json.description, pictureBase64, json.profileIds, json.givenSwipeIds, json.isMe);
     }
 }
 

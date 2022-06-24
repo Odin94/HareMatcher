@@ -21,7 +21,6 @@ to enable running both with hot reloading for development.
 ### TODOs
 * add page for updating profile page
 * Add chat for matches
-* Add description + profile picture to User
 * Fix images not loading in lightbox when clicking until re-render is triggered
 * Add filtering for matches (looking for bunnies of specific size, age, fluffiness etc)
 * Validate input: https://stackoverflow.com/questions/54204190/ktor-how-can-i-validate-json-request**

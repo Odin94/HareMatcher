@@ -34,7 +34,7 @@ export default function SpecificProfile() {
 
     return (
         <div>
-            <Profile profile={profileData} fetchError={fetchError} />;
+            <Profile profile={profileData} fetchError={fetchError} />
         </div>
     )
 }
