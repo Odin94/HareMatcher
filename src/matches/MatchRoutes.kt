@@ -24,6 +24,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
+import java.util.*
 
 
 fun Route.matchRouting() {
@@ -67,6 +68,7 @@ fun Route.matchRouting() {
                             Match(
                                 match.user.id.value,
                                 match.user.name,
+                                Base64.getEncoder().encodeToString(match.user.picture.bytes),
                                 match.createdOn.format(swipeDateTimeFormatter)
                             )
                         }
@@ -124,5 +126,5 @@ fun Application.registerMatchRouting() {
     }
 }
 
-data class Match(public val userId: Int, public val userName: String, public val matchedOn: String)
+data class Match(public val userId: Int, public val userName: String, public val userPicture: String, public val matchedOn: String)
 data class MatchesByProfile(public val profile: Profile, public val matches: List<Match>)

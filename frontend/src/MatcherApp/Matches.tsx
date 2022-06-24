@@ -1,4 +1,6 @@
+import { match } from "assert";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiVersion, baseUrl } from "../Globals";
 import { ProfileData } from "../Types";
 
@@ -15,8 +17,10 @@ const formattedDateToday = new Date().toLocaleDateString("de-DE", {
 });
 
 export default function Matches() {
+    const navigate = useNavigate();
+
     const testingProfilePreviews = [new ProfilePreview(0, defaultPictureSource, "Test One"), new ProfilePreview(1, defaultPictureSourceTwo, "Test Two"), new ProfilePreview(2, defaultPictureSourceTwo, "Test Three")];
-    const testingMatches = [[new Match(-1, "TestUser", formattedDateToday)], [new Match(-1, "TestUser", formattedDateToday), new Match(-1, "TestUser", formattedDateToday)], []];
+    const testingMatches = [[new Match(-1, "TestUser", defaultUserPicture, formattedDateToday)], [new Match(-1, "TestUser", defaultUserPicture, formattedDateToday), new Match(-1, "TestUser", defaultUserPicture, formattedDateToday)], []];
 
     const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState(testingProfilePreviews.map((preview, i) => { return new ProfilePreviewWithMatch(preview, testingMatches[i]) }));
     const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(new ProfilePreviewWithMatch(testingProfilePreviews[0], testingMatches[0]));
@@ -34,10 +38,15 @@ export default function Matches() {
                     const thumbnail = profile.pictures?.find(picture => picture.index === 0)?.picture || defaultPictureSource
                     const preview = new ProfilePreview(profile.id, thumbnail, profile.name)
 
+                    for (const match of matches) {
+                        match.userPicture = `data:image/jpg;base64,${match.userPicture}`
+                    }
+
                     return new ProfilePreviewWithMatch(preview, matches)
                 });
 
                 setProfilePreviewsWithMatches(profilePreviewsWithMatches);
+                if (profilePreviewsWithMatches.length > 0) setSelectedProfileWithMatches(profilePreviewsWithMatches[0]);
             })
             .catch((err: Error) => {
                 console.log(`error when fetching profiles: ${err}`);
@@ -82,7 +91,7 @@ export default function Matches() {
                                                 <div className="card-body">
                                                     <div className="row">
                                                         <div className="col-2">
-                                                            <img src={defaultUserPicture} width="70px" height="70px" className="rounded-circle float-start" />
+                                                            <img src={match.userPicture} width="70px" height="70px" className="rounded-circle float-start" />
                                                         </div>
                                                         <div className="col text-center">
                                                             <h1>
@@ -109,7 +118,7 @@ class ProfilePreview {
 }
 
 class Match {
-    constructor(public userId: number, public userName: string, public matchedOn: string) { }
+    constructor(public userId: number, public userName: string, public userPicture: string, public matchedOn: string) { }
 }
 
 class ProfilePreviewWithMatch {
