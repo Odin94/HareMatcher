@@ -108,14 +108,14 @@ fun Route.matchRouting() {
                 call.respond(HttpStatusCode.Accepted)
             }
         }
-    }
 
-    webSocket("/chat") {
-        send("You are connected!")
-        for (frame in incoming) {
-            frame as? Frame.Text ?: continue
-            val receivedText = frame.readText()
-            send("You said: $receivedText")
+        webSocket("/chat") {
+            send("You are connected!")
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                val receivedText = frame.readText()
+                send("You said: $receivedText")
+            }
         }
     }
 }

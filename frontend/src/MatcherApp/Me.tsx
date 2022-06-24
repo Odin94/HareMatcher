@@ -12,7 +12,7 @@ export default function Me() {
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/users/me`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/users/me`, {
             credentials: 'include',
         })
             .then(response => {

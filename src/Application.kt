@@ -194,16 +194,6 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("Inside $it")
         }
 
-        webSocket("/myws/echo") {
-            send(Frame.Text("Hi from server"))
-            while (true) {
-                val frame = incoming.receive()
-                if (frame is Frame.Text) {
-                    send(Frame.Text("Client said: " + frame.readText()))
-                }
-            }
-        }
-
         deleteAllData()  // TODO: Remove for production usage
         createSampleData()
     }

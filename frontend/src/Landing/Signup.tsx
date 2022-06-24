@@ -11,7 +11,7 @@ export default function Signup() {
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        fetch(`${baseUrl}/api/${apiVersion}/users`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/users`, {
             method: "POST",
             body: JSON.stringify({ name, email, password }),
             headers: { 'Content-Type': 'application/json' },

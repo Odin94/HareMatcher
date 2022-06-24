@@ -14,7 +14,7 @@ export default function SpecificUser() {
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/users/${id}`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/users/${id}`, {
             credentials: 'include',
         })
             .then(response => {

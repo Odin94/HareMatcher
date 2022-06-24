@@ -26,6 +26,7 @@ to enable running both with hot reloading for development.
 * Validate input: https://stackoverflow.com/questions/54204190/ktor-how-can-i-validate-json-request**
 * Test-users getting deleted and re-created on restart makes session cookies invalid and requires deleting them from the
   browser - maybe fix..?
+* Look into whether you should use `useCallback` for some of your function definitions inside react function components
 
 ### Credits
 * Images from [Unsplash](https://unsplash.com)

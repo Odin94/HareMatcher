@@ -26,7 +26,7 @@ export default function Matches() {
     const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(new ProfilePreviewWithMatch(testingProfilePreviews[0], testingMatches[0]));
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/matches`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/matches`, {
             credentials: 'include',
         })
             .then(response => {

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 export const useInput = (initialValue: any) => {
     const [value, setValue] = useState(initialValue);
@@ -43,4 +43,13 @@ export const useRepeat = <T>(callback: () => Promise<T> | (() => void), delay: n
             return () => timeout && clearTimeout(timeout);
         }
     }, [delay, enabled]);
+}
+
+export const useFocus = (): [RefObject<HTMLInputElement>, () => void] => {
+    const htmlElRef = useRef<HTMLInputElement>(null);
+    const setFocus = () => {
+        htmlElRef.current?.focus();
+    };
+
+    return [htmlElRef, setFocus];
 }

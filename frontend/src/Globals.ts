@@ -1,5 +1,5 @@
 export const apiVersion = "v1"
-export const baseUrl = `http://localhost:8080`
+export const baseUrl = `localhost:8080`
 
 // js implementation of Java's String.hashCode
 export const hashCode = (str: string) => {

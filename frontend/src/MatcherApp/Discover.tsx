@@ -12,7 +12,7 @@ export default function Discover() {
     const [fetchError, setFetchError] = useState("");
 
     const discoverProfile = async () => {
-        fetch(`${baseUrl}/api/${apiVersion}/discover`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/discover`, {
             credentials: 'include',
         })
             .then(response => {

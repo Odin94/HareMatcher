@@ -14,7 +14,7 @@ export default function SpecificProfile() {
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {
-        fetch(`${baseUrl}/api/${apiVersion}/profiles/${id}`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/profiles/${id}`, {
             credentials: 'include',
         })
             .then(response => {

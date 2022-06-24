@@ -16,7 +16,7 @@ export default function Login() {
         formData.append('email', email);
         formData.append('password', password);
 
-        fetch(`${baseUrl}/api/${apiVersion}/login`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/login`, {
             method: "POST",
             body: formData,
             credentials: 'include',

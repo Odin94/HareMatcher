@@ -17,7 +17,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, fetchError, onSwipeComplete 
     const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
 
     const swipe = (likeOrPass: "LIKE" | "PASS") => {
-        fetch(`${baseUrl}/api/${apiVersion}/swipe`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/swipe`, {
             method: "POST",
             body: JSON.stringify({ profileId: profile.id, likeOrPass: likeOrPass }),
             headers: { 'Content-Type': 'application/json' },

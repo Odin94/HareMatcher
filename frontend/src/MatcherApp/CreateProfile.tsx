@@ -42,7 +42,7 @@ export default function CreateProfile() {
         }
         formData.append("vaccinations", JSON.stringify(vaccinations));
 
-        fetch(`${baseUrl}/api/${apiVersion}/profiles`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/profiles`, {
             method: "POST",
             body: formData,
             credentials: 'include',
