@@ -25,10 +25,10 @@ const User: React.FC<UserProps> = ({ user, fetchError }) => {
                         </div>
                     </div>
 
-                    <ul>{user.profileIds?.map((profileId) => <li key={profileId}><a href={`/profile/${profileId}`}>{profileId}</a></li>)}</ul>
+                    <ul>{user.profileIds?.map((profileId) => <li key={profileId}><a href={`/profiles/${profileId}`}>{profileId}</a></li>)}</ul>
 
                     {user.isMe
-                        ? <a href={`/profile/create`}>create new profile</a>
+                        ? <a href={`/profiles/create`}>create new profile</a>
                         : <div></div>
                     }
 
