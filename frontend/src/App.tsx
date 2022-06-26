@@ -31,7 +31,7 @@ export default function App() {
           <Route path="/profiles/:id" element={<MatcherNavigation><SpecificProfile /></MatcherNavigation>} />
           <Route path="/profiles/create" element={<MatcherNavigation><CreateProfile /></MatcherNavigation>} />
           <Route path="/users/:id" element={<MatcherNavigation><SpecificUser /></MatcherNavigation>} />
-          <Route path="/chat" element={<MatcherNavigation><Chat /></MatcherNavigation>} />
+          <Route path="/chat/:id" element={<MatcherNavigation><Chat /></MatcherNavigation>} />
 
           <Route path="/" element={<LandingNavigation><Landing /></LandingNavigation>} />
           <Route path="/signup" element={<LandingNavigation><Signup /></LandingNavigation>} />

@@ -1,5 +1,6 @@
 package de.odinmatthias
 
+import de.odinmatthias.matches.ChatMessages
 import de.odinmatthias.matches.LikeOrPass
 import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
@@ -204,6 +205,7 @@ fun deleteAllData() {
         Swipes.deleteAll()
         Vaccinations.deleteAll()
         ProfilePictures.deleteAll()
+        ChatMessages.deleteAll()
         Profiles.deleteAll()
         Users.deleteAll()
     }

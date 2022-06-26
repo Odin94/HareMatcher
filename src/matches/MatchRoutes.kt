@@ -1,10 +1,9 @@
 package matches
 
+import com.google.gson.Gson
 import de.odinmatthias.UserSession
-import de.odinmatthias.matches.LikeOrPass
+import de.odinmatthias.matches.*
 import de.odinmatthias.matches.Swipe.Companion.swipeDateTimeFormatter
-import de.odinmatthias.matches.SwipeDAO
-import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.Profile
 import de.odinmatthias.profiles.ProfileDAO
 import de.odinmatthias.profiles.Profiles
@@ -23,9 +22,12 @@ import org.jetbrains.exposed.sql.orWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
+import users.UserDAO
 import java.time.LocalDateTime
 import java.util.*
 
+private val logger = LoggerFactory.getLogger("MatchRouting")
 
 fun Route.matchRouting() {
     route("api/v1") {
@@ -109,16 +111,77 @@ fun Route.matchRouting() {
             }
         }
 
+        val chatConnectionsByUserIds = mutableMapOf<Int, ChatConnection>()
         webSocket("/chat") {
-            send("You are connected!")
-            for (frame in incoming) {
-                frame as? Frame.Text ?: continue
-                val receivedText = frame.readText()
-                send("You said: $receivedText")
+            val currentUserDao = call.sessions.get<UserSession>()?.getCurrentUserDAO()
+                ?: return@webSocket close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
+            chatConnectionsByUserIds[currentUserDao.id.value] = ChatConnection(this, currentUserDao)
+
+            suspend fun sendChatError(chatError: ChatError) {
+                chatConnectionsByUserIds[currentUserDao.id.value]?.session?.send(chatError.toJson())
+            }
+
+            try {
+                for (frame in incoming) {
+                    frame as? Frame.Text ?: continue
+                    val receivedText = frame.readText()
+
+                    val incomingChatMessage: IncomingChatMessage = Gson().fromJson(receivedText, IncomingChatMessage::class.java)
+                    val messageTimestamp = LocalDateTime.now()
+                    val newChatMessage = transaction {
+                        val targetUserDAO = UserDAO.findById(incomingChatMessage.targetUserId)
+                            ?: return@transaction null
+
+                        return@transaction ChatMessageDAO.new {
+                            message = incomingChatMessage.message
+                            sourceUser = currentUserDao
+                            targetUser = targetUserDAO
+                            sentOn = messageTimestamp
+                        }.toChatMessage()
+                    }
+
+                    if (newChatMessage == null) {
+                        val chatError = ChatError("${incomingChatMessage.targetUserId}", incomingChatMessage.uuid, ChatErrorCause.TargetUserNotFound)
+                        sendChatError(chatError)
+                        continue
+                    }
+
+                    chatConnectionsByUserIds[incomingChatMessage.targetUserId]?.let {
+                        val outgoingChatMessage = OutgoingChatMessage(
+                            incomingChatMessage.message,
+                            currentUserDao.id.value,
+                            messageTimestamp.format(ChatMessage.chatMessageDateTimeFormatter)
+                        )
+                        it.session.send(outgoingChatMessage.toJson())
+                    }
+                }
+            } catch (e: Exception) {
+                logger.error("Error in chat from user $currentUserDao", e)
+            } finally {
+                println("Removing connection for user $currentUserDao")
+                chatConnectionsByUserIds.remove(currentUserDao.id.value)
             }
         }
     }
 }
+
+data class IncomingChatMessage(val message: String, val targetUserId: Int, val uuid: String)
+
+data class OutgoingChatMessage(val message: String, val sourceUserId: Int, val sentOn: String) {
+    fun toJson(): String = Gson().toJson(this)
+}
+
+enum class ChatErrorCause {
+    TargetUserNotFound,
+
+}
+
+data class ChatError(val errorMessage: String, val messageUuid: String, val cause: ChatErrorCause) {
+    fun toJson(): String = Gson().toJson(this)
+}
+
+class ChatConnection(val session: DefaultWebSocketSession, val user: UserDAO)
+
 
 fun Application.registerMatchRouting() {
     routing {

@@ -2,6 +2,7 @@ package de.odinmatthias
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import de.odinmatthias.matches.ChatMessages
 import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfilePictures
 import de.odinmatthias.profiles.Profiles
@@ -59,6 +60,7 @@ class DatabaseConnector {
             SchemaUtils.create(Vaccinations)
             SchemaUtils.create(ProfilePictures)
             SchemaUtils.create(Swipes)
+            SchemaUtils.create(ChatMessages)
         }
     }
 

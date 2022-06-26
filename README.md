@@ -27,6 +27,7 @@ to enable running both with hot reloading for development.
 * Test-users getting deleted and re-created on restart makes session cookies invalid and requires deleting them from the
   browser - maybe fix..?
 * Look into whether you should use `useCallback` for some of your function definitions inside react function components
+* Write or find something like a `useFetch` hook to make your fetching-boilerplate less noisy
 
 ### Credits
 * Images from [Unsplash](https://unsplash.com)
