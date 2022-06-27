@@ -30,5 +30,6 @@ to enable running both with hot reloading for development.
 * Write or find something like a `useFetch` hook to make your fetching-boilerplate less noisy
 
 ### Credits
+
 * Images from [Unsplash](https://unsplash.com)
-* `default_user.jpg` from [srip](https://www.flaticon.com/free-icons/account)
+* `default_user.png` from [Kiranshastry](https://www.flaticon.com/free-icons/user)

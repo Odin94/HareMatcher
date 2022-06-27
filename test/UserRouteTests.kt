@@ -129,7 +129,7 @@ private fun createUser(password: String): UserDAO {
             email = "${BCrypt.gensalt()}_test@test.de"
             name = "${BCrypt.gensalt()}_testName"
             description = ""
-            picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.jpg"))
+            picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.png"))
             pictureFormat = PictureFormat.JPG
             hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
         }

@@ -90,7 +90,7 @@ fun Route.userRouting() {
                         this.name = signupData.name
                         this.email = signupData.email
                         this.description = ""
-                        this.picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.jpg"))
+                        this.picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.png"))
                         this.pictureFormat = PictureFormat.JPG
                         this.hashedPassword = BCrypt.hashpw(signupData.password, BCrypt.gensalt()).toByteArray()
                     }
