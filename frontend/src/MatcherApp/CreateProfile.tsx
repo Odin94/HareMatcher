@@ -118,8 +118,8 @@ export default function CreateProfile() {
                                         containerClass="carousel-container"
                                         itemClass="carousel-item-padding-40-px"
                                     >
-                                        {pictureSources.length > 0 ? pictureSources.map((picture) => (
-                                            <img src={URL.createObjectURL(picture)} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
+                                        {pictureSources.length > 0 ? pictureSources.map(source => URL.createObjectURL(source)).map((picture, i) => (
+                                            <img key={i} src={picture} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                         )) : (
                                             <img src={defaultEmptyPictureSource} alt="" width="100%" height="100%" style={{ padding: "5px", cursor: "pointer", objectFit: "cover" }}></img>
                                         )}
