@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
 import org.junit.Before
@@ -41,8 +42,11 @@ class UserRouteTests {
     @Test
     fun testGetNonExistentUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/api/v1/users/1").apply {
-                assertEquals(HttpStatusCode.NotFound, response.status())
+            cookiesSession(listOf()) {
+                createAndSignInUser(this)
+                handleRequest(HttpMethod.Get, "/api/v1/users/982379812").apply {
+                    assertEquals(HttpStatusCode.NotFound, response.status())
+                }
             }
         }
     }
@@ -50,11 +54,13 @@ class UserRouteTests {
     @Test
     fun testGetUser() {
         withTestApplication(moduleFunction = { module(testing = true) }) {
-            val user = createUser("")
-            handleRequest(HttpMethod.Get, "/api/v1/users/${user.id}").apply {
-                val expected = transaction { return@transaction Gson().toJson(user.toUser()) }
-                assertEquals(expected, response.content)
-                assertEquals(HttpStatusCode.OK, response.status())
+            cookiesSession(listOf()) {
+                val user = createAndSignInUser(this)
+                handleRequest(HttpMethod.Get, "/api/v1/users/${user.id}").apply {
+                    val expected = transaction { return@transaction Gson().toJson(user.toUser(isMe = true)) }
+                    assertEquals(HttpStatusCode.OK, response.status())
+                    assertEquals(expected, response.content)
+                }
             }
         }
     }
@@ -122,6 +128,9 @@ private fun createUser(password: String): UserDAO {
         return@transaction UserDAO.new {
             email = "${BCrypt.gensalt()}_test@test.de"
             name = "${BCrypt.gensalt()}_testName"
+            description = ""
+            picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.jpg"))
+            pictureFormat = PictureFormat.JPG
             hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
         }
     }

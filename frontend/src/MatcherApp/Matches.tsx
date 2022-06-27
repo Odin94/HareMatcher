@@ -38,10 +38,6 @@ export default function Matches() {
                     const thumbnail = profile.pictures?.find(picture => picture.index === 0)?.picture || defaultPictureSource
                     const preview = new ProfilePreview(profile.id, thumbnail, profile.name)
 
-                    for (const match of matches) {
-                        match.userPicture = `data:image/jpg;base64,${match.userPicture}`
-                    }
-
                     return new ProfilePreviewWithMatch(preview, matches)
                 });
 

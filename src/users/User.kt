@@ -1,5 +1,7 @@
 package users
 
+import de.odinmatthias.PictureFormat
+import de.odinmatthias.PictureUtils
 import de.odinmatthias.matches.SwipeDAO
 import de.odinmatthias.matches.Swipes
 import de.odinmatthias.profiles.ProfileDAO
@@ -11,7 +13,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
-import java.util.*
 
 @Serializable
 data class User(
@@ -31,6 +32,7 @@ object Users : IntIdTable() {
     val description: Column<String> = text("description")
     val hashedPassword: Column<ByteArray> = binary("hashPassword", 512)
     val picture: Column<ExposedBlob> = blob("picture")
+    val pictureFormat: Column<PictureFormat> = enumerationByName("pictureFormat", 12, PictureFormat::class)
 }
 
 class UserDAO(id: EntityID<Int>) : IntEntity(id) {
@@ -41,6 +43,7 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
     var description by Users.description
     var hashedPassword by Users.hashedPassword
     var picture by Users.picture
+    var pictureFormat by Users.pictureFormat
     val profiles by ProfileDAO referrersOn Profiles.user
     val givenSwipes by SwipeDAO referrersOn Swipes.user
 
@@ -49,7 +52,7 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
         name,
         email,
         description,
-        Base64.getEncoder().encodeToString(picture.bytes),
+        PictureUtils.base64Encode(picture.bytes, pictureFormat),
         profiles.map { it.id.value },
         givenSwipes.map { it.id.value },
         isMe

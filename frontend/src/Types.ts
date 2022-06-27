@@ -11,11 +11,9 @@ export class ProfileData {
         public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public matchable: boolean, public pictures?: ProfilePicture[]) { }
 
     static fromJson(json: any): ProfileData {
-        const picturesBase64 = json.profilePictures
-            ?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index)
-            ?.map((p: ProfilePicture) => new ProfilePicture("data:image/jpg;base64," + p.picture, p.index));
+        const sortedPictures = json.profilePictures?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index);
 
-        return new ProfileData(json.id, json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, picturesBase64);
+        return new ProfileData(json.id, json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, sortedPictures);
     }
 }
 
@@ -23,8 +21,7 @@ export class UserData {
     constructor(public id: number, public name: string, public email: string, public description: string, public picture: string, public profileIds: number[], public givenSwipeIds: number[], public isMe: boolean) { }
 
     static fromJson(json: any): UserData {
-        const pictureBase64 = "data:image/jpg;base64," + json.picture;
-        return new UserData(json.id, json.name, json.email, json.description, pictureBase64, json.profileIds, json.givenSwipeIds, json.isMe);
+        return new UserData(json.id, json.name, json.email, json.description, json.picture, json.profileIds, json.givenSwipeIds, json.isMe);
     }
 }
 

@@ -223,6 +223,7 @@ fun createSampleData() {
                 I love reading books, especially about how to care for bunnies or fiction about bunnies that can talk but they shouldn't wear human clothing cause that's weird they have fur why would they need clothes lol
             """.trimIndent()
             picture = ExposedBlob(freddoPictureBytes)
+            pictureFormat = PictureFormat.JPG
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
         }
 
@@ -250,6 +251,7 @@ fun createSampleData() {
                 ProfilePictureDAO.new {
                     profile = bunnyProfile
                     picture = ExposedBlob(imageBytes)
+                    format = PictureFormat.JPG
                     index = i
                 }
             }
@@ -281,6 +283,7 @@ fun createSampleData() {
                 I'm looking to find a friend for my bunny. His brother died recently :(  and I don't want him to get lonely
             """.trimIndent()
             picture = ExposedBlob(fradoPictureBytes)
+            pictureFormat = PictureFormat.JPG
             hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
         }
 
@@ -293,7 +296,7 @@ fun createSampleData() {
     }
 }
 
-private fun imageBytesFromPath(path: String): ByteArray {
+fun imageBytesFromPath(path: String): ByteArray {
     val picture = ImageIO.read(File(path))
     val byteArrayOutStream = ByteArrayOutputStream()
 

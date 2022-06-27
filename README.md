@@ -31,3 +31,4 @@ to enable running both with hot reloading for development.
 
 ### Credits
 * Images from [Unsplash](https://unsplash.com)
+* `default_user.jpg` from [srip](https://www.flaticon.com/free-icons/account)

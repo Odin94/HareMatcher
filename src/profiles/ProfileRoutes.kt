@@ -1,6 +1,8 @@
 package de.odinmatthias.profiles
 
 import com.google.gson.Gson
+import de.odinmatthias.PictureFormat
+import de.odinmatthias.PictureUtils
 import de.odinmatthias.UserSession
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -43,7 +45,7 @@ fun Route.profileRouting() {
 
                     val currentUserDao = call.sessions.get<UserSession>()?.getCurrentUserDAO()
                         ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                    val profile = createProfile(currentUserDao, profileCreationData)
+                    val profile = transaction { createProfile(currentUserDao, profileCreationData) }
 
                     call.respond(profile)
                 }
@@ -60,9 +62,12 @@ data class ProfileCreationData(
     val age: Int,
     val weightInKg: Double,
     val description: String,
-    val images: Array<ByteArray>,
+    val picturesWithFormats: Array<PictureWithFormat>,
     val vaccinations: Array<VaccinationDTO>
 )
+
+data class PictureWithFormat(val bytes: ByteArray, val format: PictureFormat)
+
 
 data class VaccinationDTO(val disease: String, val date: String)
 
@@ -90,6 +95,15 @@ suspend fun <T> multiPartDataToClass(data: MultiPartData, javaClass: Class<T>): 
     }
 
     mapData["images"] = images.toSortedMap().map { (_, byteStream) -> byteStream.toByteArray() }
+    mapData["picturesWithFormats"] = images.toSortedMap().map { (_, byteStream) ->
+        val bytes = byteStream.toByteArray()
+        val format = PictureUtils.guessFormat(bytes).name
+
+        mapOf(
+            "bytes" to bytes,
+            "format" to format
+        )
+    }
 
     val gson = Gson()
     val jsonData = gson.toJson(mapData)

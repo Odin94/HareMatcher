@@ -107,10 +107,11 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
         description = profileCreationData.description
     }
 
-    profileCreationData.images.forEachIndexed { i, bytes ->
+    profileCreationData.picturesWithFormats.forEachIndexed { i, pictureWithFormat ->
         ProfilePictureDAO.new {
             profile = newProfileDao
-            picture = ExposedBlob(bytes)
+            picture = ExposedBlob(pictureWithFormat.bytes)
+            format = pictureWithFormat.format
             index = i
         }
     }

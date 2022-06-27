@@ -1,6 +1,7 @@
 package matches
 
 import com.google.gson.Gson
+import de.odinmatthias.PictureUtils
 import de.odinmatthias.UserSession
 import de.odinmatthias.matches.*
 import de.odinmatthias.matches.Swipe.Companion.swipeDateTimeFormatter
@@ -25,7 +26,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import users.UserDAO
 import java.time.LocalDateTime
-import java.util.*
 
 private val logger = LoggerFactory.getLogger("MatchRouting")
 
@@ -70,7 +70,7 @@ fun Route.matchRouting() {
                             Match(
                                 match.user.id.value,
                                 match.user.name,
-                                Base64.getEncoder().encodeToString(match.user.picture.bytes),
+                                PictureUtils.base64Encode(match.user.picture.bytes, match.user.pictureFormat),
                                 match.createdOn.format(swipeDateTimeFormatter)
                             )
                         }

@@ -1,5 +1,7 @@
 package de.odinmatthias.profiles
 
+import de.odinmatthias.PictureFormat
+import de.odinmatthias.PictureUtils
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -7,7 +9,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
-import java.util.*
 
 
 @Serializable
@@ -16,6 +17,7 @@ data class ProfilePicture(val id: Int?, val profileId: Int, val picture: String,
 object ProfilePictures : IntIdTable() {
     val profile = reference("profile", Profiles)
     val picture: Column<ExposedBlob> = blob("picture")
+    val format: Column<PictureFormat> = enumerationByName("format", 12, PictureFormat::class)
     val index: Column<Int> = integer("index")
 }
 
@@ -24,12 +26,13 @@ class ProfilePictureDAO(id: EntityID<Int>) : IntEntity(id) {
 
     var profile by ProfileDAO referencedOn ProfilePictures.profile
     var picture by ProfilePictures.picture
+    var format by ProfilePictures.format
     var index by ProfilePictures.index
 
     fun toProfilePicture() = ProfilePicture(
         id.value,
         profile.id.value,
-        Base64.getEncoder().encodeToString(picture.bytes),
+        PictureUtils.base64Encode(picture.bytes, format),
         index
     )
 }

@@ -1,6 +1,8 @@
 package de.odinmatthias.users
 
+import de.odinmatthias.PictureFormat
 import de.odinmatthias.UserSession
+import de.odinmatthias.imageBytesFromPath
 import de.odinmatthias.matches.LikeOrPass
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -88,7 +90,8 @@ fun Route.userRouting() {
                         this.name = signupData.name
                         this.email = signupData.email
                         this.description = ""
-                        this.picture = ExposedBlob(ByteArray(0))
+                        this.picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.jpg"))
+                        this.pictureFormat = PictureFormat.JPG
                         this.hashedPassword = BCrypt.hashpw(signupData.password, BCrypt.gensalt()).toByteArray()
                     }
                     return@transaction userDAO.toUser()
