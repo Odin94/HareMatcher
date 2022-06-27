@@ -51,6 +51,25 @@ export default function Chat() {
     }, []);
 
     const [chatMessageHistory, setChatMessageHistory] = useState<ChatMessage[]>([]);
+    const [historyFetchError, setHistoryFetchError] = useState("");
+    useEffect(() => {
+        fetch(`http://${baseUrl}/api/${apiVersion}/chatHistory/${id}`, {
+            credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+                return response.json();
+            })
+            .then(json => {
+                console.log(json);
+                setChatMessageHistory(json);
+            })
+            .catch((err: Error) => {
+                console.log(`error when fetching me: ${err}`);
+                setHistoryFetchError(err.message);
+            })
+    }, []);
+
     const { value: rawChatMessage, bind: bindChatMessage, reset: resetChatMessage } = useInput("");
     const [inputRef, setInputFocus] = useFocus();
 
@@ -150,10 +169,10 @@ export default function Chat() {
 }
 
 class ChatMessage {
-    constructor(public message: string, public sourceUserId: number, public targetUserId: number, public uuid: string) { }
+    constructor(public message: string, public sourceUserId: number, public targetUserId: number, public sentOn: string, public uuid?: string) { }
 
     static fromIncoming(json: any, myUserId: number): ChatMessage {
-        return new ChatMessage(json.message, json.sourceUserId, myUserId, json.uuid);
+        return new ChatMessage(json.message, json.sourceUserId, myUserId, json.sentOn, json.uuid);
     }
 };
 

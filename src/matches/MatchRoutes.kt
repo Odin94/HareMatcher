@@ -18,10 +18,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.websocket.*
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.orWhere
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import users.UserDAO
@@ -109,57 +106,78 @@ fun Route.matchRouting() {
 
                 call.respond(HttpStatusCode.Accepted)
             }
-        }
 
-        val chatConnectionsByUserIds = mutableMapOf<Int, ChatConnection>()
-        webSocket("/chat") {
-            val currentUserDao = call.sessions.get<UserSession>()?.getCurrentUserDAO()
-                ?: return@webSocket close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
-            chatConnectionsByUserIds[currentUserDao.id.value] = ChatConnection(this, currentUserDao)
+            get("/chatHistory/{id}") {
+                val chatPartnerId = call.parameters["id"]?.toInt() ?: return@get call.respondText(
+                    "Missing or malformed id",
+                    status = HttpStatusCode.BadRequest
+                )
+                val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            suspend fun sendChatError(chatError: ChatError) {
-                chatConnectionsByUserIds[currentUserDao.id.value]?.session?.send(chatError.toJson())
+                logger.error("${currentUser.id} ; partner: $chatPartnerId")
+                val chatHistory = transaction {
+                    ChatMessages
+                        .selectAll()
+                        .andWhere { (ChatMessages.sourceUser eq currentUser.id) and (ChatMessages.targetUser eq chatPartnerId) }
+                        .orWhere { (ChatMessages.sourceUser eq chatPartnerId) and (ChatMessages.targetUser eq currentUser.id) }
+                        .orderBy(ChatMessages.sentOn, SortOrder.ASC)
+                        .map { ChatMessageDAO.findById(it[ChatMessages.id])?.toChatMessage() }
+                }
+
+                call.respond(chatHistory)
             }
 
-            try {
-                for (frame in incoming) {
-                    frame as? Frame.Text ?: continue
-                    val receivedText = frame.readText()
+            val chatConnectionsByUserIds = mutableMapOf<Int, ChatConnection>()
+            webSocket("/chat") {
+                val currentUserDao = call.sessions.get<UserSession>()?.getCurrentUserDAO()
+                    ?: return@webSocket close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
+                chatConnectionsByUserIds[currentUserDao.id.value] = ChatConnection(this, currentUserDao)
 
-                    val incomingChatMessage: IncomingChatMessage = Gson().fromJson(receivedText, IncomingChatMessage::class.java)
-                    val messageTimestamp = LocalDateTime.now()
-                    val newChatMessage = transaction {
-                        val targetUserDAO = UserDAO.findById(incomingChatMessage.targetUserId)
-                            ?: return@transaction null
-
-                        return@transaction ChatMessageDAO.new {
-                            message = incomingChatMessage.message
-                            sourceUser = currentUserDao
-                            targetUser = targetUserDAO
-                            sentOn = messageTimestamp
-                        }.toChatMessage()
-                    }
-
-                    if (newChatMessage == null) {
-                        val chatError = ChatError("${incomingChatMessage.targetUserId}", incomingChatMessage.uuid, ChatErrorCause.TargetUserNotFound)
-                        sendChatError(chatError)
-                        continue
-                    }
-
-                    chatConnectionsByUserIds[incomingChatMessage.targetUserId]?.let {
-                        val outgoingChatMessage = OutgoingChatMessage(
-                            incomingChatMessage.message,
-                            currentUserDao.id.value,
-                            messageTimestamp.format(ChatMessage.chatMessageDateTimeFormatter)
-                        )
-                        it.session.send(outgoingChatMessage.toJson())
-                    }
+                suspend fun sendChatError(chatError: ChatError) {
+                    chatConnectionsByUserIds[currentUserDao.id.value]?.session?.send(chatError.toJson())
                 }
-            } catch (e: Exception) {
-                logger.error("Error in chat from user $currentUserDao", e)
-            } finally {
-                println("Removing connection for user $currentUserDao")
-                chatConnectionsByUserIds.remove(currentUserDao.id.value)
+
+                try {
+                    for (frame in incoming) {
+                        frame as? Frame.Text ?: continue
+                        val receivedText = frame.readText()
+
+                        val incomingChatMessage: IncomingChatMessage = Gson().fromJson(receivedText, IncomingChatMessage::class.java)
+                        val messageTimestamp = LocalDateTime.now()
+                        val newChatMessage = transaction {
+                            val targetUserDAO = UserDAO.findById(incomingChatMessage.targetUserId)
+                                ?: return@transaction null
+
+                            return@transaction ChatMessageDAO.new {
+                                message = incomingChatMessage.message
+                                sourceUser = currentUserDao
+                                targetUser = targetUserDAO
+                                sentOn = messageTimestamp
+                            }.toChatMessage()
+                        }
+
+                        if (newChatMessage == null) {
+                            val chatError = ChatError("${incomingChatMessage.targetUserId}", incomingChatMessage.uuid, ChatErrorCause.TargetUserNotFound)
+                            sendChatError(chatError)
+                            continue
+                        }
+
+                        chatConnectionsByUserIds[incomingChatMessage.targetUserId]?.let {
+                            val outgoingChatMessage = OutgoingChatMessage(
+                                incomingChatMessage.message,
+                                currentUserDao.id.value,
+                                messageTimestamp.format(ChatMessage.chatMessageDateTimeFormatter)
+                            )
+                            it.session.send(outgoingChatMessage.toJson())
+                        }
+                    }
+                } catch (e: Exception) {
+                    logger.error("Error in chat from user $currentUserDao", e)
+                } finally {
+                    println("Removing connection for user $currentUserDao")
+                    chatConnectionsByUserIds.remove(currentUserDao.id.value)
+                }
             }
         }
     }

@@ -1,9 +1,6 @@
 package de.odinmatthias
 
-import de.odinmatthias.matches.ChatMessages
-import de.odinmatthias.matches.LikeOrPass
-import de.odinmatthias.matches.SwipeDAO
-import de.odinmatthias.matches.Swipes
+import de.odinmatthias.matches.*
 import de.odinmatthias.profiles.*
 import de.odinmatthias.users.registerUserRouting
 import io.ktor.application.*
@@ -292,6 +289,13 @@ fun createSampleData() {
             swipedProfile = freddoBunnies[0]
             createdOn = LocalDateTime.now()
             likeOrPass = LikeOrPass.LIKE
+        }
+
+        ChatMessageDAO.new {
+            message = "Hey Freddo, I like your profile!"
+            sourceUser = frado
+            targetUser = freddo
+            sentOn = LocalDateTime.now()
         }
     }
 }
