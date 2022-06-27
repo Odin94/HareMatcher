@@ -1,13 +1,35 @@
 import { FormEvent } from "react";
 import { Button, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useInput } from "../CustomHooks";
 import { baseUrl, apiVersion } from '../Globals';
 
 
 export default function Signup() {
+    const navigate = useNavigate();
+
     const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
     const { value: name, bind: bindName, reset: resetName } = useInput('');
     const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
+
+    const login = () => {
+        let formData = new FormData();
+        formData.append('email', email);
+        formData.append('password', password);
+
+        fetch(`http://${baseUrl}/api/${apiVersion}/login`, {
+            method: "POST",
+            body: formData,
+            credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then(() => navigate("/me", { replace: false }))
+            .catch(err => console.log(err))
+    }
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
@@ -18,7 +40,11 @@ export default function Signup() {
             credentials: 'include',
         })
             .then(response => response.json())
-            .then(json => alert(JSON.stringify(json)))
+            .then(json => console.log(JSON.stringify(json)))
+            .then(() => login())
+            .catch((err: Error) => {
+                console.log(`error when posting: ${err}`);
+            })
     }
 
     return (

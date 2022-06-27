@@ -8,12 +8,15 @@ import '../index.css';
 import { useInput } from "../CustomHooks";
 import { Button, Form } from "react-bootstrap";
 import { Vaccination } from "../Types";
+import { useNavigate } from "react-router-dom";
 
 
 const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
 
 
 export default function CreateProfile() {
+    const navigate = useNavigate();
+
     const { value: name, bind: bindName, reset: resetName } = useInput('');
     const { value: race, bind: bindRace, reset: resetRace } = useInput('');
     const { value: age, bind: bindAge, reset: resetAge } = useInput('0');
@@ -48,7 +51,7 @@ export default function CreateProfile() {
             credentials: 'include',
         })
             .then(response => response.json())
-            .then(json => alert(JSON.stringify(json)))
+            .then(json => navigate(`/profiles/${json.id}`, { replace: false }))
             .catch((err: Error) => {
                 console.log(`error when posting: ${err}`);
                 setPostError(err.message);
