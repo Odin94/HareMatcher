@@ -1,5 +1,6 @@
 import { match } from "assert";
 import { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { apiVersion, baseUrl } from "../Globals";
 import { ProfileData } from "../Types";
@@ -94,6 +95,10 @@ export default function Matches() {
                                                                 {match.userName}
                                                             </h1>
                                                             <p>{match.matchedOn}</p>
+                                                            <Button onClick={(e: React.MouseEvent) => {
+                                                                e.stopPropagation();
+                                                                navigate(`/chat/${match.userId}`, { replace: false });
+                                                            }} variant="success">Chat</Button>
                                                         </div>
                                                     </div>
                                                 </div>
