@@ -50,7 +50,10 @@ export default function CreateProfile() {
             body: formData,
             credentials: 'include',
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+                return response.json();
+            })
             .then(json => navigate(`/profiles/${json.id}`, { replace: false }))
             .catch((err: Error) => {
                 console.log(`error when posting: ${err}`);

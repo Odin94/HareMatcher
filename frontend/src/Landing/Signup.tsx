@@ -1,5 +1,5 @@
-import { FormEvent } from "react";
-import { Button, Form } from "react-bootstrap";
+import { FormEvent, useState } from "react";
+import { Badge, Button, Form, FormGroup } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useInput } from "../CustomHooks";
 import { baseUrl, apiVersion } from '../Globals';
@@ -7,6 +7,8 @@ import { baseUrl, apiVersion } from '../Globals';
 
 export default function Signup() {
     const navigate = useNavigate();
+
+    const [fetchError, setFetchError] = useState("");
 
     const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
     const { value: name, bind: bindName, reset: resetName } = useInput('');
@@ -39,11 +41,14 @@ export default function Signup() {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+                return response.json();
+            })
             .then(json => console.log(JSON.stringify(json)))
             .then(() => login())
             .catch((err: Error) => {
-                console.log(`error when posting: ${err}`);
+                setFetchError(err.message);
             })
     }
 
@@ -57,7 +62,10 @@ export default function Signup() {
                 <div className="mb-3">
                     <label className="form-label">
                         Email address
-                        <input aria-describedby="emailHelp" className="form-control" type="email" {...bindEmail} />
+                        <span>
+                                <input aria-describedby="emailHelp" className="form-control" type="email" {...bindEmail} />
+                                {fetchError === "409: Conflict" && <Badge bg="danger">Email already used</Badge>}
+                        </span>
                         <div className="form-text" id="emailHelp">We'll never share your email with anyone else.</div>
                     </label>
                 </div>

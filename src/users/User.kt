@@ -27,7 +27,7 @@ data class User(
 )
 
 object Users : IntIdTable() {
-    val email: Column<String> = varchar("email", 320)
+    val email: Column<String> = varchar("email", 320).uniqueIndex()
     val name: Column<String> = varchar("name", 100)
     val description: Column<String> = text("description")
     val hashedPassword: Column<ByteArray> = binary("hashPassword", 512)

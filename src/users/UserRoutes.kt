@@ -85,6 +85,11 @@ fun Route.userRouting() {
             post {
                 val signupData = call.receive<SignupData>()
 
+                val existingUser = transaction { return@transaction UserDAO.find { Users.email eq signupData.email }.firstOrNull() }
+                if (existingUser != null) {
+                    return@post call.respond(HttpStatusCode.Conflict)
+                }
+
                 val newUser = transaction {
                     val userDAO = UserDAO.new {
                         this.name = signupData.name
