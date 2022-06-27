@@ -22,7 +22,7 @@ export default function CreateProfile() {
     const { value: weightInKg, bind: bindWeightInKg, reset: resetWeightInKg } = useInput('0.0');
     const { value: description, bind: bindDescription, reset: resetDescription } = useInput('');
     const [pictureSources, setPictureSources] = useState([] as File[]);
-    const [vaccinations, setVaccinations] = useState([new Vaccination("", "")] as Vaccination[]);
+    const [vaccinations, setVaccinations] = useState([] as Vaccination[]);
 
     const [postError, setPostError] = useState("");
 
