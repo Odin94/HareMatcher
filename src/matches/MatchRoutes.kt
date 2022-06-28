@@ -21,6 +21,7 @@ import io.ktor.websocket.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import users.User
 import users.UserDAO
 import java.time.LocalDateTime
 
@@ -56,8 +57,7 @@ fun Route.matchRouting() {
                     val matchProfileDAOs =
                         (Profiles leftJoin Swipes)
                             .select { Profiles.user eq currentUser.id }
-                            .andWhere { Swipes.likeOrPass eq LikeOrPass.LIKE }  // TODO: test if this really excludes PASSes
-                            .orWhere { Swipes.swipedProfile eq null }
+                            .andWhere { (Swipes.likeOrPass eq LikeOrPass.LIKE) or (Swipes.swipedProfile eq null) }  // TODO: test if this really excludes PASSes
                             .map {
                                 ProfileDAO.findById(it[Profiles.id])!!
                             }
@@ -79,6 +79,23 @@ fun Route.matchRouting() {
                 }
 
                 call.respond(matchesByProfiles)
+            }
+
+            get("/chatRooms") {
+                val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
+
+                // TODO: test that this works correctly
+                val chatRooms = transaction {
+                    ChatMessages
+                        .select { ChatMessages.targetUser eq currentUser.id }
+                        .orderBy(ChatMessages.sentOn, SortOrder.DESC)
+                        .groupBy(ChatMessages.sourceUser, ChatMessages.profileInQuestion)
+                        .map { ChatMessageDAO.findById(it[ChatMessages.id])!! }
+                        .map { ChatRoom(it.sourceUser.toUser(), it.profileInQuestion.toProfile(), -1, it.toChatMessage().sentOn) }
+                }
+
+                call.respond(chatRooms)
             }
 
             post("swipe") {
@@ -189,6 +206,8 @@ fun Route.matchRouting() {
         }
     }
 }
+
+data class ChatRoom(val user: User, val profile: Profile, val messageCount: Int, val lastMessageOn: String)
 
 data class IncomingChatMessage(val message: String, val targetUserId: Int, val profileInQuestionId: Int, val uuid: String)
 
