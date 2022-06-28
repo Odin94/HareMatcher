@@ -1,30 +1,22 @@
 import { match } from "assert";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { apiVersion, baseUrl } from "../Globals";
 import { ProfileData } from "../Types";
 
 const defaultPictureSource = "https://images.unsplash.com/photo-1629898471270-d4f5f525b8dc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=360&q=80";
 
-const defaultPictureSourceTwo = "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=360&q=80";
-
 const defaultUserPicture = "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=360&q=80";
 
-const formattedDateToday = new Date().toLocaleDateString("de-DE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-});
 
 export default function Matches() {
     const navigate = useNavigate();
 
-    const testingProfilePreviews = [new ProfilePreview(0, defaultPictureSource, "Test One"), new ProfilePreview(1, defaultPictureSourceTwo, "Test Two"), new ProfilePreview(2, defaultPictureSourceTwo, "Test Three")];
-    const testingMatches = [[new Match(-1, -1, "TestUser", defaultUserPicture, formattedDateToday)], [new Match(-1, -1, "TestUser", defaultUserPicture, formattedDateToday), new Match(-1, -1, "TestUser", defaultUserPicture, formattedDateToday)], []];
+    const initialProfilePreviewWithMatch = new ProfilePreviewWithMatch(new ProfilePreview(-1, defaultPictureSource, "Test One"), [new Match(-1, -1, "TestUser", defaultUserPicture, "")]);
 
-    const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState(testingProfilePreviews.map((preview, i) => { return new ProfilePreviewWithMatch(preview, testingMatches[i]) }));
-    const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(new ProfilePreviewWithMatch(testingProfilePreviews[0], testingMatches[0]));
+    const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState([initialProfilePreviewWithMatch]);
+    const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(initialProfilePreviewWithMatch);
 
     useEffect(() => {
         fetch(`http://${baseUrl}/api/${apiVersion}/matches`, {
@@ -63,12 +55,19 @@ export default function Matches() {
                                     <div className={`card${profileWithMatch.profilePreview.id === selectedProfileWithMatches.profilePreview.id ? " shadow-sm border border-success" : ""}`}>
                                         <div className="card-body">
                                             <div className="row justify-content-center align-items-center">
-                                                <div className="col">
-                                                    <img src={profileWithMatch.profilePreview.thumbnailBase64} width="70px" height="70px" className="rounded-circle float-start" />
-                                                </div>
-                                                <div className="col d-flex flex-column">
-                                                    <h3>{profileWithMatch.profilePreview.name}</h3>
-                                                </div>
+                                                {profileWithMatch.profilePreview.id === -1
+                                                    ? <div>
+                                                        <Spinner animation="border" variant="success"></Spinner>
+                                                    </div>
+                                                    : <div>
+                                                        <div className="col">
+                                                            <img src={profileWithMatch.profilePreview.thumbnailBase64} width="70px" height="70px" className="rounded-circle float-start" />
+                                                        </div>
+                                                        <div className="col d-flex flex-column">
+                                                            <h3>{profileWithMatch.profilePreview.name}</h3>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -84,21 +83,32 @@ export default function Matches() {
                                     selectedProfileWithMatches.matches.length === 0
                                         ? <div><h4>{selectedProfileWithMatches.profilePreview.name} has no matches yet</h4></div>
                                         : selectedProfileWithMatches.matches.map((match, i) => (
-                                            <div key={match.userName} className={`card${(i === 0) ? "" : " mt-1"}`} style={{ cursor: "pointer" }} onClick={() => { navigate(`/users/${match.userId}`, { replace: false }) }}>
+                                            <div key={match.userName} className={`card${(i === 0) ? "" : " mt-1"}`} style={{ cursor: "pointer" }} onClick={() => {
+                                                if (match.userId !== -1) {
+                                                    navigate(`/users/${match.userId}`, { replace: false })
+                                                }
+                                            }}>
                                                 <div className="card-body">
                                                     <div className="row">
                                                         <div className="col-2">
                                                             <img src={match.userPicture} width="70px" height="70px" className="rounded-circle float-start" />
                                                         </div>
                                                         <div className="col text-center">
-                                                            <h1>
-                                                                {match.userName}
-                                                            </h1>
-                                                            <p>{match.matchedOn}</p>
-                                                            <Button onClick={(e: React.MouseEvent) => {
-                                                                e.stopPropagation();
-                                                                navigate(`/chat/${match.userId}/${match.profileId}`, { replace: false });
-                                                            }} variant="success">Chat</Button>
+                                                            {match.userId === -1
+                                                                ? <div>
+                                                                    <Spinner animation="border" variant="success"></Spinner>
+                                                                </div>
+                                                                : <div>
+                                                                    <h1>{match.userName}</h1>
+                                                                    <p>{match.matchedOn}</p>
+                                                                    <Button onClick={(e: React.MouseEvent) => {
+                                                                        if (match.userId !== -1) {
+                                                                            e.stopPropagation();
+                                                                            navigate(`/chat/${match.userId}/${match.profileId}`, { replace: false });
+                                                                        }
+                                                                    }} variant="success">Chat</Button>
+                                                                </div>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
