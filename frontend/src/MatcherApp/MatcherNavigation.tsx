@@ -26,14 +26,12 @@ const MatcherNavigation: React.FC<NavBarProps> = ({ children }) => {
                 <Container>
                     <Navbar.Brand as={Link} to={"/"}>HareMatcher</Navbar.Brand>
                     <Nav className="me-auto">
-                        <Nav.Link as={Link} to={"/signup"}>Signup</Nav.Link>
-                        <Nav.Link as={Link} to={"/login"}>Login</Nav.Link>
-                        <Nav.Link onClick={logout}>Logout</Nav.Link>
                         <Nav.Link as={Link} to={"/discover"}>Discover</Nav.Link>
                         <Nav.Link as={Link} to={"/matches"}>Matches</Nav.Link>
                     </Nav>
                     <Nav className="ml-auto">
                         <Nav.Link as={Link} to={"/me"}>Me</Nav.Link>
+                        <Nav.Link onClick={logout}>Logout</Nav.Link>
                     </Nav>
                 </Container>
             </Navbar>
