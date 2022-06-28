@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useInput } from '../CustomHooks';
 import { baseUrl, apiVersion } from '../Globals';
@@ -8,6 +8,15 @@ export default function Login() {
     const navigate = useNavigate();
     const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
     const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
+
+    useEffect(() => {
+        fetch(`http://${baseUrl}/api/${apiVersion}/users/me`, {
+            credentials: 'include',
+        })
+            .then(response => { if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`) })
+            .then(() => { navigate("/me") })
+            .catch((_err: Error) => { })
+    }, []);
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
@@ -35,18 +44,6 @@ export default function Login() {
             <div className="px-4 py-5 my-5 text-center">
                 <h1 className="display-5 fw-bold">Hare Matcher - Log in</h1>
             </div>
-            {/*<div th:if="${(error != '')}">
-                <div th:if="${(error == 'other')}">
-                    Unknown error, please try again
-                </div>
-                <div th:if="${(error == 'invalid')}">
-                    Invalid credentials
-                </div>
-                <div th:if="${(error == 'nocredentials')}">
-                    Please enter credentials
-                </div>
-                <br>
- </div> */}
 
             <Form onSubmit={handleSubmit}>
                 <div className="mb-3">
