@@ -4,6 +4,7 @@ import de.odinmatthias.PictureFormat
 import de.odinmatthias.UserSession
 import de.odinmatthias.imageBytesFromPath
 import de.odinmatthias.matches.LikeOrPass
+import de.odinmatthias.profiles.ProfileDAO
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -54,6 +55,18 @@ fun Route.userRouting() {
                     ?: return@get call.respond(HttpStatusCode.NotFound)
 
                 call.respond(user)
+            }
+
+            get("/{id}/profiles") {
+                val id = call.parameters["id"]?.toInt() ?: return@get call.respondText(
+                    "Missing or malformed id",
+                    status = HttpStatusCode.BadRequest
+                )
+
+                val profiles = transaction { return@transaction UserDAO.findById(id)?.profiles?.map { it.toProfile() } }
+                    ?: return@get call.respond(HttpStatusCode.NotFound)
+
+                call.respond(profiles)
             }
 
             authenticate("userAuth") {

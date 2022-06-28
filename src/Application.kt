@@ -275,9 +275,9 @@ fun createSampleData() {
             name = "Frado"
             email = "frado@test.de"
             description = """
-                Loving Husband, train operator by day and painter by night, father to a cute little bunny
+                Loving husband, train operator by day and painter by night, father to a cute little bunny
                 
-                I'm looking to find a friend for my bunny. His brother died recently :(  and I don't want him to get lonely
+                My husband and I looking to find a friend for my bunny. His brother died recently :(  and I don't want him to get lonely
             """.trimIndent()
             picture = ExposedBlob(fradoPictureBytes)
             pictureFormat = PictureFormat.JPG
