@@ -1,5 +1,7 @@
 package de.odinmatthias.matches
 
+import de.odinmatthias.profiles.ProfileDAO
+import de.odinmatthias.profiles.Profiles
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -13,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Serializable
-class ChatMessage(val id: Int?, val message: String, val sourceUserId: Int, val targetUserId: Int, val sentOn: String) {
+class ChatMessage(val id: Int?, val message: String, val sourceUserId: Int, val targetUserId: Int, val profileInQuestionId: Int, val sentOn: String) {
     companion object {
         val chatMessageDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
     }
@@ -24,6 +26,7 @@ object ChatMessages : IntIdTable() {
     val message: Column<String> = text("message")
     val sourceUser = reference("sourceUser", Users)
     val targetUser = reference("targetUser", Users)
+    val profileInQuestion = reference("profileInQuestion", Profiles)
     val sentOn: Column<LocalDateTime> = datetime("createdOn")
 }
 
@@ -33,6 +36,7 @@ class ChatMessageDAO(id: EntityID<Int>) : IntEntity(id) {
     var message by ChatMessages.message
     var sourceUser by UserDAO referencedOn ChatMessages.sourceUser
     var targetUser by UserDAO referencedOn ChatMessages.targetUser
+    var profileInQuestion by ProfileDAO referencedOn ChatMessages.profileInQuestion
     var sentOn by ChatMessages.sentOn
 
     fun toChatMessage() = ChatMessage(
@@ -40,6 +44,7 @@ class ChatMessageDAO(id: EntityID<Int>) : IntEntity(id) {
         message,
         sourceUser.id.value,
         targetUser.id.value,
+        profileInQuestion.id.value,
         sentOn.format(ChatMessage.chatMessageDateTimeFormatter)
     )
 }

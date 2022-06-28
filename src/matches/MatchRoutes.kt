@@ -66,6 +66,7 @@ fun Route.matchRouting() {
                         val matches = it.receivedSwipes.map { match ->
                             Match(
                                 match.user.id.value,
+                                match.swipedProfile.id.value,
                                 match.user.name,
                                 PictureUtils.base64Encode(match.user.picture.bytes, match.user.pictureFormat),
                                 match.createdOn.format(swipeDateTimeFormatter)
@@ -107,18 +108,21 @@ fun Route.matchRouting() {
                 call.respond(HttpStatusCode.Accepted)
             }
 
-            get("/chatHistory/{id}") {
-                val chatPartnerId = call.parameters["id"]?.toInt() ?: return@get call.respondText(
-                    "Missing or malformed id",
+            get("/chatHistory/{userId}/{profileId}") {
+                val chatPartnerId = call.parameters["userId"]?.toInt() ?: return@get call.respondText(
+                    "Missing or malformed userId",
+                    status = HttpStatusCode.BadRequest
+                )
+                val profileId = call.parameters["profileId"]?.toInt() ?: return@get call.respondText(
+                    "Missing or malformed profileId",
                     status = HttpStatusCode.BadRequest
                 )
                 val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-                logger.error("${currentUser.id} ; partner: $chatPartnerId")
                 val chatHistory = transaction {
                     ChatMessages
-                        .selectAll()
+                        .select { ChatMessages.profileInQuestion eq profileId }
                         .andWhere { (ChatMessages.sourceUser eq currentUser.id) and (ChatMessages.targetUser eq chatPartnerId) }
                         .orWhere { (ChatMessages.sourceUser eq chatPartnerId) and (ChatMessages.targetUser eq currentUser.id) }
                         .orderBy(ChatMessages.sentOn, SortOrder.ASC)
@@ -148,11 +152,14 @@ fun Route.matchRouting() {
                         val newChatMessage = transaction {
                             val targetUserDAO = UserDAO.findById(incomingChatMessage.targetUserId)
                                 ?: return@transaction null
+                            val profileInQuestionDAO = ProfileDAO.findById(incomingChatMessage.profileInQuestionId)
+                                ?: return@transaction null
 
                             return@transaction ChatMessageDAO.new {
                                 message = incomingChatMessage.message
                                 sourceUser = currentUserDao
                                 targetUser = targetUserDAO
+                                profileInQuestion = profileInQuestionDAO
                                 sentOn = messageTimestamp
                             }.toChatMessage()
                         }
@@ -183,7 +190,7 @@ fun Route.matchRouting() {
     }
 }
 
-data class IncomingChatMessage(val message: String, val targetUserId: Int, val uuid: String)
+data class IncomingChatMessage(val message: String, val targetUserId: Int, val profileInQuestionId: Int, val uuid: String)
 
 data class OutgoingChatMessage(val message: String, val sourceUserId: Int, val sentOn: String) {
     fun toJson(): String = Gson().toJson(this)
@@ -207,5 +214,5 @@ fun Application.registerMatchRouting() {
     }
 }
 
-data class Match(public val userId: Int, public val userName: String, public val userPicture: String, public val matchedOn: String)
-data class MatchesByProfile(public val profile: Profile, public val matches: List<Match>)
+data class Match(val userId: Int, val profileId: Int, val userName: String, val userPicture: String, val matchedOn: String)
+data class MatchesByProfile(val profile: Profile, val matches: List<Match>)

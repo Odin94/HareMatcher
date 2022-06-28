@@ -8,12 +8,12 @@ import { useParams } from "react-router-dom";
 import { UserData } from "../Types";
 
 export default function Chat() {
-    const { id } = useParams();
+    const { userId, profileId } = useParams();
 
     const [chatPartner, setChatPartner] = useState(new UserData(-1, "", "", "", "", [], [], false));
     const [chatPartnerFetchError, setChatPartnerFetchError] = useState("");
     useEffect(() => {
-        fetch(`http://${baseUrl}/api/${apiVersion}/users/${id}`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/users/${userId}`, {
             credentials: 'include',
         })
             .then(response => {
@@ -53,7 +53,7 @@ export default function Chat() {
     const [chatMessageHistory, setChatMessageHistory] = useState<ChatMessage[]>([]);
     const [historyFetchError, setHistoryFetchError] = useState("");
     useEffect(() => {
-        fetch(`http://${baseUrl}/api/${apiVersion}/chatHistory/${id}`, {
+        fetch(`http://${baseUrl}/api/${apiVersion}/chatHistory/${userId}/${profileId}`, {
             credentials: 'include',
         })
             .then(response => {

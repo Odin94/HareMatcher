@@ -292,9 +292,10 @@ fun createSampleData() {
         }
 
         ChatMessageDAO.new {
-            message = "Hey Freddo, I like your profile!"
-            sourceUser = frado
-            targetUser = freddo
+            message = "Hey Frado, I see you like my first bunny! Can you tell me more about yours so I can check if it would be a good fit?"
+            sourceUser = freddo
+            targetUser = frado
+            profileInQuestion = freddoBunnies[0]
             sentOn = LocalDateTime.now()
         }
     }

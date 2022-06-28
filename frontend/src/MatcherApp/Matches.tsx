@@ -21,7 +21,7 @@ export default function Matches() {
     const navigate = useNavigate();
 
     const testingProfilePreviews = [new ProfilePreview(0, defaultPictureSource, "Test One"), new ProfilePreview(1, defaultPictureSourceTwo, "Test Two"), new ProfilePreview(2, defaultPictureSourceTwo, "Test Three")];
-    const testingMatches = [[new Match(-1, "TestUser", defaultUserPicture, formattedDateToday)], [new Match(-1, "TestUser", defaultUserPicture, formattedDateToday), new Match(-1, "TestUser", defaultUserPicture, formattedDateToday)], []];
+    const testingMatches = [[new Match(-1, -1, "TestUser", defaultUserPicture, formattedDateToday)], [new Match(-1, -1, "TestUser", defaultUserPicture, formattedDateToday), new Match(-1, -1, "TestUser", defaultUserPicture, formattedDateToday)], []];
 
     const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState(testingProfilePreviews.map((preview, i) => { return new ProfilePreviewWithMatch(preview, testingMatches[i]) }));
     const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState(new ProfilePreviewWithMatch(testingProfilePreviews[0], testingMatches[0]));
@@ -97,7 +97,7 @@ export default function Matches() {
                                                             <p>{match.matchedOn}</p>
                                                             <Button onClick={(e: React.MouseEvent) => {
                                                                 e.stopPropagation();
-                                                                navigate(`/chat/${match.userId}`, { replace: false });
+                                                                navigate(`/chat/${match.userId}/${match.profileId}`, { replace: false });
                                                             }} variant="success">Chat</Button>
                                                         </div>
                                                     </div>
@@ -119,7 +119,7 @@ class ProfilePreview {
 }
 
 class Match {
-    constructor(public userId: number, public userName: string, public userPicture: string, public matchedOn: string) { }
+    constructor(public userId: number, public profileId: number, public userName: string, public userPicture: string, public matchedOn: string) { }
 }
 
 class ProfilePreviewWithMatch {
