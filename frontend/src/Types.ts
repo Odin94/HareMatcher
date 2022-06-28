@@ -8,12 +8,16 @@ export class ProfilePicture {
 
 export class ProfileData {
     constructor(public id: number, public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public matchable: boolean, public pictures?: ProfilePicture[]) { }
+        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public matchable: boolean, public profilePictures?: ProfilePicture[]) { }
 
     static fromJson(json: any): ProfileData {
         const sortedPictures = json.profilePictures?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index);
 
         return new ProfileData(json.id, json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, sortedPictures);
+    }
+
+    static empty(): ProfileData {
+        return new ProfileData(-1, "", "", "", "", 0, 0, "", [], false, undefined);
     }
 }
 
@@ -22,6 +26,10 @@ export class UserData {
 
     static fromJson(json: any): UserData {
         return new UserData(json.id, json.name, json.email, json.description, json.picture, json.profileIds, json.givenSwipeIds, json.isMe);
+    }
+
+    static empty(): UserData {
+        return new UserData(-1, "", "", "", "", [], [], false);
     }
 }
 

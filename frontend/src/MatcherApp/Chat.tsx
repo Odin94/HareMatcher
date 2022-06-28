@@ -10,7 +10,7 @@ import { UserData } from "../Types";
 export default function Chat() {
     const { userId, profileId } = useParams();
 
-    const [chatPartner, setChatPartner] = useState(new UserData(-1, "", "", "", "", [], [], false));
+    const [chatPartner, setChatPartner] = useState(UserData.empty());
     const [chatPartnerFetchError, setChatPartnerFetchError] = useState("");
     useEffect(() => {
         fetch(`http://${baseUrl}/api/${apiVersion}/users/${userId}`, {
@@ -30,7 +30,7 @@ export default function Chat() {
             })
     }, []);
 
-    const [me, setMe] = useState(new UserData(-1, "", "", "", "", [], [], true));
+    const [me, setMe] = useState(UserData.empty());
     const [meFetchError, setMeFetchError] = useState("");
     useEffect(() => {
         fetch(`http://${baseUrl}/api/${apiVersion}/users/me`, {

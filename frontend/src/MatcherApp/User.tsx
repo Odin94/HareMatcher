@@ -54,7 +54,7 @@ const User: React.FC<UserProps> = ({ user, fetchError }) => {
                                         <Card onClick={() => navigate(`/profiles/${profile.id}`)}>
                                             <Card.Body style={{ cursor: "pointer" }}>
                                                 <Row>
-                                                    <Col xs={2}><img src={profile.pictures?.at(0)?.picture || ""} width="70px" height="70px" className="rounded-circle float-start" /></Col>
+                                                    <Col xs={2}><img src={profile.profilePictures?.at(0)?.picture || ""} width="70px" height="70px" className="rounded-circle float-start" /></Col>
                                                     <Col style={{ textAlign: "center" }}><h1>{profile.name}</h1></Col>
                                                 </Row>
                                             </Card.Body>

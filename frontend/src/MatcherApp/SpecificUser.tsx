@@ -10,7 +10,7 @@ import User from "./User";
 
 export default function SpecificUser() {
     const { id } = useParams();
-    const [user, setUser] = useState(new UserData(-1, "", "", "", "", [], [], false));
+    const [user, setUser] = useState(UserData.empty());
     const [fetchError, setFetchError] = useState("");
 
     useEffect(() => {

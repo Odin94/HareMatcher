@@ -33,7 +33,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, fetchError, onSwipeComplete 
             })
     }
 
-    const profilePictures = profile.pictures || [new ProfilePicture(defaultEmptyPictureSource, 0)];
+    const profilePictures = profile.profilePictures || [new ProfilePicture(defaultEmptyPictureSource, 0)];
     return (
         <div>
             {fetchError

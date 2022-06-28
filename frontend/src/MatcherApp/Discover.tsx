@@ -8,7 +8,7 @@ import Profile from "./Profile";
 
 
 export default function Discover() {
-    const [profileData, setProfileData] = useState(new ProfileData(-1, "", "", "", "", 0, 0, "", [], false, undefined));
+    const [profileData, setProfileData] = useState(ProfileData.empty());
     const [fetchError, setFetchError] = useState("");
 
     const discoverProfile = async () => {

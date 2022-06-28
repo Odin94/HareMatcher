@@ -17,7 +17,8 @@ import MatcherNavigation from './MatcherApp/MatcherNavigation';
 import LandingNavigation from './Landing/LandingNavigation';
 import Me from './MatcherApp/Me';
 import SpecificUser from './MatcherApp/SpecificUser';
-import Chat from './MatcherApp/Chat';
+import SpecificChat from './MatcherApp/Chat';
+import ChatRooms from './MatcherApp/ChatRooms';
 
 
 export default function App() {
@@ -31,7 +32,8 @@ export default function App() {
           <Route path="/profiles/:id" element={<MatcherNavigation><SpecificProfile /></MatcherNavigation>} />
           <Route path="/profiles/create" element={<MatcherNavigation><CreateProfile /></MatcherNavigation>} />
           <Route path="/users/:id" element={<MatcherNavigation><SpecificUser /></MatcherNavigation>} />
-          <Route path="/chat/:userId/:profileId" element={<MatcherNavigation><Chat /></MatcherNavigation>} />
+          <Route path="/chat/:userId/:profileId" element={<MatcherNavigation><SpecificChat /></MatcherNavigation>} />
+          <Route path="/chats" element={<MatcherNavigation><ChatRooms /></MatcherNavigation>} />
 
           <Route path="/" element={<LandingNavigation><Landing /></LandingNavigation>} />
           <Route path="/signup" element={<LandingNavigation><Signup /></LandingNavigation>} />
