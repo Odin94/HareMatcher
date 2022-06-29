@@ -143,10 +143,12 @@ export default function Chat() {
                 <h3>{chatPartner.name}</h3>
 
                 <Card>
-                    <Card.Body>
-                        {chatMessageHistory.map((chatMessage, idx) => (
-                            createChatCard(chatMessage, idx)
-                        ))}
+                    <Card.Body className="overflow-auto" style={{ maxHeight: "80vh", display: "flex", flexDirection: "column-reverse" }}>
+                        <div>
+                            {chatMessageHistory.map((chatMessage, idx) => (
+                                createChatCard(chatMessage, idx)
+                            ))}
+                        </div>
                     </Card.Body>
                 </Card>
 
