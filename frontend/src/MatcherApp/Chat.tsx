@@ -85,8 +85,8 @@ export default function Chat() {
                 const errorMessage = lastMessage as ChatError;
                 const relatedMessage = chatMessageHistory.find(msg => msg.uuid === errorMessage.messageUuid);
                 console.log(`Error: ${JSON.stringify(errorMessage)} \n\n for message: ${JSON.stringify(relatedMessage)}`);
-            } 
-            
+            }
+
             else if (lastMessage.message !== null) {
                 const message = ChatMessage.fromIncoming(lastMessage, me.id);
                 console.log(JSON.stringify(message))
@@ -98,8 +98,8 @@ export default function Chat() {
     }, [lastMessageEvent, setChatMessageHistory]);
 
     const handleClickSendMessage = useCallback(() => {
-        if (rawChatMessage === "") return;
-        const chatMessage = new ChatMessage(rawChatMessage, me.id, chatPartner.id, uuidv4());
+        if (rawChatMessage === "" || !profileId) return;
+        const chatMessage = new ChatMessage(rawChatMessage, me.id, chatPartner.id, "", parseInt(profileId), uuidv4());
         sendMessage(JSON.stringify(chatMessage));
         setChatMessageHistory((prev) => prev.concat(chatMessage));
         resetChatMessage();
@@ -141,9 +141,17 @@ export default function Chat() {
         <div>
             <div className="container container-xxl">
                 <h3>{chatPartner.name}</h3>
-                {chatMessageHistory.map((chatMessage, idx) => (
-                    createChatCard(chatMessage, idx)
-                ))}
+
+                <Card>
+                    <Card.Body>
+                        {chatMessageHistory.map((chatMessage, idx) => (
+                            createChatCard(chatMessage, idx)
+                        ))}
+                    </Card.Body>
+                </Card>
+
+
+
                 <Row className="fixed-bottom">
                     <Card>
                         <Card.Body>
@@ -169,10 +177,10 @@ export default function Chat() {
 }
 
 class ChatMessage {
-    constructor(public message: string, public sourceUserId: number, public targetUserId: number, public sentOn: string, public uuid?: string) { }
+    constructor(public message: string, public sourceUserId: number, public targetUserId: number, public sentOn: string, public profileInQuestionId: number, public uuid?: string) { }
 
     static fromIncoming(json: any, myUserId: number): ChatMessage {
-        return new ChatMessage(json.message, json.sourceUserId, myUserId, json.sentOn, json.uuid);
+        return new ChatMessage(json.message, json.sourceUserId, myUserId, json.sentOn, json.profileInQuestionId, json.uuid);
     }
 };
 
