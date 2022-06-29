@@ -140,8 +140,10 @@ fun Route.matchRouting() {
                 val chatHistory = transaction {
                     ChatMessages
                         .select { ChatMessages.profileInQuestion eq profileId }
-                        .andWhere { (ChatMessages.sourceUser eq currentUser.id) and (ChatMessages.targetUser eq chatPartnerId) }
-                        .orWhere { (ChatMessages.sourceUser eq chatPartnerId) and (ChatMessages.targetUser eq currentUser.id) }
+                        .andWhere {
+                            (ChatMessages.sourceUser eq currentUser.id and (ChatMessages.targetUser eq chatPartnerId)) or
+                                    (ChatMessages.sourceUser eq chatPartnerId and (ChatMessages.targetUser eq currentUser.id))
+                        }
                         .orderBy(ChatMessages.sentOn, SortOrder.ASC)
                         .map { ChatMessageDAO.findById(it[ChatMessages.id])?.toChatMessage() }
                 }
@@ -166,11 +168,11 @@ fun Route.matchRouting() {
 
                         val incomingChatMessage: IncomingChatMessage = Gson().fromJson(receivedText, IncomingChatMessage::class.java)
                         val messageTimestamp = LocalDateTime.now()
-                        val newChatMessage = transaction {
+                        val newChatMessageOrError = transaction {
                             val targetUserDAO = UserDAO.findById(incomingChatMessage.targetUserId)
-                                ?: return@transaction null
+                                ?: return@transaction ChatErrorCause.TargetUserNotFound
                             val profileInQuestionDAO = ProfileDAO.findById(incomingChatMessage.profileInQuestionId)
-                                ?: return@transaction null
+                                ?: return@transaction ChatErrorCause.ProfileInQuestionNotFound
 
                             return@transaction ChatMessageDAO.new {
                                 message = incomingChatMessage.message
@@ -181,8 +183,8 @@ fun Route.matchRouting() {
                             }.toChatMessage()
                         }
 
-                        if (newChatMessage == null) {
-                            val chatError = ChatError("${incomingChatMessage.targetUserId}", incomingChatMessage.uuid, ChatErrorCause.TargetUserNotFound)
+                        if (newChatMessageOrError is ChatErrorCause) {
+                            val chatError = ChatError("${incomingChatMessage.targetUserId}", incomingChatMessage.uuid, newChatMessageOrError)
                             sendChatError(chatError)
                             continue
                         }
@@ -217,7 +219,7 @@ data class OutgoingChatMessage(val message: String, val sourceUserId: Int, val s
 
 enum class ChatErrorCause {
     TargetUserNotFound,
-
+    ProfileInQuestionNotFound,
 }
 
 data class ChatError(val errorMessage: String, val messageUuid: String, val cause: ChatErrorCause) {
