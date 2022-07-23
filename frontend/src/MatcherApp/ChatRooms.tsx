@@ -1,5 +1,9 @@
+import "react-chat-elements/dist/main.css";
+import 'simplebar/dist/simplebar.min.css';
+
 import { useEffect, useState } from "react";
-import { Card, Col, Row, Spinner } from "react-bootstrap";
+import { Row, Spinner } from "react-bootstrap";
+import { ChatList } from "react-chat-elements";
 import { useNavigate } from "react-router-dom";
 import { apiVersion, baseUrl } from "../Globals";
 import { ProfileData, UserData } from "../Types";
@@ -8,9 +12,9 @@ import { ProfileData, UserData } from "../Types";
 export default function ChatRooms() {
     const navigate = useNavigate();
 
-    const initialChatRooms = new ChatRoom(UserData.empty(), ProfileData.empty(), 0, "");
+    const initialChatRoom = new ChatRoom(UserData.empty(), ProfileData.empty(), 0, "");
 
-    const [chatRooms, setChatRooms] = useState([initialChatRooms]);
+    const [chatRooms, setChatRooms] = useState([initialChatRoom]);
 
     useEffect(() => {
         fetch(`http://${baseUrl}/api/${apiVersion}/chatRooms`, {
@@ -34,34 +38,25 @@ export default function ChatRooms() {
             <div className="container container-xxl" style={{ margin: "0 auto" }}>
                 <Row>
                     <div className="col-4">
-                        {
-                            chatRooms.map((chatRoom) => (
-                                <div key={chatRoom.user.id + "_" + chatRoom.profile.id} className="row" style={{ cursor: "pointer" }} onClick={() => { navigate(`/chat/${chatRoom.user.id}/${chatRoom.profile.id}`) }}>
-                                    <Card>
-                                        <Card.Body>
-                                            <Row className="justify-content-center align-items-center">
-                                                {chatRoom.user.id === -1
-                                                    ? <div>
-                                                        <Spinner animation="border" variant="success"></Spinner>
-                                                    </div>
-                                                    : <div>
-                                                        <div className="col">
-                                                            <img src={chatRoom.profile.profilePictures?.at(0)?.picture || ""} width="70px" height="70px" className="rounded-circle float-start" />
-                                                        </div>
-                                                        <div className="col text-center d-flex flex-column">
-                                                            <h3>{`${chatRoom.user.name} / ${chatRoom.profile.name}`}</h3>
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </Row>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                            ))
+                        {chatRooms[0]?.user.id === -1
+                            ? <Spinner animation="border" variant="success"></Spinner>
+                            : <ChatList
+                                className='chat-list'
+                                onClick={(chatElement: any) => { navigate(chatElement.chatLink) }}
+                                dataSource={chatRooms.map((chatRoom) => {
+                                    return {
+                                        avatar: chatRoom.profile.profilePictures?.at(0)?.picture || "",
+                                        title: `${chatRoom.user.name} / ${chatRoom.profile.name}`,
+                                        subtitle: "todo: load latest message",
+                                        date: new Date(),
+                                        unread: -1,
+                                        chatLink: `/chat/${chatRoom.user.id}/${chatRoom.profile.id}`
+                                    }
+                                })}
+                            />
                         }
+
                     </div>
-                    <div className="col-1"></div>
-                    <Col></Col>
                 </Row>
             </div>
         </div>
