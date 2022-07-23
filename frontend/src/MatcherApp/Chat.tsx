@@ -1,4 +1,5 @@
 import "react-chat-elements/dist/main.css";
+import 'simplebar/dist/simplebar.min.css';
 
 import { createRef, useCallback, useEffect, useState } from "react";
 import { Button, Card, Col, Form, InputGroup, Row } from "react-bootstrap";
@@ -9,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "react-router-dom";
 import { UserData } from "../Types";
 import { MessageBox } from "react-chat-elements";
+import SimpleBar from 'simplebar-react';
 
 export default function Chat() {
     const { userId, profileId } = useParams();
@@ -106,7 +108,6 @@ export default function Chat() {
         sendMessage(JSON.stringify(chatMessage));
         setChatMessageHistory((prev) => prev.concat(chatMessage));
         resetChatMessage();
-        scrollDownDummy.current?.scrollIntoView({ behavior: "smooth" });
     }, [rawChatMessage]);
 
     const connectionStatus = {
@@ -117,19 +118,11 @@ export default function Chat() {
         [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
     }[readyState];
 
-    const msgs = chatMessageHistory.map((msg) => {
-        return (
-            <MessageBox
-                position={msg.sourceUserId === chatPartner.id ? "left" : "right"}
-                type="text"
-                title={msg.sourceUserId === chatPartner.id ? chatPartner.name : "You"}
-                text={msg.message}
-                dateString={msg.sentOn}
-            />
-        )
-    })
-
     const scrollDownDummy = createRef<HTMLDivElement>();
+
+    useEffect(() => {
+        scrollDownDummy.current?.scrollIntoView({ behavior: "smooth", inline: "end", block: "end" });
+    }, [chatMessageHistory]);
 
     return (
         <div>
@@ -137,11 +130,22 @@ export default function Chat() {
                 <h3>{chatPartner.name}</h3>
 
                 <Card>
-                    <Card.Body className="overflow-auto" style={{ maxHeight: "80vh" }}>
-                        {msgs}
+                    <Card.Body>
+                        <SimpleBar style={{ maxHeight: "80vh" }}>
+                            {chatMessageHistory.map((msg) => {
+                                return (
+                                    <MessageBox
+                                        position={msg.sourceUserId === chatPartner.id ? "left" : "right"}
+                                        type="text"
+                                        title={msg.sourceUserId === chatPartner.id ? chatPartner.name : "You"}
+                                        text={msg.message}
+                                        dateString={msg.sentOn}
+                                    />
+                                )
+                            })}
 
-                        <div style={{ height: "55px" }}></div> {/* This is here because otherwise we don't properly scroll to the bottom */}
-                        <div ref={scrollDownDummy} style={{ height: "0px" }}></div>
+                            <div ref={scrollDownDummy}></div>
+                        </SimpleBar>
                     </Card.Body>
                 </Card>
                 <Row className="fixed-bottom">
