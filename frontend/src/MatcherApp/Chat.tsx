@@ -2,7 +2,7 @@ import "react-chat-elements/dist/main.css";
 import 'simplebar/dist/simplebar.min.css';
 
 import { createRef, useCallback, useEffect, useState } from "react";
-import { Button, Card, Col, Form, InputGroup, Row } from "react-bootstrap";
+import { Button, Card, Form, InputGroup, Row } from "react-bootstrap";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useFocus, useInput } from "../CustomHooks";
 import { apiVersion, baseUrl } from "../Globals";
@@ -124,15 +124,17 @@ export default function Chat() {
     useEffect(() => {
         scrollDownDummy.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessageHistory]);
-
     return (
         <div>
             <div className="container container-xxl">
-                <h3>{chatPartner.name}</h3>
+                <div style={{ paddingBottom: "20px" }}>
+                    <img src={chatPartner.picture} width="70px" height="70px" className="rounded-circle" />
+                    <h1 style={{ display: "inline-block", marginLeft: "20px", position: "relative", top: "15px", fontSize: "50px" }}>{chatPartner.name}</h1>
+                </div>
 
                 <Card>
                     <Card.Body>
-                        <SimpleBar style={{ maxHeight: "80vh" }}>
+                        <SimpleBar style={{ maxHeight: "75vh" }}>
                             {chatMessageHistory.map((msg) => {
                                 return (
                                     <MessageBox
