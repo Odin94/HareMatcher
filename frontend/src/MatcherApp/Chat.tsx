@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { UserData } from "../Types";
 import { MessageBox } from "react-chat-elements";
 import SimpleBar from 'simplebar-react';
+import moment from "moment";
 
 export default function Chat() {
     const { userId, profileId } = useParams();
@@ -121,7 +122,7 @@ export default function Chat() {
     const scrollDownDummy = createRef<HTMLDivElement>();
 
     useEffect(() => {
-        scrollDownDummy.current?.scrollIntoView({ behavior: "smooth", inline: "end", block: "end" });
+        scrollDownDummy.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessageHistory]);
 
     return (
@@ -139,7 +140,7 @@ export default function Chat() {
                                         type="text"
                                         title={msg.sourceUserId === chatPartner.id ? chatPartner.name : "You"}
                                         text={msg.message}
-                                        dateString={msg.sentOn}
+                                        date={moment(msg.sentOn, "DD.MM.yyyy HH:mm").toDate()}
                                     />
                                 )
                             })}
