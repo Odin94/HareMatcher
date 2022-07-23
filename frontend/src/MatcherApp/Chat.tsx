@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import "react-chat-elements/dist/main.css";
+
+import { createRef, useCallback, useEffect, useState } from "react";
 import { Button, Card, Col, Form, InputGroup, Row } from "react-bootstrap";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useFocus, useInput } from "../CustomHooks";
@@ -6,6 +8,7 @@ import { apiVersion, baseUrl } from "../Globals";
 import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "react-router-dom";
 import { UserData } from "../Types";
+import { MessageBox } from "react-chat-elements";
 
 export default function Chat() {
     const { userId, profileId } = useParams();
@@ -103,6 +106,7 @@ export default function Chat() {
         sendMessage(JSON.stringify(chatMessage));
         setChatMessageHistory((prev) => prev.concat(chatMessage));
         resetChatMessage();
+        scrollDownDummy.current?.scrollIntoView({ behavior: "smooth" });
     }, [rawChatMessage]);
 
     const connectionStatus = {
@@ -113,29 +117,19 @@ export default function Chat() {
         [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
     }[readyState];
 
-    const createChatCard = (chatMessage: ChatMessage, idx: number) => (
-        <Row key={idx}>
-            <Col>
-                {chatMessage.targetUserId == chatPartner.id &&
-                    <Card>
-                        <Card.Body>
-                            <p>{`You: ${chatMessage.message}`}</p>
-                        </Card.Body>
-                    </Card>
-                }
+    const msgs = chatMessageHistory.map((msg) => {
+        return (
+            <MessageBox
+                position={msg.sourceUserId === chatPartner.id ? "left" : "right"}
+                type="text"
+                title={msg.sourceUserId === chatPartner.id ? chatPartner.name : "You"}
+                text={msg.message}
+                dateString={msg.sentOn}
+            />
+        )
+    })
 
-            </Col>
-            <Col>
-                {chatMessage.targetUserId == me.id &&
-                    <Card>
-                        <Card.Body>
-                            <p>{`${chatPartner.name}: ${chatMessage.message}`}</p>
-                        </Card.Body>
-                    </Card>
-                }
-            </Col>
-        </Row>
-    );
+    const scrollDownDummy = createRef<HTMLDivElement>();
 
     return (
         <div>
@@ -143,17 +137,13 @@ export default function Chat() {
                 <h3>{chatPartner.name}</h3>
 
                 <Card>
-                    <Card.Body className="overflow-auto" style={{ maxHeight: "80vh", display: "flex", flexDirection: "column-reverse" }}>
-                        <div>
-                            {chatMessageHistory.map((chatMessage, idx) => (
-                                createChatCard(chatMessage, idx)
-                            ))}
-                        </div>
+                    <Card.Body className="overflow-auto" style={{ maxHeight: "80vh" }}>
+                        {msgs}
+
+                        <div style={{ height: "55px" }}></div> {/* This is here because otherwise we don't properly scroll to the bottom */}
+                        <div ref={scrollDownDummy} style={{ height: "0px" }}></div>
                     </Card.Body>
                 </Card>
-
-
-
                 <Row className="fixed-bottom">
                     <Card>
                         <Card.Body>
@@ -174,7 +164,7 @@ export default function Chat() {
 
             <p>The WebSocket is currently {connectionStatus}</p>
             {lastMessageEvent ? <p>Last message: {lastMessageEvent.data}</p> : null}
-        </div>
+        </div >
     );
 }
 
