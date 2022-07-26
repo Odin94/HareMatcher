@@ -2,7 +2,7 @@ package de.odinmatthias
 
 import de.odinmatthias.matches.*
 import de.odinmatthias.profiles.*
-import de.odinmatthias.users.registerUserRouting
+import de.odinmatthias.users.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -16,7 +16,6 @@ import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
-import io.ktor.websocket.*
 import matches.registerMatchRouting
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
@@ -33,6 +32,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.imageio.ImageIO
 import kotlin.collections.set
+import kotlin.random.Random
 
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -209,6 +209,29 @@ fun deleteAllData() {
 }
 
 fun createSampleData() {
+
+    // generate 50 randomized users
+    val randomUsers = transaction {
+        val users = (1..50).map {
+            val userName = getRandomName()
+            val user = UserDAO.new {
+                name = userName
+                email = "$userName-${Random.nextInt(0, 99999)}@test.de"
+                description = """
+                    ${getRandomUserAttribute().replaceFirstChar(Char::titlecase)}, ${getRandomUserAttribute()}, ${getRandomUserAttribute()}.
+                    
+                    ${getRandomHobbyIntro()} ${getRandomHobby()}, ${getRandomHobby()}, and ${getRandomHobby()}.
+                    """.trimIndent()
+                picture = ExposedBlob(getRandomProfilePicture())
+                pictureFormat = PictureFormat.JPG
+                hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
+            }
+
+            return@map user
+        }
+        return@transaction users
+    }
+
     transaction {
         val freddoPictureBytes = imageBytesFromPath("resources/images/christopher-campbell-rDEOVtE7vOs-unsplash.jpg")
         val freddo = UserDAO.new {
@@ -289,6 +312,15 @@ fun createSampleData() {
             swipedProfile = freddoBunnies[0]
             createdOn = LocalDateTime.now()
             likeOrPass = LikeOrPass.LIKE
+        }
+
+        randomUsers.forEach {
+            SwipeDAO.new {
+                user = it
+                swipedProfile = freddoBunnies[Random.nextInt(0, freddoBunnies.size - 1)]
+                createdOn = LocalDateTime.now()
+                likeOrPass = LikeOrPass.LIKE
+            }
         }
 
         ChatMessageDAO.new {
