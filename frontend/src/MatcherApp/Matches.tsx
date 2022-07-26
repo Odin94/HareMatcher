@@ -83,7 +83,7 @@ export default function Matches() {
                                     selectedProfileWithMatches?.matches.length === 0
                                         ? <div><h4>{selectedProfileWithMatches.profilePreview.name} has no matches yet</h4></div>
                                         : selectedProfileWithMatches?.matches.map((match, i) => (
-                                            <div key={match.userName} className={`card${(i === 0) ? "" : " mt-1"}`} style={{ cursor: "pointer" }} onClick={() => {
+                                            <div key={match.userId} className={`card${(i === 0) ? "" : " mt-1"}`} style={{ cursor: "pointer" }} onClick={() => {
                                                 if (match.userId !== -1) {
                                                     navigate(`/users/${match.userId}`, { replace: false })
                                                 }
