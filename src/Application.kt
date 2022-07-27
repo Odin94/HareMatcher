@@ -1,5 +1,6 @@
 package de.odinmatthias
 
+import de.odinmatthias.PictureUtils.saveImageBytesToFile
 import de.odinmatthias.matches.*
 import de.odinmatthias.profiles.*
 import de.odinmatthias.users.*
@@ -214,8 +215,13 @@ fun createSampleData() {
     val randomUsers = transaction {
         val users = (1..50).map {
             val userName = getRandomName()
-            val pictureBytes = getRandomProfilePicture()
-//            saveImageBytesToFile(pictureBytes, "resources/images/testUserPictures/${it}.jpg")
+            val picturePath = "resources/images/testUserPictures/${it}.jpg"
+            if (!File(picturePath).exists()) {
+                Thread.sleep(500)  // to avoid getting the same picture on the next run
+                saveImageBytesToFile(getRandomUserPicture(), picturePath)
+            }
+            val pictureBytes = imageBytesFromPath(picturePath)
+
             val user = UserDAO.new {
                 name = userName
                 email = "$userName-${Random.nextInt(0, 99999)}@test.de"

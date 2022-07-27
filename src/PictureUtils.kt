@@ -1,6 +1,7 @@
 package de.odinmatthias
 
 import java.io.ByteArrayInputStream
+import java.io.FileOutputStream
 import java.net.URLConnection
 import java.util.*
 
@@ -27,10 +28,10 @@ object PictureUtils {
         }
     }
 
-//    fun saveImageBytesToFile(bytes: ByteArray, path: String) {
-//        val stream = FileOutputStream(path)
-//        stream.write(bytes)
-//    }
+    fun saveImageBytesToFile(bytes: ByteArray, path: String) {
+        val stream = FileOutputStream(path)
+        stream.write(bytes)
+    }
 }
 
 enum class PictureFormat(val dataUrlFormat: String) {
