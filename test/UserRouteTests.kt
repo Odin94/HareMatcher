@@ -7,14 +7,14 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.mindrot.jbcrypt.BCrypt
 import users.UserDAO
 import users.Users
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class UserRouteTests {
     companion object {

@@ -1,6 +1,6 @@
 package de.odinmatthias
 
-import kotlin.test.Test
+import org.junit.Test
 
 class ApplicationTest {
     @Test

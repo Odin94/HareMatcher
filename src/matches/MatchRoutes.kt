@@ -49,6 +49,7 @@ fun Route.matchRouting() {
                 call.respond(unswipedProfile)
             }
 
+            // TODO: This gets the same profile with the same matches many times :( fix!
             get("matches") {
                 val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)

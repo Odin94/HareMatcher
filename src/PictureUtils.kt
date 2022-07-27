@@ -26,6 +26,11 @@ object PictureUtils {
             else -> PictureFormat.UNKNOWN
         }
     }
+
+//    fun saveImageBytesToFile(bytes: ByteArray, path: String) {
+//        val stream = FileOutputStream(path)
+//        stream.write(bytes)
+//    }
 }
 
 enum class PictureFormat(val dataUrlFormat: String) {

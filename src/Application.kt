@@ -214,6 +214,8 @@ fun createSampleData() {
     val randomUsers = transaction {
         val users = (1..50).map {
             val userName = getRandomName()
+            val pictureBytes = getRandomProfilePicture()
+//            saveImageBytesToFile(pictureBytes, "resources/images/testUserPictures/${it}.jpg")
             val user = UserDAO.new {
                 name = userName
                 email = "$userName-${Random.nextInt(0, 99999)}@test.de"
@@ -222,7 +224,7 @@ fun createSampleData() {
                     
                     ${getRandomHobbyIntro()} ${getRandomHobby()}, ${getRandomHobby()}, and ${getRandomHobby()}.
                     """.trimIndent()
-                picture = ExposedBlob(getRandomProfilePicture())
+                picture = ExposedBlob(pictureBytes)
                 pictureFormat = PictureFormat.JPG
                 hashedPassword = BCrypt.hashpw("test", BCrypt.gensalt()).toByteArray()
             }

@@ -87,6 +87,7 @@ fun getRandomHobbyIntro() = userHobbyIntroOptions[Random.nextInt(0, userHobbyInt
 
 fun getRandomHobby() = userHobbyOptions[Random.nextInt(0, userHobbyOptions.size - 1)]
 
+// TODO: This is pretty slow, maybe just download once and keep in file system?
 fun getRandomProfilePicture(): ByteArray {
     // see here https://unsplash.com/documentation
     val url = Url("https://source.unsplash.com/random/?face&w=800&fm=jpg")
@@ -94,7 +95,7 @@ fun getRandomProfilePicture(): ByteArray {
     val client = HttpClient(CIO)
 
     val imageBytes = runBlocking {
-        val response: HttpResponse = client.get<HttpResponse>(url)
+        val response: HttpResponse = client.get(url)
         return@runBlocking response.content.toByteArray()
     }
 
