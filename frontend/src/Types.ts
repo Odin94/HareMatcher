@@ -36,3 +36,14 @@ export class UserData {
 export interface NavBarProps {
     children: React.ReactNode
 }
+
+export class ChatRoom {
+    constructor(public user: UserData, public profile: ProfileData, public messageCount: number, public lastMessageOn: string) { }
+
+    static fromJson(json: any): ChatRoom {
+        const user = UserData.fromJson(json.user);
+        const profileData = ProfileData.fromJson(json.profile);
+
+        return new ChatRoom(user, profileData, json.messageCount, json.lastMessageOn);
+    }
+}

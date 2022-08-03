@@ -2,79 +2,40 @@ import "react-chat-elements/dist/main.css";
 import 'simplebar/dist/simplebar.min.css';
 
 import { createRef, useCallback, useEffect, useState } from "react";
-import { Button, Card, Form, InputGroup, Row } from "react-bootstrap";
+import { Button, Card, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useFocus, useInput } from "../CustomHooks";
 import { apiVersion, baseUrl } from "../Globals";
 import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "react-router-dom";
-import { UserData } from "../Types";
 import { MessageBox } from "react-chat-elements";
 import SimpleBar from 'simplebar-react';
 import moment from "moment";
+import { useUser } from "../api";
+import { useQuery } from "react-query";
 
 export default function Chat() {
     const { userId, profileId } = useParams();
+    const chatPartnerQuery = useUser(userId!);
 
-    const [chatPartner, setChatPartner] = useState(UserData.empty());
-    const [chatPartnerFetchError, setChatPartnerFetchError] = useState("");
-    useEffect(() => {
-        fetch(`http://${baseUrl}/api/${apiVersion}/users/${userId}`, {
-            credentials: 'include',
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(json => {
-                console.log(json);
-                setChatPartner(UserData.fromJson(json));
-            })
-            .catch((err: Error) => {
-                console.log(`error when fetching chat partner: ${err}`);
-                setChatPartnerFetchError(err.message);
-            })
-    }, []);
-
-    const [me, setMe] = useState(UserData.empty());
-    const [meFetchError, setMeFetchError] = useState("");
-    useEffect(() => {
-        fetch(`http://${baseUrl}/api/${apiVersion}/users/me`, {
-            credentials: 'include',
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(json => {
-                console.log(json);
-                setMe(UserData.fromJson(json));
-            })
-            .catch((err: Error) => {
-                console.log(`error when fetching me: ${err}`);
-                setMeFetchError(err.message);
-            })
-    }, []);
-
+    const meQuery = useUser("me");
     const [chatMessageHistory, setChatMessageHistory] = useState<ChatMessage[]>([]);
-    const [historyFetchError, setHistoryFetchError] = useState("");
-    useEffect(() => {
-        fetch(`http://${baseUrl}/api/${apiVersion}/chatHistory/${userId}/${profileId}`, {
+
+    const { isLoading, error } = useQuery("profile", () => fetchChatHistory(userId!, profileId!));
+    const fetchChatHistory = (userId: number | string, profileId: number | string) => {
+        return fetch(`http://${baseUrl}/api/${apiVersion}/chatHistory/${userId}/${profileId}`, {
             credentials: 'include',
         })
             .then(response => {
                 if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
                 return response.json();
             })
-            .then(json => {
-                console.log(json);
-                setChatMessageHistory(json);
+            .then(json => json.map((msgJson: any) => ChatMessage.fromIncoming(msgJson, parseInt(`${userId}`))))
+            .then(chatMessages => {
+                setChatMessageHistory(chatMessages);
+                return chatMessages
             })
-            .catch((err: Error) => {
-                console.log(`error when fetching me: ${err}`);
-                setHistoryFetchError(err.message);
-            })
-    }, []);
+    }
 
     const { value: rawChatMessage, bind: bindChatMessage, reset: resetChatMessage } = useInput("");
     const [inputRef, setInputFocus] = useFocus();
@@ -94,7 +55,7 @@ export default function Chat() {
             }
 
             else if (lastMessage.message !== null) {
-                const message = ChatMessage.fromIncoming(lastMessage, me.id);
+                const message = ChatMessage.fromIncoming(lastMessage, meQuery.user!.id);
                 console.log(JSON.stringify(message))
                 setChatMessageHistory((prev) => prev.concat(message));
             } else {
@@ -105,7 +66,7 @@ export default function Chat() {
 
     const handleClickSendMessage = useCallback(() => {
         if (rawChatMessage === "" || !profileId) return;
-        const chatMessage = new ChatMessage(rawChatMessage, me.id, chatPartner.id, "", parseInt(profileId), uuidv4());
+        const chatMessage = new ChatMessage(rawChatMessage, meQuery.user!.id, chatPartnerQuery.user!.id, "", parseInt(profileId), uuidv4());
         sendMessage(JSON.stringify(chatMessage));
         setChatMessageHistory((prev) => prev.concat(chatMessage));
         resetChatMessage();
@@ -124,28 +85,39 @@ export default function Chat() {
     useEffect(() => {
         scrollDownDummy.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessageHistory]);
+
+    if (isLoading) {
+        return (<Spinner animation="border" variant="success"></Spinner>);
+    }
+
+    if (error) {
+        return (<h1>{`Error: ${error}`}</h1>);
+    }
+
     return (
         <div>
             <div className="container container-xxl">
                 <div style={{ paddingBottom: "20px" }}>
-                    <img src={chatPartner.picture} width="70px" height="70px" className="rounded-circle" />
-                    <h1 style={{ display: "inline-block", marginLeft: "20px", position: "relative", top: "15px", fontSize: "50px" }}>{chatPartner.name}</h1>
+                    <img src={chatPartnerQuery.user?.picture} width="70px" height="70px" className="rounded-circle" />
+                    <h1 style={{ display: "inline-block", marginLeft: "20px", position: "relative", top: "15px", fontSize: "50px" }}>{chatPartnerQuery.user?.name ?? ""}</h1>
                 </div>
 
                 <Card>
                     <Card.Body>
                         <SimpleBar style={{ maxHeight: "75vh" }}>
-                            {chatMessageHistory.map((msg) => {
-                                return (
-                                    <MessageBox
-                                        position={msg.sourceUserId === chatPartner.id ? "left" : "right"}
-                                        type="text"
-                                        title={msg.sourceUserId === chatPartner.id ? chatPartner.name : "You"}
-                                        text={msg.message}
-                                        date={moment(msg.sentOn, "DD.MM.yyyy HH:mm").toDate()}
-                                    />
-                                )
-                            })}
+                            {(isLoading || chatPartnerQuery.isUserLoading)
+                                ? <Spinner animation="border" variant="success"></Spinner>
+                                : chatMessageHistory.map((msg) => {
+                                    return (
+                                        <MessageBox
+                                            position={msg.sourceUserId === chatPartnerQuery.user!.id ? "left" : "right"}
+                                            type="text"
+                                            title={msg.sourceUserId === chatPartnerQuery.user!.id ? chatPartnerQuery.user!.name : "You"}
+                                            text={msg.message}
+                                            date={moment(msg.sentOn, "DD.MM.yyyy HH:mm").toDate()}
+                                        />
+                                    )
+                                })}
 
                             <div ref={scrollDownDummy}></div>
                         </SimpleBar>
