@@ -5,7 +5,7 @@ import { createRef, useCallback, useEffect, useState } from "react";
 import { Button, Card, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useFocus, useInput } from "../CustomHooks";
-import { apiVersion, baseUrl } from "../Globals";
+import { apiVersion, baseUrl, hashCode } from "../Globals";
 import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "react-router-dom";
 import { MessageBox } from "react-chat-elements";
@@ -115,6 +115,7 @@ export default function Chat() {
                                             title={msg.sourceUserId === chatPartnerQuery.user!.id ? chatPartnerQuery.user!.name : "You"}
                                             text={msg.message}
                                             date={moment(msg.sentOn, "DD.MM.yyyy HH:mm").toDate()}
+                                            key={msg.uuid ?? hashCode(msg.message + msg.sentOn)}
                                         />
                                     )
                                 })}
