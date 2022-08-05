@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { apiVersion, baseUrl } from "../Globals";
-import { ProfileData } from "../Types";
+import { Profile } from "../Types";
 
 const defaultPictureSource = "https://images.unsplash.com/photo-1629898471270-d4f5f525b8dc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=360&q=80";
 
@@ -26,7 +26,7 @@ export default function Matches() {
                 return response.json();
             })
             .then(json => {
-                const profilePreviewsWithMatches = json.map(({ profile, matches }: { profile: ProfileData, matches: Match[] }) => {
+                const profilePreviewsWithMatches = json.map(({ profile, matches }: { profile: Profile, matches: Match[] }) => {
                     const thumbnail = profile.profilePictures?.find(picture => picture.index === 0)?.picture || defaultPictureSource
                     const preview = new ProfilePreview(profile.id, thumbnail, profile.name)
 
@@ -61,7 +61,7 @@ export default function Matches() {
                                                     </div>
                                                     : <div>
                                                         <div className="col">
-                                                            <img src={profileWithMatch.profilePreview.thumbnailBase64} width="70px" height="70px" className="rounded-circle float-start" />
+                                                            <img src={profileWithMatch.profilePreview.thumbnailBase64} alt={"profile thumbnail"} width="70px" height="70px" className="rounded-circle float-start" />
                                                         </div>
                                                         <div className="col d-flex flex-column">
                                                             <h3>{profileWithMatch.profilePreview.name}</h3>
@@ -91,7 +91,7 @@ export default function Matches() {
                                                 <div className="card-body">
                                                     <div className="row">
                                                         <div className="col-2">
-                                                            <img src={match.userPicture} width="70px" height="70px" className="rounded-circle float-start" />
+                                                            <img src={match.userPicture} alt={"user"} width="70px" height="70px" className="rounded-circle float-start" />
                                                         </div>
                                                         <div className="col text-center">
                                                             {match.userId === -1

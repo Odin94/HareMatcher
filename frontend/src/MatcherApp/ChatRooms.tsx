@@ -5,6 +5,7 @@ import { Row, Spinner } from "react-bootstrap";
 import { ChatList } from "react-chat-elements";
 import { useNavigate } from "react-router-dom";
 import { useChatRooms as useChatRooms } from "../api";
+import moment from "moment";
 
 
 export default function ChatRooms() {
@@ -34,8 +35,9 @@ export default function ChatRooms() {
                                     title: `${chatRoom.user.name} / ${chatRoom.profile.name}`,
                                     subtitle: "todo: load latest message",
                                     date: new Date(),
-                                    unread: -1,
-                                    chatLink: `/chat/${chatRoom.user.id}/${chatRoom.profile.id}`
+                                    unread: 0,
+                                    chatLink: `/chat/${chatRoom.user.id}/${chatRoom.profile.id}`,
+                                    key: chatRoom.user.id,
                                 }
                             })}
                         />

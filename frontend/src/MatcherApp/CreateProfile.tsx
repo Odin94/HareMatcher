@@ -7,7 +7,7 @@ import { faWeightHanging, faPalette, faSyringe, faPlus } from '@fortawesome/free
 import '../index.css';
 import { useInput } from "../CustomHooks";
 import { Button, Form } from "react-bootstrap";
-import { Vaccination } from "../Types";
+import { Vaccination, vaccinationSchema } from "../Types";
 import { useNavigate } from "react-router-dom";
 
 
@@ -17,13 +17,13 @@ const defaultEmptyPictureSource = "https://images.unsplash.com/photo-16105591760
 export default function CreateProfile() {
     const navigate = useNavigate();
 
-    const { value: name, bind: bindName, reset: resetName } = useInput('');
-    const { value: race, bind: bindRace, reset: resetRace } = useInput('');
-    const { value: age, bind: bindAge, reset: resetAge } = useInput('0');
-    const { value: city, bind: bindCity, reset: resetCity } = useInput('');
-    const { value: furColor, bind: bindFurColor, reset: resetFurColor } = useInput('brown');
-    const { value: weightInKg, bind: bindWeightInKg, reset: resetWeightInKg } = useInput('0.0');
-    const { value: description, bind: bindDescription, reset: resetDescription } = useInput('');
+    const { value: name, bind: bindName } = useInput('');
+    const { value: race, bind: bindRace } = useInput('');
+    const { value: age, bind: bindAge } = useInput('0');
+    const { value: city, bind: bindCity } = useInput('');
+    const { value: furColor, bind: bindFurColor } = useInput('brown');
+    const { value: weightInKG, bind: bindWeightInKg } = useInput('0.0');
+    const { value: description, bind: bindDescription } = useInput('');
     const [pictureSources, setPictureSources] = useState([] as File[]);
     const [vaccinations, setVaccinations] = useState([] as Vaccination[]);
 
@@ -39,7 +39,7 @@ export default function CreateProfile() {
         formData.append("city", city);
         formData.append("description", description);
         formData.append("furColor", furColor);
-        formData.append("weightInKg", weightInKg);
+        formData.append("weightInKG", weightInKG);
         for (const i in pictureSources) {
             formData.append(`image${i}`, pictureSources[i]);
         }
@@ -182,7 +182,7 @@ export default function CreateProfile() {
                                     ))}
                                     <p style={{ marginTop: "30px", fontSize: "40px" }}><button onClick={() => {
                                         const newVaccinations = [...vaccinations];
-                                        newVaccinations.push(new Vaccination("", ""));
+                                        newVaccinations.push(vaccinationSchema.validateSync({ disease: "_", date: "01.01.2020" }));
                                         setVaccinations(newVaccinations);
                                     }} type="button" className="btn btn-outline-success"><FontAwesomeIcon icon={faPlus} /> Add Vaccination</button></p>
                                 </div>

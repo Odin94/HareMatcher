@@ -5,7 +5,7 @@ import { getErrorMessage, hashCode } from '../Globals';
 import '../index.css';
 
 
-const User: React.FC<UserProps> = ({ userId }) => {
+const UserPage: React.FC<UserProps> = ({ userId }) => {
     const navigate = useNavigate();
 
     const { isUserLoading, userError, user } = useUser(userId);
@@ -30,7 +30,7 @@ const User: React.FC<UserProps> = ({ userId }) => {
                                     <p key={hashCode(paragraph)} style={{ fontSize: "1.23rem" }}>{paragraph}</p>
                                 ))}
                                 </div>
-                                <div className="col"><img src={user.picture} alt={`Picture of user ${user.name}`} width="100%" height="500px" style={{ padding: "5px", objectFit: "cover", maxWidth: "900px" }}></img></div>
+                                <div className="col"><img src={user.picture} alt={`user ${user.name}`} width="100%" height="500px" style={{ padding: "5px", objectFit: "cover", maxWidth: "900px" }}></img></div>
                             </div>
                         </div>
                     </div>
@@ -45,7 +45,7 @@ const User: React.FC<UserProps> = ({ userId }) => {
                                 <Card onClick={() => navigate(`/profiles/${profile.id}`)}>
                                     <Card.Body style={{ cursor: "pointer" }}>
                                         <Row>
-                                            <Col xs={2}><img src={profile.profilePictures?.at(0)?.picture || ""} width="70px" height="70px" className="rounded-circle float-start" /></Col>
+                                            <Col xs={2}><img src={profile.profilePictures?.at(0)?.picture || ""} alt={`profile ${profile.name}`} width="70px" height="70px" className="rounded-circle float-start" /></Col>
                                             <Col style={{ textAlign: "center" }}><h1>{profile.name}</h1></Col>
                                         </Row>
                                     </Card.Body>
@@ -78,4 +78,4 @@ export interface UserProps {
 }
 
 
-export default User;
+export default UserPage;

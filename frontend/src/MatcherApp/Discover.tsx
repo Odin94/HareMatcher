@@ -1,32 +1,27 @@
-import { useEffect, useState } from "react";
-import { apiVersion, baseUrl } from "../Globals";
-import "react-multi-carousel/lib/styles.css";
+import { useEffect } from "react";
+import { Spinner } from "react-bootstrap";
 import 'react-image-lightbox/style.css';
+import "react-multi-carousel/lib/styles.css";
+import { useQuery } from "react-query";
+import { apiVersion, baseUrl } from "../Globals";
 import '../index.css';
-import { ProfileData } from "../Types";
-import Profile from "./Profile";
+import { Profile, profileSchema } from "../Types";
+import ProfilePage from "./ProfilePage";
 
 
 export default function Discover() {
-    const [profileData, setProfileData] = useState(ProfileData.empty());
-    const [fetchError, setFetchError] = useState("");
+    // TODO: make this not cache responses
+    const { isLoading, error, data } = useQuery("discover", () => discoverProfile());
 
-    const discoverProfile = async () => {
-        fetch(`http://${baseUrl}/api/${apiVersion}/discover`, {
+    const discoverProfile = (): Promise<Profile> => {
+        return fetch(`http://${baseUrl}/api/${apiVersion}/discover`, {
             credentials: 'include',
         })
             .then(response => {
                 if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
                 return response.json();
             })
-            .then(json => {
-                console.log(json);
-                setProfileData(ProfileData.fromJson(json));
-            })
-            .catch((err: Error) => {
-                console.log(`error when fetching: ${err}`);
-                setFetchError(err.message);
-            })
+            .then(json => profileSchema.validateSync(json))
     }
 
     useEffect(() => {
@@ -34,20 +29,32 @@ export default function Discover() {
     }, []);
 
 
-    return (
-        <div>
-            {fetchError === "404: Not Found"
-                ? <div className="container container-xxl" style={{ margin: "0 auto" }}>
+    if (isLoading) {
+        return (<Spinner animation="border" variant="success"></Spinner>);
+    }
+
+    if (error) {
+        if (error instanceof Error) {
+            if (error.message === "404: Not Found") {
+                return (<div className="container container-xxl" style={{ margin: "0 auto" }}>
                     <div className="card">
                         <div className="card-body">
                             <h1>No more profiles to discover</h1>
                             <p>Please come back later or consider changing your search preferences</p>
                         </div>
                     </div>
-                </div>
-                : <Profile profile={profileData} fetchError={fetchError} onSwipeComplete={() => discoverProfile()} />
+                </div>);
             }
-        </div>
+        }
+        return (<h1>{`Error: ${error}`}</h1>);
+    }
+
+    if (!data) {
+        throw new Error("where profile data?");
+    }
+    return (
+
+        <ProfilePage profileId={data.id} onSwipeComplete={() => discoverProfile()} />
     )
 }
 

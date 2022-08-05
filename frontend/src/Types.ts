@@ -1,49 +1,57 @@
-export class Vaccination {
-    constructor(public disease: string, public date: string) { }
-}
+import * as yup from 'yup';
 
-export class ProfilePicture {
-    constructor(public picture: string, public index: number) { }
-}
+export const vaccinationSchema = yup.object().shape({
+    disease: yup.string().required().min(1),
+    date: yup.string().required().min(1),  // TODO: require correct length
+});
 
-export class ProfileData {
-    constructor(public id: number, public name: string, public city: string, public race: string, public furColor: string,
-        public age: number, public weightInKG: number, public description: string, public vaccinations: Vaccination[], public matchable: boolean, public profilePictures?: ProfilePicture[]) { }
+export type Vaccination = yup.InferType<typeof vaccinationSchema>;
 
-    static fromJson(json: any): ProfileData {
-        const sortedPictures = json.profilePictures?.sort((a: ProfilePicture, b: ProfilePicture) => a.index - b.index);
+export const profilePictureSchema = yup.object().shape({
+    picture: yup.string().required().matches(new RegExp("/.*/")),  // TODO: validate that this is a picture
+    index: yup.number().required().min(0).integer(),
+});
 
-        return new ProfileData(json.id, json.name, json.city, json.race, json.furColor, json.age, json.weightInKG, json.description, json.vaccinations, json.matchable, sortedPictures);
-    }
+export type ProfilePicture = yup.InferType<typeof profilePictureSchema>;
 
-    static empty(): ProfileData {
-        return new ProfileData(-1, "", "", "", "", 0, 0, "", [], false, undefined);
-    }
-}
+export const profileSchema = yup.object().shape({
+    id: yup.number().required().min(0).integer(),
+    name: yup.string().required().min(1),
+    city: yup.string().required().min(1),
+    race: yup.string().required().min(1),
+    furColor: yup.string().required().min(1),
+    age: yup.number().required().min(0).integer(),
+    weightInKG: yup.number().required().min(0).integer(),
+    description: yup.string().required(),
+    vaccinations: yup.array().of(vaccinationSchema),
+    matchable: yup.bool().required(),
+    profilePictures: yup.array().of(profilePictureSchema).nullable(),
+});
 
-export class UserData {
-    constructor(public id: number, public name: string, public email: string, public description: string, public picture: string, public profileIds: number[], public givenSwipeIds: number[], public isMe: boolean) { }
+export type Profile = yup.InferType<typeof profileSchema>;
 
-    static fromJson(json: any): UserData {
-        return new UserData(json.id, json.name, json.email, json.description, json.picture, json.profileIds, json.givenSwipeIds, json.isMe);
-    }
+export const userSchema = yup.object().shape({
+    id: yup.number().required().min(0).integer(),
+    name: yup.string().required().min(1),
+    email: yup.string().required().email(),
+    description: yup.string().required(),
+    picture: yup.string().required().matches(new RegExp("/.*/")),  // TODO: validate that this is a picture
+    profileIds: yup.array().of(yup.number().required().min(0).integer()),
+    givenSwipeIds: yup.array().of(yup.number().required().min(0).integer()),
+    isMe: yup.bool().required(),
+});
 
-    static empty(): UserData {
-        return new UserData(-1, "", "", "", "", [], [], false);
-    }
-}
+export type User = yup.InferType<typeof userSchema>;
 
 export interface NavBarProps {
     children: React.ReactNode
 }
 
-export class ChatRoom {
-    constructor(public user: UserData, public profile: ProfileData, public messageCount: number, public lastMessageOn: string) { }
+export const chatRoomSchema = yup.object().shape({
+    user: userSchema,
+    profile: profileSchema,
+    messageCount: yup.number().integer().min(0).required(),
+    lastMessageOn: yup.string().required().min(1),  // TODO: require correct length
+});
 
-    static fromJson(json: any): ChatRoom {
-        const user = UserData.fromJson(json.user);
-        const profileData = ProfileData.fromJson(json.profile);
-
-        return new ChatRoom(user, profileData, json.messageCount, json.lastMessageOn);
-    }
-}
+export type ChatRoom = yup.InferType<typeof chatRoomSchema>;

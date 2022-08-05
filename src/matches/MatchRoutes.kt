@@ -93,7 +93,8 @@ fun Route.matchRouting() {
                         .orderBy(ChatMessages.sentOn, SortOrder.DESC)
                         .groupBy(ChatMessages.sourceUser, ChatMessages.profileInQuestion)
                         .map { ChatMessageDAO.findById(it[ChatMessages.id])!! }
-                        .map { ChatRoom(it.sourceUser.toUser(), it.profileInQuestion.toProfile(), -1, it.toChatMessage().sentOn) }
+                        // TODO: add actual user count
+                        .map { ChatRoom(it.sourceUser.toUser(), it.profileInQuestion.toProfile(), 0, it.toChatMessage().sentOn) }
                 }
 
                 call.respond(chatRooms)

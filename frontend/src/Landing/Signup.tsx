@@ -1,8 +1,8 @@
 import { FormEvent, useState } from "react";
-import { Badge, Button, Form, FormGroup } from "react-bootstrap";
+import { Badge, Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useInput } from "../CustomHooks";
-import { baseUrl, apiVersion } from '../Globals';
+import { apiVersion, baseUrl } from '../Globals';
 
 
 export default function Signup() {
@@ -10,9 +10,9 @@ export default function Signup() {
 
     const [fetchError, setFetchError] = useState("");
 
-    const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
-    const { value: name, bind: bindName, reset: resetName } = useInput('');
-    const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
+    const { value: email, bind: bindEmail } = useInput('');
+    const { value: name, bind: bindName } = useInput('');
+    const { value: password, bind: bindPassword } = useInput('');
 
     const login = () => {
         let formData = new FormData();
@@ -63,8 +63,8 @@ export default function Signup() {
                     <label className="form-label">
                         Email address
                         <span>
-                                <input aria-describedby="emailHelp" className="form-control" type="email" {...bindEmail} />
-                                {fetchError === "409: Conflict" && <Badge bg="danger">Email already used</Badge>}
+                            <input aria-describedby="emailHelp" className="form-control" type="email" {...bindEmail} />
+                            {fetchError === "409: Conflict" && <Badge bg="danger">Email already used</Badge>}
                         </span>
                         <div className="form-text" id="emailHelp">We'll never share your email with anyone else.</div>
                     </label>
