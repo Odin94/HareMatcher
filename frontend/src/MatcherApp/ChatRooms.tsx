@@ -34,7 +34,7 @@ export default function ChatRooms() {
                                     avatar: chatRoom.profile.profilePictures?.at(0)?.picture || "",
                                     title: `${chatRoom.user.name} / ${chatRoom.profile.name}`,
                                     subtitle: "todo: load latest message",
-                                    date: new Date(),
+                                    date: moment(chatRoom.lastMessageOn, "DD.MM.yyyy HH:mm").toDate(),
                                     unread: 0,
                                     chatLink: `/chat/${chatRoom.user.id}/${chatRoom.profile.id}`,
                                     key: chatRoom.user.id,
