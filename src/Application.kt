@@ -193,8 +193,11 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("Inside $it")
         }
 
-        deleteAllData()  // TODO: Remove for production usage
-        createSampleData()
+        if (!testing) {
+            deleteAllData()  // TODO: Remove for production usage
+            createSampleData()
+
+        }
     }
 }
 

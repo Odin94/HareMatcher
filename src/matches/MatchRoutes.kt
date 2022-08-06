@@ -49,34 +49,25 @@ fun Route.matchRouting() {
                 call.respond(unswipedProfile)
             }
 
-            // TODO: This gets the same profile with the same matches many times :( fix!
             get("matches") {
-                val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                val currentUserDAO = call.sessions.get<UserSession>()?.getCurrentUserDAO()
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                 val matchesByProfiles = transaction {
-                    val matchProfileDAOs =
-                        (Profiles leftJoin Swipes)
-                            .select { Profiles.user eq currentUser.id }
-                            .andWhere { (Swipes.likeOrPass eq LikeOrPass.LIKE) or (Swipes.swipedProfile eq null) }  // TODO: test if this really excludes PASSes
+                    return@transaction currentUserDAO.profiles.map { profile ->
+                        val matches = profile.receivedSwipes
+                            .filter { it.likeOrPass == LikeOrPass.LIKE }
                             .map {
-                                ProfileDAO.findById(it[Profiles.id])!!
+                                Match(
+                                    it.user.id.value,
+                                    it.swipedProfile.id.value,
+                                    it.user.name,
+                                    PictureUtils.base64Encode(it.user.picture.bytes, it.user.pictureFormat),
+                                    it.createdOn.format(swipeDateTimeFormatter)
+                                )
                             }
-
-                    val matchesByProfiles = matchProfileDAOs.map {
-                        val matches = it.receivedSwipes.map { match ->
-                            Match(
-                                match.user.id.value,
-                                match.swipedProfile.id.value,
-                                match.user.name,
-                                PictureUtils.base64Encode(match.user.picture.bytes, match.user.pictureFormat),
-                                match.createdOn.format(swipeDateTimeFormatter)
-                            )
-                        }
-                        return@map MatchesByProfile(it.toProfile(matchable = true), matches)
+                        return@map MatchesByProfile(profile.toProfile(), matches)
                     }
-
-                    return@transaction matchesByProfiles
                 }
 
                 call.respond(matchesByProfiles)

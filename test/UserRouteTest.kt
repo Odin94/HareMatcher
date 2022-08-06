@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -12,11 +11,10 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
-import org.mindrot.jbcrypt.BCrypt
 import users.UserDAO
 import users.Users
 
-class UserRouteTests {
+class UserRouteTest {
     companion object {
         @BeforeClass
         @JvmStatic
@@ -109,29 +107,3 @@ class UserRouteTests {
     }
 }
 
-private fun createAndSignInUser(engine: CookieTrackerTestApplicationEngine): UserDAO {
-    val password = "testPassword"
-    val user = createUser(password)
-
-    engine.handleRequest(HttpMethod.Post, "/api/v1/login") {
-        addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
-        setBody(listOf("email" to user.email, "password" to password).formUrlEncode())
-    }.apply {
-        assertEquals(HttpStatusCode.OK, response.status())
-    }
-
-    return user
-}
-
-private fun createUser(password: String): UserDAO {
-    return transaction {
-        return@transaction UserDAO.new {
-            email = "${BCrypt.gensalt()}_test@test.de"
-            name = "${BCrypt.gensalt()}_testName"
-            description = ""
-            picture = ExposedBlob(imageBytesFromPath("resources/images/default_user.png"))
-            pictureFormat = PictureFormat.JPG
-            hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt()).toByteArray()
-        }
-    }
-}

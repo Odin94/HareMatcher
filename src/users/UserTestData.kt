@@ -7,7 +7,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
-import kotlin.random.Random
 
 
 val userAttributeOptions = listOf(
@@ -79,13 +78,46 @@ val nameOptions = listOf(
     "Svenja"
 )
 
-fun getRandomName() = nameOptions[Random.nextInt(0, nameOptions.size - 1)]
+fun getRandomName() = nameOptions.random()
 
-fun getRandomUserAttribute() = userAttributeOptions[Random.nextInt(0, userAttributeOptions.size - 1)]
+fun getRandomUserAttribute() = userAttributeOptions.random()
 
-fun getRandomHobbyIntro() = userHobbyIntroOptions[Random.nextInt(0, userHobbyIntroOptions.size - 1)]
+fun getRandomHobbyIntro() = userHobbyIntroOptions.random()
 
-fun getRandomHobby() = userHobbyOptions[Random.nextInt(0, userHobbyOptions.size - 1)]
+fun getRandomHobby() = userHobbyOptions.random()
+
+fun getRandomCity() = listOf(
+    "Frankfurt",
+    "Munich",
+    "Cologne",
+    "Hamburg",
+    "Stuttgart",
+    "Berlin",
+    "Dresden",
+    "Bremen",
+    "Leipzig",
+    "Dortmund",
+    "Erfurt",
+    "Duisburg",
+    "Chemnitz",
+    "Mannheim"
+).random()
+
+fun getRandomFurColor() = listOf("Black", "White", "Grey", "Brown", "Chestnut", "Lynx", "Otter", "Seal", "Tan", "Chocolate").random()
+
+fun getRandomRace() = listOf(
+    "Flemish Giant",
+    "Holland Lop",
+    "Mini Lop",
+    "Dutch",
+    "Lionhead",
+    "French Lop",
+    "Californian",
+    "Dwarf Papillon",
+    "Netherland Dwarf",
+    "Mini Rex",
+    "Harlequin"
+).random()
 
 fun getRandomUserPicture(): ByteArray {
     // see here https://unsplash.com/documentation
