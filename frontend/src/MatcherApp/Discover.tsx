@@ -10,7 +10,6 @@ import ProfilePage from "./ProfilePage";
 
 
 export default function Discover() {
-    // TODO: make this not cache responses
     const { isLoading, error, data } = useQuery("discover", () => discoverProfile());
 
     const discoverProfile = (): Promise<Profile> => {

@@ -19,7 +19,13 @@ import SpecificChat from './MatcherApp/Chat';
 import ChatRooms from './MatcherApp/ChatRooms';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (_count, { message: status }) => (status !== '404' && status !== '401')
+    },
+  },
+});
 
 export default function App() {
   return (
