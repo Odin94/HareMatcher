@@ -27,7 +27,7 @@ const MatchButton: React.FC<MatchButtonProps> = ({ swipe, onSwipeComplete = () =
         setText(<span>{hearts}</span>);
         setHeartAnimationIteration(heartAnimationIteration + 1);
 
-        if (heartAnimationIteration == heartCount - 1) {
+        if (heartAnimationIteration === heartCount - 1) {
             setHeartAnimationEnabled(false);
             onSwipeComplete();
             resetComponent();
@@ -40,7 +40,7 @@ const MatchButton: React.FC<MatchButtonProps> = ({ swipe, onSwipeComplete = () =
             onClick={() => {
                 console.log("click!")
                 swipe("LIKE");
-                if(heartAnimationIteration === 0) setHeartAnimationEnabled(true);
+                if (heartAnimationIteration === 0) setHeartAnimationEnabled(true);
             }}
             className="btn btn-danger btn-lg rounded-pill"
             type="button"

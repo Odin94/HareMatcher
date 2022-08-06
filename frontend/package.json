@@ -37,7 +37,8 @@
     "build": "react-scripts build",
     "buildAndMove": "react-scripts build && rm -rf ../resources/react/* && mv build/* ../resources/react",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint --fix --ext .ts,.tsx ."
   },
   "eslintConfig": {
     "extends": [
@@ -59,6 +60,7 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.3.3",
-    "@types/yup": "^0.29.14"
+    "@types/yup": "^0.29.14",
+    "eslint-plugin-react": "^7.30.1"
   }
 }

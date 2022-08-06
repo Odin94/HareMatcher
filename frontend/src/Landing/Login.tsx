@@ -1,13 +1,13 @@
-import React, { FormEvent, useEffect } from 'react';
+import { FormEvent, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { useInput } from '../CustomHooks';
-import { baseUrl, apiVersion } from '../Globals';
 import { useNavigate } from "react-router-dom";
+import { useInput } from '../CustomHooks';
+import { apiVersion, baseUrl } from '../Globals';
 
 export default function Login() {
     const navigate = useNavigate();
-    const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
-    const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
+    const { value: email, bind: bindEmail } = useInput('');
+    const { value: password, bind: bindPassword } = useInput('');
 
     useEffect(() => {
         fetch(`http://${baseUrl}/api/${apiVersion}/users/me`, {
@@ -21,7 +21,7 @@ export default function Login() {
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
 
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append('email', email);
         formData.append('password', password);
 

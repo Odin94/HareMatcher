@@ -17,7 +17,7 @@ const UserPage: React.FC<UserProps> = ({ userId }) => {
     if (userError) return <h1>{getErrorMessage(userError)}</h1>
     if (profileError) return <h1>{getErrorMessage(profileError)}</h1>
 
-    if (!user) return <h1>Unknown Error - Can't fetch user</h1>
+    if (!user) return <h1>Unknown Error - Can not fetch user</h1>
     return (
         <div className="container container-xxl" style={{ margin: "0 auto" }}>
             <div className="row">

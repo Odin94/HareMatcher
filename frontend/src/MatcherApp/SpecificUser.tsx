@@ -9,6 +9,6 @@ export default function SpecificUser() {
     const { id } = useParams();
 
     return (
-        <UserPage userId={id!!} />
+        <UserPage userId={id!} />
     )
 }

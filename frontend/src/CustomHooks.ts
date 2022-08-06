@@ -1,4 +1,4 @@
-import React, { ChangeEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 export const useInput = (initialValue: any) => {
     const [value, setValue] = useState(initialValue);
@@ -16,7 +16,7 @@ export const useInput = (initialValue: any) => {
     };
 };
 
-export const useRepeat = <T>(callback: () => Promise<T> | (() => void), delay: number, enabled: boolean = true) => {
+export const useRepeat = <T>(callback: () => Promise<T> | (() => void), delay: number, enabled = true) => {
     const savedCallback = useRef(callback);
 
     useEffect(() => {

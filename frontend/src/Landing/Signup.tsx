@@ -15,7 +15,7 @@ export default function Signup() {
     const { value: password, bind: bindPassword } = useInput('');
 
     const login = () => {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append('email', email);
         formData.append('password', password);
 
@@ -66,7 +66,7 @@ export default function Signup() {
                             <input aria-describedby="emailHelp" className="form-control" type="email" {...bindEmail} />
                             {fetchError === "409: Conflict" && <Badge bg="danger">Email already used</Badge>}
                         </span>
-                        <div className="form-text" id="emailHelp">We'll never share your email with anyone else.</div>
+                        <div className="form-text" id="emailHelp">We will never share your email with anyone else.</div>
                     </label>
                 </div>
 

@@ -1,11 +1,11 @@
 import "react-chat-elements/dist/main.css";
 import 'simplebar/dist/simplebar.min.css';
 
+import moment from "moment";
 import { Row, Spinner } from "react-bootstrap";
 import { ChatList } from "react-chat-elements";
 import { useNavigate } from "react-router-dom";
-import { useChatRooms as useChatRooms } from "../api";
-import moment from "moment";
+import { useChatRooms } from "../api";
 
 
 export default function ChatRooms() {

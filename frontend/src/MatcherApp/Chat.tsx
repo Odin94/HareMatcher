@@ -1,18 +1,18 @@
 import "react-chat-elements/dist/main.css";
 import 'simplebar/dist/simplebar.min.css';
 
-import { createRef, useCallback, useEffect, useState } from "react";
+import moment from "moment";
+import { createRef, useEffect, useState } from "react";
 import { Button, Card, Form, InputGroup, Row, Spinner } from "react-bootstrap";
+import { MessageBox } from "react-chat-elements";
+import { useQuery } from "react-query";
+import { useParams } from "react-router-dom";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import SimpleBar from 'simplebar-react';
+import { v4 as uuidv4 } from 'uuid';
+import { useUser } from "../api";
 import { useFocus, useInput } from "../CustomHooks";
 import { apiVersion, baseUrl, hashCode } from "../Globals";
-import { v4 as uuidv4 } from 'uuid';
-import { useParams } from "react-router-dom";
-import { MessageBox } from "react-chat-elements";
-import SimpleBar from 'simplebar-react';
-import moment from "moment";
-import { useUser } from "../api";
-import { useQuery } from "react-query";
 
 export default function Chat() {
     const { userId, profileId } = useParams();
@@ -44,6 +44,7 @@ export default function Chat() {
         shouldReconnect: (_closeEvent) => true,
     });
 
+
     useEffect(() => {
         if (lastMessageEvent !== null) {
             const lastMessage = JSON.parse(lastMessageEvent.data);
@@ -64,13 +65,13 @@ export default function Chat() {
         }
     }, [lastMessageEvent, setChatMessageHistory]);
 
-    const handleClickSendMessage = useCallback(() => {
+    const handleClickSendMessage = () => {
         if (rawChatMessage === "" || !profileId) return;
         const chatMessage = new ChatMessage(rawChatMessage, meQuery.user!.id, chatPartnerQuery.user!.id, "", parseInt(profileId), uuidv4());
         sendMessage(JSON.stringify(chatMessage));
         setChatMessageHistory((prev) => prev.concat(chatMessage));
         resetChatMessage();
-    }, [rawChatMessage]);
+    }
 
     const connectionStatus = {
         [ReadyState.CONNECTING]: 'Connecting',
@@ -84,7 +85,7 @@ export default function Chat() {
 
     useEffect(() => {
         scrollDownDummy.current?.scrollIntoView({ behavior: "smooth" });
-    }, [chatMessageHistory]);
+    }, [chatMessageHistory, scrollDownDummy]);
 
     if (isLoading) {
         return (<Spinner animation="border" variant="success"></Spinner>);
@@ -98,7 +99,7 @@ export default function Chat() {
         <div>
             <div className="container container-xxl">
                 <div style={{ paddingBottom: "20px" }}>
-                    <img src={chatPartnerQuery.user?.picture} width="70px" height="70px" className="rounded-circle" />
+                    <img src={chatPartnerQuery.user?.picture} alt={"chat partner"} width="70px" height="70px" className="rounded-circle" />
                     <h1 style={{ display: "inline-block", marginLeft: "20px", position: "relative", top: "15px", fontSize: "50px" }}>{chatPartnerQuery.user?.name ?? ""}</h1>
                 </div>
 
@@ -154,7 +155,7 @@ class ChatMessage {
     static fromIncoming(json: any, myUserId: number): ChatMessage {
         return new ChatMessage(json.message, json.sourceUserId, myUserId, json.sentOn, json.profileInQuestionId, json.uuid);
     }
-};
+}
 
 type ChatErrorCause = "TargetUserNotFound";
 
