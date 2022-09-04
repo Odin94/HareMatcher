@@ -10,7 +10,7 @@ export interface UserQueryResult {
 }
 
 export const useUser = (userId: string | number): UserQueryResult => {
-    const { isLoading, error, data } = useQuery(`user${userId}`, () => fetchUser(userId));
+    const { isLoading, error, data } = useQuery([`user`, userId], () => fetchUser(userId));
 
     return { isUserLoading: isLoading, userError: error, user: data };
 }
@@ -33,7 +33,7 @@ export interface ProfileQueryResult {
 }
 
 export const useProfile = (profileId: number): ProfileQueryResult => {
-    const { isLoading, error, data } = useQuery(`profile${profileId}`, () => fetchProfile(profileId));
+    const { isLoading, error, data } = useQuery([`profile`, profileId], () => fetchProfile(profileId));
 
     return { isProfileLoading: isLoading, profileError: error, profile: data };
 }
@@ -56,7 +56,7 @@ export interface ProfilesQueryResult {
 }
 
 export const useProfiles = (user: User | undefined): ProfilesQueryResult => {
-    const { isLoading, error, data } = useQuery(`profiles${user?.id}`, () => fetchProfiles(user!.id), {
+    const { isLoading, error, data } = useQuery([`profiles`, user?.id], () => fetchProfiles(user!.id), {
         enabled: !!user,
     });
 
