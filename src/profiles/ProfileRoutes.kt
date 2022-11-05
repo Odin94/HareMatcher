@@ -49,6 +49,33 @@ fun Route.profileRouting() {
 
                     call.respond(profile)
                 }
+
+//                TODO: Do we need this for put requests / CORS stuff?
+                options("{id}") {
+                    call.respond(HttpStatusCode.OK)
+                }
+
+                put("{id}") {
+                    val profileId = call.parameters["id"]?.toInt() ?: return@put call.respondText(
+                        "Missing or malformed id",
+                        status = HttpStatusCode.BadRequest
+                    )
+
+                    val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                        ?: return@put call.respond(HttpStatusCode.Unauthorized)
+                    if (!currentUser.profileIds.contains(profileId)) return@put call.respond(HttpStatusCode.Unauthorized)
+
+                    val multiPartData = call.receiveMultipart()
+                    val profileUpdateData = multiPartDataToClass(multiPartData, ProfileCreationData::class.java)
+
+                    val existingProfile = transaction {
+                        return@transaction ProfileDAO.findById(profileId)?.toProfile()
+                    } ?: return@put call.respond(HttpStatusCode.NotFound)
+
+                    val profile = transaction { updateProfile(existingProfile, profileUpdateData) }
+
+                    call.respond(profile)
+                }
             }
         }
     }
@@ -75,6 +102,7 @@ suspend fun <T> multiPartDataToClass(data: MultiPartData, javaClass: Class<T>): 
     val mapData = mutableMapOf<String, Any>()
     val images = mutableMapOf<String, ByteArrayOutputStream>()
 
+//    TODO: This hangs forever on images
     data.forEachPart { part ->
         when (part) {
             is PartData.FormItem -> {

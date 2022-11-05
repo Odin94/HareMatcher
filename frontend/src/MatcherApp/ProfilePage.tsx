@@ -1,11 +1,12 @@
 import { faPalette, faSyringe, faWeightHanging, faX } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from "react";
-import { Spinner } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import { useNavigate } from 'react-router-dom';
 import { useProfile } from "../api";
 import { apiVersion, baseUrl, hashCode } from "../Globals";
 import '../index.css';
@@ -13,11 +14,12 @@ import { ProfilePicture, profilePictureSchema } from "../Types";
 import MatchButton from "./MatchButton";
 
 
-const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80";
+const defaultEmptyPictureSource = "https://images.unsplash.com/photo-1610559176044-d2695ca6c63d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=900&q=80"
 
 const ProfilePage: React.FC<ProfileProps> = ({ profileId, onSwipeComplete = () => { } }: ProfileProps) => {
-    const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0));
-    const { isProfileLoading, profileError, profile } = useProfile(profileId);
+    const navigate = useNavigate()
+    const [lightBoxStatus, setLightBoxStatus] = useState(new LightBoxStatus(false, 0))
+    const { isProfileLoading, profileError, profile } = useProfile(profileId)
 
     const swipe = (likeOrPass: "LIKE" | "PASS") => {
         fetch(`http://${baseUrl}/api/${apiVersion}/swipe`, {
@@ -27,28 +29,28 @@ const ProfilePage: React.FC<ProfileProps> = ({ profileId, onSwipeComplete = () =
             credentials: 'include',
         })
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                return response.status;
+                if (!response.ok) throw new Error(response.statusText)
+                return response.status
             })
             .then(status => console.log(`post successful: ${status}`))
             .catch((err: Error) => {
-                console.log(`error when posting: ${err}`);
+                console.log(`error when posting: ${err}`)
             })
     }
 
-    const profilePictures: ProfilePicture[] = profile?.profilePictures || [profilePictureSchema.validateSync({ picture: defaultEmptyPictureSource, index: 0 })];
+    const profilePictures: ProfilePicture[] = profile?.profilePictures || [profilePictureSchema.validateSync({ picture: defaultEmptyPictureSource, index: 0 })]
 
     if (isProfileLoading) {
-        return (<Spinner animation="border" variant="success"></Spinner>);
+        return (<Spinner animation="border" variant="success"></Spinner>)
     }
 
     if (profileError) {
-        return (<h1>{`Error: ${profileError}`}</h1>);
+        return (<h1>{`Error: ${profileError}`}</h1>)
     }
 
 
     if (!profile) {
-        throw new Error("where profile?");
+        throw new Error("where profile?")
     }
     return (
         <div>
@@ -66,9 +68,9 @@ const ProfilePage: React.FC<ProfileProps> = ({ profileId, onSwipeComplete = () =
                                         {profile.matchable
                                             ? <div>
                                                 <MatchButton swipe={() => swipe("LIKE")} onSwipeComplete={onSwipeComplete} />
-                                                <button onClick={() => { swipe("PASS"); setTimeout(onSwipeComplete, 500); }} className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
+                                                <button onClick={() => { swipe("PASS"); setTimeout(onSwipeComplete, 500) }} className="btn btn-outline-secondary btn-lg rounded-pill" type="button" style={{ float: "right", margin: "10px", width: "160px" }}><FontAwesomeIcon icon={faX} style={{ marginRight: "10px" }} />Pass</button>
                                             </div>
-                                            : <div></div>
+                                            : <div><Button variant="light" onClick={() => { navigate(`/profiles/update/${profileId}`) }}>Edit Profile</Button></div>
                                         }
                                     </div>
                                 </div>
@@ -131,7 +133,7 @@ const ProfilePage: React.FC<ProfileProps> = ({ profileId, onSwipeComplete = () =
                     onMoveNextRequest={() =>
                         setLightBoxStatus(new LightBoxStatus(true, (lightBoxStatus.index + 1) % profilePictures.length))
                     }
-                    onImageLoad={() => { window.dispatchEvent(new Event('resize')); }}
+                    onImageLoad={() => { window.dispatchEvent(new Event('resize')) }}
                 />
             )}
         </div>
@@ -158,11 +160,11 @@ const carouselResponsive = {
         items: 1,
         slidesToSlide: 1
     }
-};
+}
 
 export interface ProfileProps {
     profileId: number,
     onSwipeComplete?: () => void,
 }
 
-export default ProfilePage;
+export default ProfilePage

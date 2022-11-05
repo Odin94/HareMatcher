@@ -51,9 +51,16 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(CORS) {
-        host("localhost:3000") // TODO: disable for production usage
-        allowCredentials = true
+        host("localhost:3000", listOf("http", "https")) // TODO: disable for production usage
         allowNonSimpleContentTypes = true
+        allowCredentials = true
+        allowSameOrigin = true
+        method(HttpMethod.Options)
+        method(HttpMethod.Put)
+        method(HttpMethod.Delete)
+        method(HttpMethod.Patch)
+        header(HttpHeaders.Authorization)
+        header(HttpHeaders.AccessControlAllowOrigin)
     }
 
     install(Authentication) {

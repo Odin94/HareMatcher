@@ -18,6 +18,7 @@ import SpecificUser from './MatcherApp/SpecificUser';
 import SpecificChat from './MatcherApp/Chat';
 import ChatRooms from './MatcherApp/ChatRooms';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import UpdateProfile from './MatcherApp/UpdateProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/discover" element={<MatcherNavigation><Discover /></MatcherNavigation>} />
             <Route path="/profiles/:id" element={<MatcherNavigation><SpecificProfile /></MatcherNavigation>} />
             <Route path="/profiles/create" element={<MatcherNavigation><CreateProfile /></MatcherNavigation>} />
+            <Route path="/profiles/update/:id" element={<MatcherNavigation><UpdateProfile /></MatcherNavigation>} />
             <Route path="/users/:id" element={<MatcherNavigation><SpecificUser /></MatcherNavigation>} />
             <Route path="/chat/:userId/:profileId" element={<MatcherNavigation><SpecificChat /></MatcherNavigation>} />
             <Route path="/chats" element={<MatcherNavigation><ChatRooms /></MatcherNavigation>} />

@@ -127,3 +127,7 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
 
     return newProfileDao.toProfile()
 }
+
+fun updateProfile(existingProfile: Profile, profileUpdateData: ProfileCreationData) {
+    print("update profile called: ${profileUpdateData}")
+}

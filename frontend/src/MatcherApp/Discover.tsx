@@ -60,7 +60,6 @@ export default function Discover() {
         throw new Error("where profile data?")
     }
     return (
-
         <ProfilePage profileId={data.id} onSwipeComplete={() => discoverProfile()} />
     )
 }
