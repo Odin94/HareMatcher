@@ -10,7 +10,15 @@ import ProfilePage from "./ProfilePage";
 
 
 export default function Discover() {
-    const { isLoading, error, data } = useQuery("discover", () => discoverProfile());
+    const { isLoading, error, data } = useQuery("discover", () => discoverProfile(), {
+        retry: (_count: number, error: unknown) => {
+            if (error instanceof Error) {
+                // 404 means no more profiles to discover
+                return error.message !== "404: Not Found"
+            }
+            return true
+        }
+    })
 
     const discoverProfile = (): Promise<Profile> => {
         return fetch(`http://${baseUrl}/api/${apiVersion}/discover`, {
