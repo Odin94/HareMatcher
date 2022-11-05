@@ -10,9 +10,9 @@ export interface UserQueryResult {
 }
 
 export const useUser = (userId: string | number): UserQueryResult => {
-    const { isLoading, error, data } = useQuery([`user`, userId], () => fetchUser(userId));
+    const { isLoading, error, data } = useQuery([`user`, userId], () => fetchUser(userId))
 
-    return { isUserLoading: isLoading, userError: error, user: data };
+    return { isUserLoading: isLoading, userError: error, user: data }
 }
 
 const fetchUser = (userId: string | number) => {
@@ -20,8 +20,8 @@ const fetchUser = (userId: string | number) => {
         credentials: 'include',
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-            return response.json();
+            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
+            return response.json()
         })
         .then(json => userSchema.validateSync(json))
 }
@@ -33,20 +33,20 @@ export interface ProfileQueryResult {
 }
 
 export const useProfile = (profileId: number): ProfileQueryResult => {
-    const { isLoading, error, data } = useQuery([`profile`, profileId], () => fetchProfile(profileId));
+    const { isLoading, error, data } = useQuery([`profile`, profileId], () => fetchProfile(profileId))
 
-    return { isProfileLoading: isLoading, profileError: error, profile: data };
+    return { isProfileLoading: isLoading, profileError: error, profile: data }
 }
 
-const fetchProfile = (profileId: string | number) => {
+const fetchProfile = (profileId: string | number): Promise<Profile> => {
     return fetch(`http://${baseUrl}/api/${apiVersion}/profiles/${profileId}`, {
         credentials: 'include',
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-            return response.json();
+            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
+            return response.json()
         })
-        .then(json => profileSchema.validateSync(json));
+        .then(json => profileSchema.validateSync(json))
 }
 
 export interface ProfilesQueryResult {
@@ -58,9 +58,9 @@ export interface ProfilesQueryResult {
 export const useProfiles = (user: User | undefined): ProfilesQueryResult => {
     const { isLoading, error, data } = useQuery([`profiles`, user?.id], () => fetchProfiles(user!.id), {
         enabled: !!user,
-    });
+    })
 
-    return { isProfileLoading: isLoading, profileError: error, profiles: data };
+    return { isProfileLoading: isLoading, profileError: error, profiles: data }
 }
 
 const fetchProfiles = (userId: number) => {
@@ -68,10 +68,10 @@ const fetchProfiles = (userId: number) => {
         credentials: 'include',
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-            return response.json();
+            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
+            return response.json()
         })
-        .then(json => json.map((profileJson: any) => profileSchema.validateSync(profileJson)));
+        .then(json => json.map((profileJson: any) => profileSchema.validateSync(profileJson)))
 }
 
 
@@ -82,9 +82,9 @@ export interface ChatRoomsQueryResult {
 }
 
 export const useChatRooms = (): ChatRoomsQueryResult => {
-    const { isLoading, error, data } = useQuery("chatRooms", () => fetchChatRooms());
+    const { isLoading, error, data } = useQuery("chatRooms", () => fetchChatRooms())
 
-    return { isChatRoomsLoading: isLoading, chatRoomsError: error, chatRooms: data };
+    return { isChatRoomsLoading: isLoading, chatRoomsError: error, chatRooms: data }
 }
 
 const fetchChatRooms = () => {
@@ -92,8 +92,8 @@ const fetchChatRooms = () => {
         credentials: 'include',
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-            return response.json();
+            if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
+            return response.json()
         })
-        .then(json => json.map((chatRoomJson: any) => chatRoomSchema.validateSync(chatRoomJson)));
+        .then(json => json.map((chatRoomJson: any) => chatRoomSchema.validateSync(chatRoomJson)))
 }

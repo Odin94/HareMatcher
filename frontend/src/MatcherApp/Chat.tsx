@@ -7,7 +7,7 @@ import { Button, Card, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import { MessageBox } from "react-chat-elements";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import useWebSocket from 'react-use-websocket';
 import SimpleBar from 'simplebar-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from "../api";
@@ -52,34 +52,26 @@ export default function Chat() {
             if (lastMessage.errorMessage !== undefined) {
                 const errorMessage = lastMessage as ChatError;
                 const relatedMessage = chatMessageHistory.find(msg => msg.uuid === errorMessage.messageUuid);
-                console.log(`Error: ${JSON.stringify(errorMessage)} \n\n for message: ${JSON.stringify(relatedMessage)}`);
+                console.log(`Error: ${JSON.stringify(errorMessage)} \n\n for message: ${JSON.stringify(relatedMessage)}`)
             }
 
             else if (lastMessage.message !== null) {
-                const message = ChatMessage.fromIncoming(lastMessage, meQuery.user!.id);
+                const message = ChatMessage.fromIncoming(lastMessage, meQuery.user!.id)
                 console.log(JSON.stringify(message))
-                setChatMessageHistory((prev) => prev.concat(message));
+                setChatMessageHistory((prev) => prev.concat(message))
             } else {
-                console.log(`invalid message type in message: ${lastMessageEvent.data}`);
+                console.log(`invalid message type in message: ${lastMessageEvent.data}`)
             }
         }
     }, [lastMessageEvent, setChatMessageHistory]);
 
     const handleClickSendMessage = () => {
-        if (rawChatMessage === "" || !profileId) return;
-        const chatMessage = new ChatMessage(rawChatMessage, meQuery.user!.id, chatPartnerQuery.user!.id, "", parseInt(profileId), uuidv4());
-        sendMessage(JSON.stringify(chatMessage));
-        setChatMessageHistory((prev) => prev.concat(chatMessage));
-        resetChatMessage();
+        if (rawChatMessage === "" || !profileId) return
+        const chatMessage = new ChatMessage(rawChatMessage, meQuery.user!.id, chatPartnerQuery.user!.id, "", parseInt(profileId), uuidv4())
+        sendMessage(JSON.stringify(chatMessage))
+        setChatMessageHistory((prev) => prev.concat(chatMessage))
+        resetChatMessage()
     }
-
-    const connectionStatus = {
-        [ReadyState.CONNECTING]: 'Connecting',
-        [ReadyState.OPEN]: 'Open',
-        [ReadyState.CLOSING]: 'Closing',
-        [ReadyState.CLOSED]: 'Closed',
-        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-    }[readyState];
 
     const scrollDownDummy = createRef<HTMLDivElement>();
 
@@ -142,9 +134,6 @@ export default function Chat() {
                     </Card>
                 </Row>
             </div>
-
-            <p>The WebSocket is currently {connectionStatus}</p>
-            {lastMessageEvent ? <p>Last message: {lastMessageEvent.data}</p> : null}
         </div >
     );
 }

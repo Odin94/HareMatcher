@@ -10,20 +10,20 @@ const defaultUserPicture = "https://images.unsplash.com/photo-1438761681033-6461
 
 
 export default function Matches() {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
-    const initialProfilePreviewWithMatch = new ProfilePreviewWithMatch(new ProfilePreview(-1, defaultPictureSource, "Test One"), [new Match(-1, -1, "TestUser", defaultUserPicture, "")]);
+    const initialProfilePreviewWithMatch = new ProfilePreviewWithMatch(new ProfilePreview(-1, defaultPictureSource, "Test One"), [new Match(-1, -1, "TestUser", defaultUserPicture, "")])
 
-    const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState([initialProfilePreviewWithMatch]);
-    const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState<ProfilePreviewWithMatch | null>(initialProfilePreviewWithMatch);
+    const [profilePreviewsWithMatches, setProfilePreviewsWithMatches] = useState([initialProfilePreviewWithMatch])
+    const [selectedProfileWithMatches, setSelectedProfileWithMatches] = useState<ProfilePreviewWithMatch | null>(initialProfilePreviewWithMatch)
 
     useEffect(() => {
         fetch(`http://${baseUrl}/api/${apiVersion}/matches`, {
             credentials: 'include',
         })
             .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
+                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
+                return response.json()
             })
             .then(json => {
                 const profilePreviewsWithMatches = json.map(({ profile, matches }: { profile: Profile, matches: Match[] }) => {
@@ -33,14 +33,12 @@ export default function Matches() {
                     return new ProfilePreviewWithMatch(preview, matches)
                 });
 
-                setProfilePreviewsWithMatches(profilePreviewsWithMatches);
-                if (profilePreviewsWithMatches.length > 0) setSelectedProfileWithMatches(profilePreviewsWithMatches[0]);
-                else setSelectedProfileWithMatches(null);
+                setProfilePreviewsWithMatches(profilePreviewsWithMatches)
+                if (profilePreviewsWithMatches.length > 0) setSelectedProfileWithMatches(profilePreviewsWithMatches[0])
+                else setSelectedProfileWithMatches(null)
             })
-            .catch((err: Error) => {
-                console.log(`error when fetching profiles: ${err}`);
-            })
-    }, []);
+            .catch((err: Error) => { console.log(`error when fetching profiles: ${err}`) })
+    }, [])
 
     return (
         <div>

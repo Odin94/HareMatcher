@@ -25,8 +25,8 @@ export default function Discover() {
             credentials: 'include',
         })
             .then(response => {
-                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-                return response.json();
+                if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
+                return response.json()
             })
             .then(json => profileSchema.validateSync(json))
     }
@@ -37,7 +37,7 @@ export default function Discover() {
 
 
     if (isLoading) {
-        return (<Spinner animation="border" variant="success"></Spinner>);
+        return (<Spinner animation="border" variant="success"></Spinner>)
     }
 
     if (error) {
@@ -50,14 +50,14 @@ export default function Discover() {
                             <p>Please come back later or consider changing your search preferences</p>
                         </div>
                     </div>
-                </div>);
+                </div>)
             }
         }
-        return (<h1>{`Error: ${error}`}</h1>);
+        return (<h1>{`Error: ${error}`}</h1>)
     }
 
     if (!data) {
-        throw new Error("where profile data?");
+        throw new Error("where profile data?")
     }
     return (
 

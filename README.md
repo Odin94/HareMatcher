@@ -27,13 +27,12 @@ to enable running both with hot reloading for development.
 ### TODOs
 * add page for updating profile page
 * add page for updating user page
-* add `yum` for validation and parsing in frontend
 * Add filtering for matches (looking for bunnies of specific size, age, fluffiness etc)
 * Validate input: https://stackoverflow.com/questions/54204190/ktor-how-can-i-validate-json-request**
 * Test-users getting deleted and re-created on restart makes session cookies invalid and requires deleting them from the
   browser - maybe fix..?
 * Look into whether you should use `useCallback` for some of your function definitions inside react function components
-* Write or find something like a `useFetch` hook to make your fetching-boilerplate less noisy
+
 
 ### Credits
 
