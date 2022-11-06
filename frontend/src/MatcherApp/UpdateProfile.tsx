@@ -8,7 +8,7 @@ import '../index.css';
 import { useInput } from "../CustomHooks";
 import { Button, Col, Form, Row, Spinner } from "react-bootstrap";
 import { profilePictureSchema, vaccinationSchema } from "../Types";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useProfile } from "../api";
 import { useQueryClient } from "react-query";
 import moment from "moment";
@@ -19,6 +19,7 @@ const defaultEmptyPictureSource = "https://images.unsplash.com/photo-16105591760
 
 
 export default function UpdateProfile() {
+    const navigate = useNavigate();
     const { id: profileId } = useParams()
     if (!profileId) {
         return (<h1>{`Error: Need id`}</h1>)
@@ -45,8 +46,6 @@ export default function UpdateProfile() {
 
     const [deletePictureModalState, setDeletePictureModalState] = useState({ imageIndex: -1, show: false })
 
-    console.log({ pictureSources })
-
     const [postError, setPostError] = useState("")
 
     const handleSubmit = async (event: FormEvent) => {
@@ -60,10 +59,6 @@ export default function UpdateProfile() {
         formData.append("description", description)
         formData.append("furColor", furColor)
         formData.append("weightInKG", weightInKG)
-        for (const i in pictureSources) {
-            formData.append(`image${i}`, pictureSources[i].picture)
-        }
-        formData.append("vaccinations", JSON.stringify(vaccinations))
 
         fetch(`http://${baseUrl}/api/${apiVersion}/profiles/${profileId}`, {
             method: "PUT",
@@ -76,7 +71,10 @@ export default function UpdateProfile() {
                 if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`)
                 return response.json()
             })
-            .then(_json => queryClient.invalidateQueries('profile'))
+            .then(_json => {
+                queryClient.invalidateQueries('profile')
+                navigate(`/profiles/${profileId}`)
+            })
             .catch((err: Error) => {
                 console.log(`error when posting: ${err}`)
                 setPostError(err.message)

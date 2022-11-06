@@ -103,7 +103,7 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
         race = profileCreationData.race
         furColor = profileCreationData.furColor
         age = profileCreationData.age
-        weightInKG = profileCreationData.weightInKg
+        weightInKG = profileCreationData.weightInKG
         description = profileCreationData.description
     }
 
@@ -128,6 +128,14 @@ fun createProfile(userDao: UserDAO, profileCreationData: ProfileCreationData): P
     return newProfileDao.toProfile()
 }
 
-fun updateProfile(existingProfile: Profile, profileUpdateData: ProfileCreationData) {
-    print("update profile called: ${profileUpdateData}")
+// Pictures and vaccinations are updated separately
+fun updateProfile(existingProfile: ProfileDAO, profileUpdateData: ProfileUpdateData) {
+    existingProfile.name = profileUpdateData.name
+    existingProfile.city = profileUpdateData.city
+    existingProfile.race = profileUpdateData.race
+    existingProfile.furColor = profileUpdateData.furColor
+    existingProfile.age = profileUpdateData.age
+    existingProfile.weightInKG = profileUpdateData.weightInKG
+    existingProfile.description = profileUpdateData.description
+    existingProfile.name = profileUpdateData.name
 }

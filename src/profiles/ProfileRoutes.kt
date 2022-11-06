@@ -66,15 +66,63 @@ fun Route.profileRouting() {
                     if (!currentUser.profileIds.contains(profileId)) return@put call.respond(HttpStatusCode.Unauthorized)
 
                     val multiPartData = call.receiveMultipart()
-                    val profileUpdateData = multiPartDataToClass(multiPartData, ProfileCreationData::class.java)
+                    val profileUpdateData = multiPartDataToClass(multiPartData, ProfileUpdateData::class.java)
 
                     val existingProfile = transaction {
-                        return@transaction ProfileDAO.findById(profileId)?.toProfile()
+                        return@transaction ProfileDAO.findById(profileId)
                     } ?: return@put call.respond(HttpStatusCode.NotFound)
 
                     val profile = transaction { updateProfile(existingProfile, profileUpdateData) }
 
                     call.respond(profile)
+                }
+
+                route("/pictures") {
+                    delete("{id}") {
+                        val pictureId = call.parameters["id"]?.toInt() ?: return@delete call.respondText(
+                            "Missing or malformed id",
+                            status = HttpStatusCode.BadRequest
+                        )
+
+                        val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                            ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+                        val picture = transaction {
+                            ProfilePictureDAO.findById(pictureId)
+                        } ?: return@delete call.respond(HttpStatusCode.NotFound)
+
+                        if (!currentUser.profileIds.contains(picture.profile.id.value)) return@delete call.respond(HttpStatusCode.Unauthorized)
+
+                        transaction {
+                            picture.delete()
+                        }
+
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }
+
+                route("/vaccinations") {
+                    delete("{id}") {
+                        val vaccinationId = call.parameters["id"]?.toInt() ?: return@delete call.respondText(
+                            "Missing or malformed id",
+                            status = HttpStatusCode.BadRequest
+                        )
+
+                        val currentUser = call.sessions.get<UserSession>()?.getCurrentUser()
+                            ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+                        val vaccination = transaction {
+                            VaccinationDAO.findById(vaccinationId)
+                        } ?: return@delete call.respond(HttpStatusCode.NotFound)
+
+                        if (!currentUser.profileIds.contains(vaccination.profile.id.value)) return@delete call.respond(HttpStatusCode.Unauthorized)
+
+                        transaction {
+                            vaccination.delete()
+                        }
+
+                        call.respond(HttpStatusCode.OK)
+                    }
                 }
             }
         }
@@ -87,10 +135,20 @@ data class ProfileCreationData(
     val race: String,
     val furColor: String,
     val age: Int,
-    val weightInKg: Double,
+    val weightInKG: Double,
     val description: String,
     val picturesWithFormats: Array<PictureWithFormat>,
     val vaccinations: Array<VaccinationDTO>
+)
+
+data class ProfileUpdateData(
+    val name: String,
+    val city: String,
+    val race: String,
+    val furColor: String,
+    val age: Int,
+    val weightInKG: Double,
+    val description: String,
 )
 
 data class PictureWithFormat(val bytes: ByteArray, val format: PictureFormat)
@@ -102,7 +160,6 @@ suspend fun <T> multiPartDataToClass(data: MultiPartData, javaClass: Class<T>): 
     val mapData = mutableMapOf<String, Any>()
     val images = mutableMapOf<String, ByteArrayOutputStream>()
 
-//    TODO: This hangs forever on images
     data.forEachPart { part ->
         when (part) {
             is PartData.FormItem -> {

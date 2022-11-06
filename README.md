@@ -25,7 +25,7 @@ This way you can find a good home for your pet quickly and easily.
 to enable running both with hot reloading for development. 
 
 ### TODOs
-* add page for updating profile page
+* implement adding profile pictures & updating vaccinations
 * add page for updating user page
 * Add filtering for matches (looking for bunnies of specific size, age, fluffiness etc)
 * Validate input: https://stackoverflow.com/questions/54204190/ktor-how-can-i-validate-json-request**
